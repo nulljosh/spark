@@ -1,0 +1,9 @@
+{
+  "name": "spark",
+  "version": "1.0.0",
+  "description": "Idea-sharing platform with auth, posts, and voting",
+  "main": "index.html",
+  "scripts": {},
+  "author": "Joshua Trommel",
+  "license": "MIT"
+}
