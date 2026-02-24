@@ -246,7 +246,7 @@
             const errorEl = document.getElementById('loginError');
             if (!username || !password) { errorEl.textContent = 'Please enter username and password'; return; }
             try {
-                const res = await fetch(`${API_BASE}/auth/login`, {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -274,7 +274,7 @@
             if (password !== confirm) { errorEl.textContent = 'Passwords do not match'; return; }
             if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; return; }
             try {
-                const res = await fetch(`${API_BASE}/auth/register`, {
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email: email || undefined, password })
@@ -315,7 +315,9 @@
                     document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">No ideas yet. Be the first to share one!</div>`;
                     return;
                 }
-                document.getElementById('feed').innerHTML = data.posts.map(p => renderIdea(p)).join('');
+                const mode = data.mode || 'demo';
+                const badge = `<div style="color:var(--text3);font-size:13px;margin-bottom:20px;padding:10px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">Data mode: <strong style="color:${mode === 'live' ? '#30d158' : '#ff9f0a'}">${mode}</strong>${mode === 'demo' ? ' (fallback active)' : ''}</div>`;
+                document.getElementById('feed').innerHTML = badge + data.posts.map(p => renderIdea(p)).join('');
             } catch(e) {
                 const demos = [
                     { id:'d1', category:'tech', author:{username:'spark'}, title:'Open-source AI coding assistant', content:'A local-first coding assistant that runs entirely on your machine. No API keys, no subscriptions, just Claude via Ollama.', score: 142 },

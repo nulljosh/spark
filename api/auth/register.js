@@ -1,4 +1,4 @@
-const users = [];
+const { createSession, createUser, issueToken, setSessionCookie } = require('./store');
 
 module.exports = function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,22 +15,18 @@ module.exports = function handler(req, res) {
     return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
-  const existing = users.find(u => u.username === username);
-  if (existing) {
+  const user = createUser({ username, email, password });
+  if (!user) {
     return res.status(409).json({ error: 'Username already taken' });
   }
 
-  const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-  const user = { username, email: email || null, password, userId };
-  users.push(user);
-
-  const token = Buffer.from(`${username}:${userId}`).toString('base64');
+  const token = issueToken(user);
+  const session = createSession({ user, token });
+  setSessionCookie(res, session.id);
 
   return res.status(201).json({
     token,
-    username,
-    userId
+    username: user.username,
+    userId: user.userId
   });
 };
-
-module.exports.users = users;

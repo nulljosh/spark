@@ -1,11 +1,11 @@
-const { posts, parseToken } = require('../../posts');
+const { parseToken, votePostInDataSource } = require('../../posts');
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const user = parseToken(req.headers.authorization);
+  const user = parseToken(req.headers.authorization, req.headers.cookie);
   if (!user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
@@ -17,16 +17,10 @@ module.exports = function handler(req, res) {
     return res.status(400).json({ error: 'voteType must be "up" or "down"' });
   }
 
-  const post = posts.find(p => p.id === id);
+  const { mode, post } = await votePostInDataSource({ id, voteType });
   if (!post) {
     return res.status(404).json({ error: 'Post not found' });
   }
 
-  if (voteType === 'up') {
-    post.score += 1;
-  } else {
-    post.score -= 1;
-  }
-
-  return res.status(200).json({ post });
+  return res.status(200).json({ post, mode });
 };
