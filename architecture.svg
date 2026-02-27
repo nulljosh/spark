@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" font-family="-apple-system, system-ui, sans-serif">
+  <defs>
+    <style>
+      .box { fill: #1a1a1a; stroke: #0a84ff; stroke-width: 2; }
+      .label { fill: #e0e0e0; font-size: 13px; text-anchor: middle; }
+      .sub { fill: #888; font-size: 10px; text-anchor: middle; }
+      .arrow { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="200" fill="#111"/>
+
+  <!-- Browser -->
+  <rect x="30" y="75" width="110" height="50" rx="8" class="box"/>
+  <text x="85" y="97" class="label">Browser</text>
+  <text x="85" y="113" class="sub">PWA</text>
+
+  <!-- Arrow -->
+  <line x1="142" y1="100" x2="168" y2="100" class="arrow"/>
+
+  <!-- index.html -->
+  <rect x="170" y="75" width="160" height="50" rx="8" class="box"/>
+  <text x="250" y="97" class="label">index.html</text>
+  <text x="250" y="113" class="sub">vanilla JS + CSS</text>
+
+  <!-- Arrow -->
+  <line x1="332" y1="100" x2="358" y2="100" class="arrow"/>
+
+  <!-- Vercel Serverless -->
+  <rect x="360" y="75" width="160" height="50" rx="8" class="box"/>
+  <text x="440" y="97" class="label">Vercel Serverless</text>
+  <text x="440" y="113" class="sub">JWT auth + API routes</text>
+
+  <!-- Arrow -->
+  <line x1="522" y1="100" x2="548" y2="100" class="arrow"/>
+
+  <!-- In-Memory Store -->
+  <rect x="550" y="75" width="150" height="50" rx="8" class="box"/>
+  <text x="625" y="97" class="label">In-Memory Store</text>
+  <text x="625" y="113" class="sub">posts + votes</text>
+</svg>
