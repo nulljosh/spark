@@ -4,7 +4,9 @@ Live: https://spark.heyitsmejosh.com
 Frontend-only with in-memory serverless API (no database).
 
 ## Roadmap
-- [ ] iOS companion app (spark-ios)
+- [x] iOS companion app (spark-ios)
+- [x] PWA support
+- [ ] Persistent database (Supabase)
 - [ ] Real-time updates via Supabase Realtime
 - [ ] Comment threads on posts
 - [ ] User profiles with post history
