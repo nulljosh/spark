@@ -1,4 +1,4 @@
-const { parseCookie, resolveSession } = require('./auth/store');
+const { parseCookie, resolveSession, verifyToken } = require('./auth/store');
 
 const fallbackPosts = [
   {
@@ -32,15 +32,9 @@ const fallbackPosts = [
 
 function parseToken(authHeader, cookieHeader) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.slice(7);
-      const decoded = Buffer.from(token, 'base64').toString('utf-8');
-      const [username, userId] = decoded.split(':');
-      if (!username || !userId) return null;
-      return { username, userId };
-    } catch {
-      return null;
-    }
+    const token = authHeader.slice(7);
+    const user = verifyToken(token);
+    if (user) return user;
   }
 
   const cookies = parseCookie(cookieHeader);

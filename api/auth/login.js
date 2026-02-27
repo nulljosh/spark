@@ -7,7 +7,7 @@ const {
   verifyPassword
 } = require('./store');
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -18,7 +18,7 @@ module.exports = function handler(req, res) {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  const storedUser = findUserByUsername(username);
+  const storedUser = await findUserByUsername(username);
   let user = storedUser;
 
   if (!storedUser) {

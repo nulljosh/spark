@@ -1,6 +1,6 @@
 const { createSession, createUser, issueToken, setSessionCookie } = require('./store');
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -15,7 +15,7 @@ module.exports = function handler(req, res) {
     return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
-  const user = createUser({ username, email, password });
+  const user = await createUser({ username, email, password });
   if (!user) {
     return res.status(409).json({ error: 'Username already taken' });
   }
