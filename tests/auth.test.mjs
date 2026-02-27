@@ -4,7 +4,6 @@ import fs from 'fs';
 
 const require = createRequire(import.meta.url);
 
-// Clean /tmp storage before each test
 beforeEach(() => {
   try { fs.unlinkSync('/tmp/spark-users.json'); } catch {}
   try { fs.unlinkSync('/tmp/spark-sessions.json'); } catch {}
@@ -22,10 +21,12 @@ const {
   parseCookie,
 } = require('../api/auth/store');
 
-describe('Password hashing', () => {
+describe('Password hashing (bcrypt)', () => {
   it('should verify correct password', async () => {
     const user = await createUser({ username: 'test', email: 'test@test.com', password: 'password123' });
     expect(user).not.toBeNull();
+    expect(user.passwordHash).toBeTruthy();
+    expect(user.passwordHash.startsWith('$2')).toBe(true); // bcrypt prefix
     expect(verifyPassword('password123', user)).toBe(true);
   });
 
@@ -68,11 +69,13 @@ describe('JWT tokens', () => {
 });
 
 describe('User CRUD', () => {
-  it('should create a user', async () => {
+  it('should create a user with bcrypt hash', async () => {
     const user = await createUser({ username: 'newuser', email: 'new@test.com', password: 'pass123456' });
     expect(user).not.toBeNull();
     expect(user.username).toBe('newuser');
     expect(user.userId).toMatch(/^user-/);
+    expect(user.passwordHash).toBeTruthy();
+    expect(user.passwordHash.startsWith('$2')).toBe(true);
   });
 
   it('should prevent duplicate usernames', async () => {

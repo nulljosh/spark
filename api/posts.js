@@ -77,11 +77,12 @@ async function supabaseRequest(path, { method = 'GET', body } = {}) {
   return data;
 }
 
+// Supabase schema: posts.author_id -> users.id, posts has upvotes/downvotes/score
+// Use PostgREST embedded resource to join author username
 async function getPostsFromDataSource() {
   try {
-    const rows = await supabaseRequest('posts?select=*&order=score.desc,created_at.desc');
+    const rows = await supabaseRequest('posts?select=*,author:users!author_id(username)&order=score.desc,created_at.desc');
 
-    // Fallback trigger: table exists but empty
     if (!Array.isArray(rows) || rows.length === 0) {
       return { mode: 'demo', posts: [...fallbackPosts] };
     }
@@ -92,23 +93,23 @@ async function getPostsFromDataSource() {
       content: r.content,
       category: r.category || 'tech',
       author: {
-        username: r.author_username || 'spark',
-        userId: r.author_user_id || 'system'
+        username: (r.author && r.author.username) || 'spark',
+        userId: r.author_id || 'system'
       },
       score: Number.isFinite(r.score) ? r.score : 0,
+      upvotes: r.upvotes || 0,
+      downvotes: r.downvotes || 0,
       createdAt: r.created_at || new Date().toISOString()
     }));
 
     return { mode: 'live', posts };
   } catch {
-    // Fallback trigger: DB connection failure, bad keys, missing table, etc.
     return { mode: 'demo', posts: [...fallbackPosts] };
   }
 }
 
 async function addPostToDataSource({ title, content, category, user }) {
   const post = {
-    id: 'post-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
     title,
     content,
     category: category || 'tech',
@@ -118,38 +119,90 @@ async function addPostToDataSource({ title, content, category, user }) {
   };
 
   try {
-    await supabaseRequest('posts', {
+    const rows = await supabaseRequest('posts', {
       method: 'POST',
       body: {
-        id: post.id,
         title: post.title,
         content: post.content,
         category: post.category,
-        author_username: post.author.username,
-        author_user_id: post.author.userId,
-        score: post.score,
+        author_id: user.userId,
+        upvotes: 0,
+        downvotes: 0,
+        score: 0,
+        status: 'active',
+        views: 0,
         created_at: post.createdAt
       }
     });
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    post.id = row.id;
     return { mode: 'live', post };
   } catch {
+    post.id = 'post-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     fallbackPosts.push(post);
     return { mode: 'demo', post };
   }
 }
 
-async function votePostInDataSource({ id, voteType }) {
+// Vote using the votes table for per-user tracking
+async function votePostInDataSource({ id, voteType, user }) {
   const delta = voteType === 'up' ? 1 : -1;
 
   try {
-    const rows = await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}&select=*`);
+    // Fetch the post
+    const rows = await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}&select=*,author:users!author_id(username)`);
     const row = Array.isArray(rows) ? rows[0] : null;
     if (!row) throw new Error('not_found');
 
-    const newScore = (Number.isFinite(row.score) ? row.score : 0) + delta;
+    let upvotes = row.upvotes || 0;
+    let downvotes = row.downvotes || 0;
+
+    if (user) {
+      // Check for existing vote by this user
+      const existingVotes = await supabaseRequest(
+        `votes?user_id=eq.${encodeURIComponent(user.userId)}&post_id=eq.${encodeURIComponent(id)}&select=*`
+      );
+      const existingVote = Array.isArray(existingVotes) && existingVotes.length > 0 ? existingVotes[0] : null;
+
+      if (existingVote) {
+        if (existingVote.vote === voteType) {
+          // Same vote again -- remove it (toggle off)
+          await supabaseRequest(`votes?id=eq.${encodeURIComponent(existingVote.id)}`, { method: 'DELETE' });
+          if (voteType === 'up') upvotes = Math.max(0, upvotes - 1);
+          else downvotes = Math.max(0, downvotes - 1);
+        } else {
+          // Different vote -- update
+          await supabaseRequest(`votes?id=eq.${encodeURIComponent(existingVote.id)}`, {
+            method: 'PATCH',
+            body: { vote: voteType }
+          });
+          if (voteType === 'up') { upvotes += 1; downvotes = Math.max(0, downvotes - 1); }
+          else { downvotes += 1; upvotes = Math.max(0, upvotes - 1); }
+        }
+      } else {
+        // New vote
+        await supabaseRequest('votes', {
+          method: 'POST',
+          body: {
+            user_id: user.userId,
+            post_id: id,
+            vote: voteType,
+            created_at: new Date().toISOString()
+          }
+        });
+        if (voteType === 'up') upvotes += 1;
+        else downvotes += 1;
+      }
+    } else {
+      // Anonymous vote (no user tracking)
+      if (voteType === 'up') upvotes += 1;
+      else downvotes += 1;
+    }
+
+    const newScore = upvotes - downvotes;
     await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      body: { score: newScore }
+      body: { upvotes, downvotes, score: newScore }
     });
 
     return {
@@ -159,8 +212,13 @@ async function votePostInDataSource({ id, voteType }) {
         title: row.title,
         content: row.content,
         category: row.category || 'tech',
-        author: { username: row.author_username || 'spark', userId: row.author_user_id || 'system' },
+        author: {
+          username: (row.author && row.author.username) || 'spark',
+          userId: row.author_id || 'system'
+        },
         score: newScore,
+        upvotes,
+        downvotes,
         createdAt: row.created_at || new Date().toISOString()
       }
     };

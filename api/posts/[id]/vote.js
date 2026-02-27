@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'voteType must be "up" or "down"' });
   }
 
-  const { mode, post } = await votePostInDataSource({ id, voteType });
+  const { mode, post } = await votePostInDataSource({ id, voteType, user });
   if (!post) {
     return res.status(404).json({ error: 'Post not found' });
   }

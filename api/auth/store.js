@@ -1,9 +1,11 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'spark-dev-secret-change-in-production';
 const JWT_EXPIRES_IN = '7d';
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const BCRYPT_ROUNDS = 10;
 
 // Supabase helpers
 function getSupabaseConfig() {
@@ -45,19 +47,15 @@ function useSupabase() {
   return !!(url && key);
 }
 
-// Password hashing (scrypt)
-function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return { salt, hash };
+// Password hashing (bcrypt -- matches existing Supabase data)
+function hashPassword(password) {
+  const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
+  return hash;
 }
 
 function verifyPassword(password, user) {
-  if (!user || !user.passwordHash || !user.passwordSalt) return false;
-  const candidateHash = crypto.scryptSync(password, user.passwordSalt, 64).toString('hex');
-  const expected = Buffer.from(user.passwordHash, 'hex');
-  const actual = Buffer.from(candidateHash, 'hex');
-  if (expected.length !== actual.length) return false;
-  return crypto.timingSafeEqual(expected, actual);
+  if (!user || !user.passwordHash) return false;
+  return bcrypt.compareSync(password, user.passwordHash);
 }
 
 // JWT token issuance
@@ -71,7 +69,6 @@ function issueToken(user) {
 
 // Verify JWT, with backward compat for old Base64 tokens
 function verifyToken(token) {
-  // Try JWT first
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     return { username: payload.username, userId: payload.userId };
@@ -79,7 +76,6 @@ function verifyToken(token) {
     // Fall through to Base64 compat
   }
 
-  // Backward compat: decode old Base64 tokens
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const [username, userId] = decoded.split(':');
@@ -91,12 +87,25 @@ function verifyToken(token) {
   return null;
 }
 
+// Map Supabase user row to internal format
+// Supabase schema: id (UUID), username, password (bcrypt), email, created_at, updated_at
+function mapSupabaseUser(row) {
+  if (!row) return null;
+  return {
+    userId: row.id,
+    username: row.username,
+    email: row.email || null,
+    passwordHash: row.password,
+    createdAt: row.created_at
+  };
+}
+
 // User CRUD -- Supabase with /tmp fallback
 async function findUserByUsername(username) {
   if (useSupabase()) {
     try {
       const rows = await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}&select=*`);
-      return (Array.isArray(rows) && rows.length > 0) ? rows[0] : null;
+      if (Array.isArray(rows) && rows.length > 0) return mapSupabaseUser(rows[0]);
     } catch {
       // fall through to /tmp
     }
@@ -105,47 +114,36 @@ async function findUserByUsername(username) {
 }
 
 async function createUser({ username, email, password }) {
-  // Check if exists
   const existing = await findUserByUsername(username);
   if (existing) return null;
 
-  const { salt, hash } = hashPassword(password);
-  const user = {
-    userId: `user-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
-    username,
-    email: email || null,
-    passwordSalt: salt,
-    passwordHash: hash,
-    createdAt: new Date().toISOString()
-  };
+  const hash = hashPassword(password);
 
   if (useSupabase()) {
     try {
       const rows = await supabaseRequest('users', {
         method: 'POST',
         body: {
-          user_id: user.userId,
-          username: user.username,
-          email: user.email,
-          password_salt: user.passwordSalt,
-          password_hash: user.passwordHash,
-          created_at: user.createdAt
+          username,
+          email: email || null,
+          password: hash,
+          created_at: new Date().toISOString()
         }
       });
       const row = Array.isArray(rows) ? rows[0] : rows;
-      return {
-        userId: row.user_id,
-        username: row.username,
-        email: row.email,
-        passwordSalt: row.password_salt,
-        passwordHash: row.password_hash,
-        createdAt: row.created_at
-      };
+      return mapSupabaseUser(row);
     } catch {
       // fall through to /tmp
     }
   }
 
+  const user = {
+    userId: `user-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+    username,
+    email: email || null,
+    passwordHash: hash,
+    createdAt: new Date().toISOString()
+  };
   return createUserLocal(user);
 }
 
