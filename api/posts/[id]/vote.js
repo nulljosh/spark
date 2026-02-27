@@ -17,10 +17,14 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'voteType must be "up" or "down"' });
   }
 
-  const { mode, post } = await votePostInDataSource({ id, voteType, user });
-  if (!post) {
-    return res.status(404).json({ error: 'Post not found' });
+  try {
+    const { post } = await votePostInDataSource({ id, voteType, user });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    return res.status(200).json({ post });
+  } catch (err) {
+    if (err.message === 'not_found') return res.status(404).json({ error: 'Post not found' });
+    return res.status(500).json({ error: err.message || 'Failed to vote' });
   }
-
-  return res.status(200).json({ post, mode });
 };

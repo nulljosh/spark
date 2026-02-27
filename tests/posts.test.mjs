@@ -9,7 +9,7 @@ beforeEach(() => {
   try { fs.unlinkSync('/tmp/spark-sessions.json'); } catch {}
 });
 
-const { parseToken, fallbackPosts, votePostInDataSource } = require('../api/posts');
+const { parseToken, seedPosts } = require('../api/posts');
 const { issueToken, createUser, createSession } = require('../api/auth/store');
 
 describe('parseToken', () => {
@@ -41,26 +41,21 @@ describe('parseToken', () => {
   });
 });
 
-describe('Vote system (fallback mode)', () => {
-  it('should upvote a fallback post', async () => {
-    const post = fallbackPosts[0];
-    const originalScore = post.score;
-    const result = await votePostInDataSource({ id: post.id, voteType: 'up' });
-    expect(result.mode).toBe('demo');
-    expect(result.post.score).toBe(originalScore + 1);
+describe('Seed posts', () => {
+  it('should have 3 seed posts', () => {
+    expect(seedPosts).toHaveLength(3);
   });
 
-  it('should downvote a fallback post', async () => {
-    const post = fallbackPosts[1];
-    const originalScore = post.score;
-    const result = await votePostInDataSource({ id: post.id, voteType: 'down' });
-    expect(result.mode).toBe('demo');
-    expect(result.post.score).toBe(originalScore - 1);
-  });
-
-  it('should return null for nonexistent post', async () => {
-    const result = await votePostInDataSource({ id: 'nonexistent', voteType: 'up' });
-    expect(result.post).toBeNull();
+  it('should have valid seed post structure', () => {
+    for (const post of seedPosts) {
+      expect(post.id).toBeTruthy();
+      expect(post.title).toBeTruthy();
+      expect(post.content).toBeTruthy();
+      expect(post.category).toBeTruthy();
+      expect(post.author_username).toBeTruthy();
+      expect(post.author_user_id).toBeTruthy();
+      expect(typeof post.score).toBe('number');
+    }
   });
 });
 

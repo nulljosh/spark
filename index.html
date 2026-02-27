@@ -296,17 +296,16 @@
         function logout() { clearAuth(); updateAuthUI(); load(); }
 
         // Feed
-        function renderIdea(p, isDemo = false) {
-            const onclick = isDemo ? "showAuthModal('register')" : null;
+        function renderIdea(p) {
             return `
                 <div class="idea">
                     <div style="color:var(--text3);font-size:12px;margin-bottom:10px">${p.category.toUpperCase()} &bull; @${p.author?.username || 'unknown'}</div>
                     <h3>${p.title}</h3>
                     <p>${p.content}</p>
                     <div class="votes">
-                        <button class="vote-btn" ${onclick ? `onclick="${onclick}"` : `onclick="vote('${p.id}','up')"`} ${!isLoggedIn() && !isDemo ? 'disabled' : ''}>&#9650;</button>
+                        <button class="vote-btn" onclick="vote('${p.id}','up')" ${!isLoggedIn() ? 'disabled' : ''}>&#9650;</button>
                         <span style="font-weight:600">${p.score || 0}</span>
-                        <button class="vote-btn" ${onclick ? `onclick="${onclick}"` : `onclick="vote('${p.id}','down')"`} ${!isLoggedIn() && !isDemo ? 'disabled' : ''}>&#9660;</button>
+                        <button class="vote-btn" onclick="vote('${p.id}','down')" ${!isLoggedIn() ? 'disabled' : ''}>&#9660;</button>
                     </div>
                 </div>
             `;
@@ -316,23 +315,13 @@
             try {
                 const res = await fetch(`${API_BASE}/api/posts`);
                 const data = await res.json();
-                if (data.error) {
+                if (data.error || !data.posts || data.posts.length === 0) {
                     document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">No ideas yet. Be the first to share one!</div>`;
                     return;
                 }
-                const mode = data.mode || 'demo';
-                const badge = `<div style="color:var(--text3);font-size:13px;margin-bottom:20px;padding:10px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">Data mode: <strong style="color:${mode === 'live' ? '#30d158' : '#ff9f0a'}">${mode}</strong>${mode === 'demo' ? ' (fallback active)' : ''}</div>`;
-                document.getElementById('feed').innerHTML = badge + data.posts.map(p => renderIdea(p)).join('');
+                document.getElementById('feed').innerHTML = data.posts.map(p => renderIdea(p)).join('');
             } catch(e) {
-                const demos = [
-                    { id:'d1', category:'tech', author:{username:'spark'}, title:'Open-source AI coding assistant', content:'A local-first coding assistant that runs entirely on your machine. No API keys, no subscriptions, just Claude via Ollama.', score: 142 },
-                    { id:'d2', category:'finance', author:{username:'spark'}, title:'Micro-investment app for Gen Z', content:'Round up every purchase to the nearest dollar and auto-invest the difference into a diversified ETF portfolio.', score: 87 },
-                    { id:'d3', category:'health', author:{username:'spark'}, title:'Sleep tracking without a wearable', content:'Use your phone mic + accelerometer passively to track sleep cycles and give you a morning score. Zero hardware required.', score: 61 },
-                ];
-                document.getElementById('feed').innerHTML = `
-                    <div style="color:var(--text3);font-size:13px;margin-bottom:20px;padding:10px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">Demo ideas &mdash; <a href="#" onclick="showAuthModal('register');return false" style="color:#0a84ff">register</a> to post your own</div>
-                    ${demos.map(p => renderIdea(p, true)).join('')}
-                `;
+                document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">Failed to load ideas. Try again later.</div>`;
             }
         }
 
