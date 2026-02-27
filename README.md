@@ -13,8 +13,10 @@ Idea-sharing platform with upvoting and JWT auth. Post sparks, vote on others, n
 ## Stack
 
 - Vanilla HTML/JS (single `index.html`)
-- Vercel serverless API — in-memory store
+- Vercel serverless API
+- Supabase PostgreSQL backend
 - JWT authentication
+- PWA support
 
 ## Deploy
 
@@ -27,10 +29,11 @@ npx serve .
 
 ## Roadmap
 
-- [x] iOS companion app
+- [x] iOS companion app (spark-ios)
 - [x] PWA support
-- [ ] Persistent database (Supabase)
-- [ ] Comment threads
-- [ ] User profiles
+- [x] Persistent database (Supabase)
+- [ ] Real-time updates via Supabase Realtime
+- [ ] Comment threads on posts
+- [ ] User profiles with post history
 - [ ] Topic tags and filtering
 - [ ] Moderation tools
