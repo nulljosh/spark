@@ -4,6 +4,8 @@ Idea-sharing platform with upvoting and JWT auth. Post sparks, vote on others, n
 
 **Live**: https://spark.heyitsmejosh.com
 
+![Spark Feed](screenshots/spark-feed.png)
+
 ## Architecture
 
 ![Architecture](architecture.svg)
