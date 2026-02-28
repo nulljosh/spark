@@ -72,12 +72,13 @@
         footer { margin-top: 60px; padding: 30px 0 20px; border-top: 1px solid var(--border); color: var(--text3); font-size: 13px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         footer a { color: var(--text3); text-decoration: none; }
         footer a:hover { color: #0a84ff; }
-        .sketch-link { cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
-        .sketch-link:hover { opacity: 1; }
-        .sketch-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .sketch-modal.show { display: flex; }
-        .sketch-modal img { max-width: 90vw; max-height: 85vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .sketch-caption { position: fixed; bottom: 30px; left: 0; right: 0; text-align: center; color: #888; font-size: 13px; font-style: italic; }
+        .tier-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+        .tier-1 { background: #2a2a2a; color: #8e8e93; border: 1px solid #3a3a3a; }
+        .tier-2 { background: #1a2a1a; color: #30d158; border: 1px solid #2a3a2a; }
+        .tier-3 { background: #2a1a00; color: #ff9f0a; border: 1px solid #3a2a00; }
+        :root[data-theme="light"] .tier-1 { background: #e8e8ed; color: #636366; border-color: #d1d1d6; }
+        :root[data-theme="light"] .tier-2 { background: #e0f5e0; color: #248a3d; border-color: #c0e0c0; }
+        :root[data-theme="light"] .tier-3 { background: #fff3e0; color: #c93400; border-color: #ffe0b0; }
     </style>
 </head>
 <body>
@@ -140,22 +141,16 @@
                 <option value="business">Business</option>
                 <option value="social">Social</option>
                 <option value="entertainment">Entertainment</option>
+                <option value="whitepaper">Whitepaper</option>
+                <option value="patent">Patent</option>
             </select>
             <button class="btn" onclick="submitIdea()">Submit</button>
         </div>
     </div>
 
-    <!-- Sketch Modal -->
-    <div class="sketch-modal" id="sketchModal" onclick="closeSketchModal()">
-        <img src="/sketch.jpg" alt="Original concept sketch for Spark">
-        <div class="sketch-caption">The original napkin sketch, Feb 2026</div>
-    </div>
-
     <footer>
         <span>&copy; 2026 Spark. All rights reserved.</span>
         <span>
-            <a class="sketch-link" onclick="openSketchModal()" title="See the original concept sketch">Origin</a>
-            &nbsp;&middot;&nbsp;
             <a href="https://github.com/nulljosh/spark" target="_blank">GitHub</a>
             &nbsp;&middot;&nbsp;
             <a href="mailto:hello@heyitsmejosh.com">Contact</a>
@@ -310,7 +305,17 @@
         function logout() { clearAuth(); updateAuthUI(); load(); }
 
         // Feed
+        function getTier(score) {
+            if (score >= 1000000) return { level: 3, label: 'TIER 3' };
+            if (score >= 1000) return { level: 2, label: 'TIER 2' };
+            if (score >= 100) return { level: 1, label: 'TIER 1' };
+            return null;
+        }
+
         function renderIdea(p) {
+            const score = p.score || 0;
+            const tier = getTier(score);
+            const tierHtml = tier ? `<span class="tier-badge tier-${tier.level}">${tier.label}</span>` : '';
             return `
                 <div class="idea">
                     <div style="color:var(--text3);font-size:12px;margin-bottom:10px">${p.category.toUpperCase()} &bull; @${p.author?.username || 'unknown'}</div>
@@ -318,7 +323,7 @@
                     <p>${p.content}</p>
                     <div class="votes">
                         <button class="vote-btn" onclick="vote('${p.id}','up')" ${!isLoggedIn() ? 'disabled' : ''}>&#9650;</button>
-                        <span style="font-weight:600">${p.score || 0}</span>
+                        <span style="font-weight:600">${score}${tierHtml}</span>
                         <button class="vote-btn" onclick="vote('${p.id}','down')" ${!isLoggedIn() ? 'disabled' : ''}>&#9660;</button>
                     </div>
                 </div>
@@ -372,10 +377,6 @@
                 load();
             } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
         }
-
-        // Sketch modal
-        function openSketchModal() { document.getElementById('sketchModal').classList.add('show'); }
-        function closeSketchModal() { document.getElementById('sketchModal').classList.remove('show'); }
 
         // Initialize
         updateAuthUI();
