@@ -1,8 +1,14 @@
+<div align="center">
+
 # Spark
+
+<img src="icon.svg" alt="Spark" width="120" />
 
 Idea-sharing platform with upvoting and JWT auth. Post sparks, vote on others, no framework required.
 
-**Live**: https://spark.heyitsmejosh.com
+[spark.heyitsmejosh.com](https://spark.heyitsmejosh.com)
+
+</div>
 
 ![Spark Feed](screenshots/spark-feed.png)
 

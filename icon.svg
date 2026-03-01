@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="32" fill="#0d1117"/>
+  <!-- Lightbulb -->
+  <circle cx="100" cy="80" r="35" fill="none" stroke="#0a84ff" stroke-width="2.5"/>
+  <circle cx="100" cy="80" r="18" fill="#0a84ff" opacity="0.15"/>
+  <path d="M82 105 L82 120 Q82 128 90 128 L110 128 Q118 128 118 120 L118 105" fill="none" stroke="#0a84ff" stroke-width="2"/>
+  <line x1="88" y1="115" x2="112" y2="115" stroke="#0a84ff" stroke-width="1.5" opacity="0.5"/>
+  <line x1="88" y1="122" x2="112" y2="122" stroke="#0a84ff" stroke-width="1.5" opacity="0.5"/>
+  <!-- Filament -->
+  <path d="M92 95 Q96 78 100 85 Q104 78 108 95" fill="none" stroke="#0a84ff" stroke-width="1.5"/>
+  <!-- Radiating sparks -->
+  <line x1="100" y1="35" x2="100" y2="25" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="130" y1="50" x2="138" y2="42" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="70" y1="50" x2="62" y2="42" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="140" y1="80" x2="150" y2="80" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <line x1="60" y1="80" x2="50" y2="80" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <!-- Small spark dots -->
+  <circle cx="145" cy="58" r="2" fill="#0a84ff" opacity="0.4"/>
+  <circle cx="55" cy="58" r="2" fill="#0a84ff" opacity="0.4"/>
+  <circle cx="100" cy="20" r="2" fill="#0a84ff" opacity="0.4"/>
+  <!-- Vote arrow -->
+  <polygon points="100,150 110,162 105,162 105,175 95,175 95,162 90,162" fill="#0a84ff" opacity="0.35"/>
+</svg>
