@@ -1,4 +1,5 @@
 const { parseCookie, resolveSession, verifyToken } = require('./auth/store');
+const { supabaseRequest } = require('./lib/supabase');
 
 const seedPosts = [
   {
@@ -44,40 +45,6 @@ function parseToken(authHeader, cookieHeader) {
   const session = resolveSession(cookies.spark_session);
   if (!session) return null;
   return { username: session.username, userId: session.userId };
-}
-
-function getSupabaseConfig() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return { url, key };
-}
-
-async function supabaseRequest(path, { method = 'GET', body } = {}) {
-  const { url, key } = getSupabaseConfig();
-  if (!url || !key) throw new Error('supabase_not_configured');
-
-  const res = await fetch(`${url}/rest/v1/${path}`, {
-    method,
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=representation'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-
-  let data = null;
-  try { data = await res.json(); } catch { data = null; }
-
-  if (!res.ok) {
-    const message = (data && (data.message || data.error || JSON.stringify(data))) || `supabase_http_${res.status}`;
-    const err = new Error(message);
-    err.status = res.status;
-    throw err;
-  }
-
-  return data;
 }
 
 function rowToPost(r) {
@@ -180,6 +147,8 @@ module.exports = async function handler(req, res) {
     }
 
     const { title, content, category } = req.body || {};
+    if (typeof title !== 'string' || title.length > 200) return res.status(400).json({ error: 'Title too long (max 200)' });
+    if (typeof content !== 'string' || content.length > 5000) return res.status(400).json({ error: 'Content too long (max 5000)' });
     if (!title || !content) {
       return res.status(400).json({ error: 'Title and content are required' });
     }

@@ -312,15 +312,21 @@
             return null;
         }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function renderIdea(p) {
             const score = p.score || 0;
             const tier = getTier(score);
             const tierHtml = tier ? `<span class="tier-badge tier-${tier.level}">${tier.label}</span>` : '';
             return `
                 <div class="idea">
-                    <div style="color:var(--text3);font-size:12px;margin-bottom:10px">${p.category.toUpperCase()} &bull; @${p.author?.username || 'unknown'}</div>
-                    <h3>${p.title}</h3>
-                    <p>${p.content}</p>
+                    <div style="color:var(--text3);font-size:12px;margin-bottom:10px">${escapeHtml(p.category).toUpperCase()} &bull; @${escapeHtml(p.author?.username || 'unknown')}</div>
+                    <h3>${escapeHtml(p.title)}</h3>
+                    <p>${escapeHtml(p.content)}</p>
                     <div class="votes">
                         <button class="vote-btn" onclick="vote('${p.id}','up')" ${!isLoggedIn() ? 'disabled' : ''}>&#9650;</button>
                         <span style="font-weight:600">${score}${tierHtml}</span>
