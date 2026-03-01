@@ -1,7 +1,12 @@
 function getSupabaseConfig() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return { url, key };
+  let url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  // Handle env vars that might be prefixed with key=value format (Vercel quirk)
+  if (url.includes('=')) url = url.split('=').pop();
+  if (key.includes('=')) key = key.split('=').pop();
+  
+  return { url: url.trim(), key: key.trim() };
 }
 
 async function supabaseRequest(path, { method = 'GET', body } = {}) {
