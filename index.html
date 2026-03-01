@@ -464,9 +464,17 @@
         }
 
                 // Initialize
-        updateAuthUI();
-        load();
-        setInterval(load, 30000);
+        async function init() {
+            try {
+                await fetch(`${API_BASE}/api/seed`, { method: 'POST' });
+            } catch (e) {
+                // seed endpoint optional
+            }
+            updateAuthUI();
+            load();
+            setInterval(load, 30000);
+        }
+        init();
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
