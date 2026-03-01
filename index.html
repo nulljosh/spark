@@ -250,7 +250,7 @@
                     if (!user || !user.username) throw new Error('invalid user');
                     authUI.innerHTML = `
                         <div style="display:flex;gap:15px;align-items:center">
-                            <span class="user-info">@${user.username}</span>
+                            <a href="/user/${user.username}" style="color:var(--accent);text-decoration:none;font-size:14px">@${user.username}</a>
                             <button class="auth-btn" onclick="logout()">Logout</button>
                         </div>
                     `;
