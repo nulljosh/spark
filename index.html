@@ -79,7 +79,39 @@
         :root[data-theme="light"] .tier-1 { background: #e8e8ed; color: #636366; border-color: #d1d1d6; }
         :root[data-theme="light"] .tier-2 { background: #e0f5e0; color: #248a3d; border-color: #c0e0c0; }
         :root[data-theme="light"] .tier-3 { background: #fff3e0; color: #c93400; border-color: #ffe0b0; }
-    </style>
+    
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0 30px;
+            flex-wrap: wrap;
+        }
+        .filter-group, .sort-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn, .sort-btn {
+            padding: 8px 14px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            color: var(--text1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .sort-btn:hover {
+            background: var(--bg3);
+            border-color: var(--accent);
+        }
+        .filter-btn.active, .sort-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }</style>
 </head>
 <body>
     <main>
@@ -93,6 +125,21 @@
             </div>
         </div>
         <p class="subtitle">Where ideas become reality</p>
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
+                <button class="filter-btn" onclick="filterByCategory('tech')">Tech</button>
+                <button class="filter-btn" onclick="filterByCategory('business')">Business</button>
+                <button class="filter-btn" onclick="filterByCategory('health')">Health</button>
+                <button class="filter-btn" onclick="filterByCategory('productivity')">Productivity</button>
+                <button class="filter-btn" onclick="filterByCategory('finance')">Finance</button>
+                <button class="filter-btn" onclick="filterByCategory('sustainability')">Sustainability</button>
+            </div>
+            <div class="sort-group">
+                <button class="sort-btn active" onclick="setSortMode('hot')">Hot</button>
+                <button class="sort-btn" onclick="setSortMode('new')">New</button>
+            </div>
+        </div>
         <div id="feed">Loading...</div>
     </main>
 
@@ -344,7 +391,21 @@
                     document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">No ideas yet. Be the first to share one!</div>`;
                     return;
                 }
-                document.getElementById('feed').innerHTML = data.posts.map(p => renderIdea(p)).join('');
+                let posts = data.posts;
+                
+                // Filter by category
+                if (window.currentFilter && window.currentFilter !== 'all') {
+                    posts = posts.filter(p => p.category === window.currentFilter);
+                }
+                
+                // Sort: hot (by score desc) or new (by date desc)
+                if (window.sortMode === 'new') {
+                    posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                } else {
+                    posts.sort((a, b) => b.score - a.score);
+                }
+                
+                document.getElementById('feed').innerHTML = posts.length > 0 ? posts.map(p => renderIdea(p)).join('') : `<div style="color:var(--text3);text-align:center;padding:40px">No ideas in this category.</div>`
             } catch(e) {
                 document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">Failed to load ideas. Try again later.</div>`;
             }
@@ -384,7 +445,25 @@
             } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
         }
 
-        // Initialize
+
+        let currentFilter = 'all';
+        let sortMode = 'hot';
+        
+        function filterByCategory(cat) {
+            window.currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            load();
+        }
+        
+        function setSortMode(mode) {
+            window.sortMode = mode;
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            load();
+        }
+
+                // Initialize
         updateAuthUI();
         load();
         setInterval(load, 30000);

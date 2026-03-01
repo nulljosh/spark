@@ -1,7 +1,7 @@
 {
   "name": "spark",
-  "version": "1.0.0",
-  "description": "Idea-sharing platform with auth, posts, and voting",
+  "version": "1.1.0",
+  "description": "Idea-sharing platform with filters, voting, auth",
   "main": "index.html",
   "scripts": {
     "test": "vitest"
