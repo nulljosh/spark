@@ -1,15 +1,15 @@
 function getSupabaseConfig() {
-  let url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-  
+  let url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  let key = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+
   // Handle env vars that arrive as KEY_NAME=value (Vercel quirk).
   // Only strip the prefix if the value starts with an uppercase identifier followed by '='.
   // This avoids mangling base64 keys that legitimately contain '=' padding.
   const envPrefixPattern = /^[A-Z_]+=(.+)$/;
   const urlMatch = url.match(envPrefixPattern);
-  if (urlMatch) url = urlMatch[1];
+  if (urlMatch) url = urlMatch[1].trim();
   const keyMatch = key.match(envPrefixPattern);
-  if (keyMatch) key = keyMatch[1];
+  if (keyMatch) key = keyMatch[1].trim();
   
   return { url: url.trim(), key: key.trim() };
 }
