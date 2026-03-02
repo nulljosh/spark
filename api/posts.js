@@ -166,4 +166,5 @@ module.exports = async function handler(req, res) {
 
 module.exports.seedPosts = seedPosts;
 module.exports.parseToken = parseToken;
+module.exports.rowToPost = rowToPost;
 module.exports.votePostInDataSource = votePostInDataSource;

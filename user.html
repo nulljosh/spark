@@ -173,7 +173,13 @@
     
     <script>
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
-        
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function toggleTheme() {
             document.body.classList.toggle('dark');
             localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
@@ -202,22 +208,23 @@
         function render(user, posts) {
             document.getElementById('pageTitle').textContent = `${user.username} — Spark`;
             const joined = new Date(user.joinedAt).toLocaleDateString();
-            const avatar = user.username.charAt(0).toUpperCase();
-            
+            const avatar = escapeHtml(user.username.charAt(0).toUpperCase());
+            const safeUsername = escapeHtml(user.username);
+
             let html = `
                 <div class="profile">
                     <div class="profile-header">
                         <div class="avatar">${avatar}</div>
                         <div class="profile-info">
-                            <h2>${user.username}</h2>
+                            <h2>${safeUsername}</h2>
                             <p>Joined ${joined}</p>
                             <div class="stats">
                                 <div class="stat">
-                                    <span class="stat-value">${user.postCount}</span>
+                                    <span class="stat-value">${Number(user.postCount) || 0}</span>
                                     <span class="stat-label">Posts</span>
                                 </div>
                                 <div class="stat">
-                                    <span class="stat-value">${user.totalUpvotes}</span>
+                                    <span class="stat-value">${Number(user.totalUpvotes) || 0}</span>
                                     <span class="stat-label">Upvotes</span>
                                 </div>
                             </div>
@@ -225,27 +232,27 @@
                     </div>
                 </div>
             `;
-            
+
             if (posts.length > 0) {
                 html += `<div class="posts-title">Posts</div>`;
                 html += posts.map(p => `
                     <div class="post" onclick="location.href='/'">
                         <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px;">
                             <div style="flex: 1;">
-                                <div class="post-title">${p.title}</div>
-                                <div class="post-content">${p.content}</div>
+                                <div class="post-title">${escapeHtml(p.title)}</div>
+                                <div class="post-content">${escapeHtml(p.content)}</div>
                             </div>
                         </div>
                         <div class="post-meta">
-                            <span class="post-category">${p.category}</span>
-                            <span class="post-score">↑ ${p.score}</span>
+                            <span class="post-category">${escapeHtml(p.category)}</span>
+                            <span class="post-score">&uarr; ${Number(p.score) || 0}</span>
                         </div>
                     </div>
                 `).join('');
             } else {
                 html += `<div class="empty">No posts yet</div>`;
             }
-            
+
             document.getElementById('content').innerHTML = html;
         }
         

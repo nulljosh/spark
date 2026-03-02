@@ -93,67 +93,54 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+        /* Apple Liquid Glass -- filter/sort buttons */
         .filter-btn, .sort-btn {
             padding: 8px 14px;
-            border: 1.5px solid var(--border);
-            background: var(--bg2);
-            color: var(--text1);
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--text1);
         }
         .filter-btn:hover, .sort-btn:hover {
             background: var(--bg3);
             border-color: var(--accent);
         }
         .filter-btn.active, .sort-btn.active {
-            background: var(--accent);
+            background: rgba(124, 58, 237, 0.8);
+            backdrop-filter: blur(10px);
+            border-color: rgba(124, 58, 237, 0.6);
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
             color: white;
-            border-color: var(--accent);
         }
-        /* Apple Liquid Glass */
+        body.dark .filter-btn, body.dark .sort-btn {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Apple Liquid Glass -- post cards */
         .post {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
-        
         .post:hover {
             background: rgba(255, 255, 255, 0.8);
             border-color: rgba(255, 255, 255, 0.7);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
         }
-        
         body.dark .post {
             background: rgba(31, 41, 55, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        
         body.dark .post:hover {
             background: rgba(31, 41, 55, 0.85);
             border-color: rgba(255, 255, 255, 0.2);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .filter-btn, .sort-btn {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-        
-        .filter-btn.active, .sort-btn.active {
-            background: rgba(124, 58, 237, 0.8);
-            backdrop-filter: blur(10px);
-            border-color: rgba(124, 58, 237, 0.6);
-            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
-        }
-        
-        body.dark .filter-btn, body.dark .sort-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }</style>
 </head>
 <body>
@@ -170,17 +157,17 @@
         <p class="subtitle">Where ideas become reality</p>
         <div class="filters">
             <div class="filter-group">
-                <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
-                <button class="filter-btn" onclick="filterByCategory('tech')">Tech</button>
-                <button class="filter-btn" onclick="filterByCategory('business')">Business</button>
-                <button class="filter-btn" onclick="filterByCategory('health')">Health</button>
-                <button class="filter-btn" onclick="filterByCategory('productivity')">Productivity</button>
-                <button class="filter-btn" onclick="filterByCategory('finance')">Finance</button>
-                <button class="filter-btn" onclick="filterByCategory('sustainability')">Sustainability</button>
+                <button class="filter-btn active" onclick="filterByCategory('all', event)">All</button>
+                <button class="filter-btn" onclick="filterByCategory('tech', event)">Tech</button>
+                <button class="filter-btn" onclick="filterByCategory('business', event)">Business</button>
+                <button class="filter-btn" onclick="filterByCategory('health', event)">Health</button>
+                <button class="filter-btn" onclick="filterByCategory('productivity', event)">Productivity</button>
+                <button class="filter-btn" onclick="filterByCategory('finance', event)">Finance</button>
+                <button class="filter-btn" onclick="filterByCategory('sustainability', event)">Sustainability</button>
             </div>
             <div class="sort-group">
-                <button class="sort-btn active" onclick="setSortMode('hot')">Hot</button>
-                <button class="sort-btn" onclick="setSortMode('new')">New</button>
+                <button class="sort-btn active" onclick="setSortMode('hot', event)">Hot</button>
+                <button class="sort-btn" onclick="setSortMode('new', event)">New</button>
             </div>
         </div>
         <div id="feed">Loading...</div>
@@ -448,7 +435,7 @@
                     posts.sort((a, b) => b.score - a.score);
                 }
                 
-                document.getElementById('feed').innerHTML = posts.length > 0 ? posts.map(p => renderIdea(p)).join('') : `<div style="color:var(--text3);text-align:center;padding:40px">No ideas in this category.</div>`
+                document.getElementById('feed').innerHTML = posts.length > 0 ? posts.map(p => renderIdea(p)).join('') : `<div style="color:var(--text3);text-align:center;padding:40px">No ideas in this category.</div>`;
             } catch(e) {
                 document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">Failed to load ideas. Try again later.</div>`;
             }
@@ -488,25 +475,24 @@
             } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
         }
 
-
+        // Filter and sort state
         window.currentFilter = 'all';
         window.sortMode = 'hot';
-        
-        function filterByCategory(cat) {
+
+        function filterByCategory(cat, e) {
             window.currentFilter = cat;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            load();
-        }
-        
-        function setSortMode(mode) {
-            window.sortMode = mode;
-            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            (e || event).target.classList.add('active');
             load();
         }
 
-                // Initialize
+        function setSortMode(mode, e) {
+            window.sortMode = mode;
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            (e || event).target.classList.add('active');
+            load();
+        }
+
         // Initialize
         updateAuthUI();
         load();

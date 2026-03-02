@@ -1,19 +1,5 @@
 const { supabaseRequest } = require('./lib/supabase');
-
-function rowToPost(r) {
-  return {
-    id: r.id,
-    title: r.title,
-    content: r.content,
-    category: r.category || 'tech',
-    author: {
-      username: r.author_username || 'spark',
-      userId: r.author_user_id || 'system'
-    },
-    score: Number.isFinite(r.score) ? r.score : 0,
-    createdAt: r.created_at || new Date().toISOString()
-  };
-}
+const { rowToPost } = require('./posts');
 
 module.exports = async function handler(req, res) {
   const { username } = req.query;
