@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="/icon-192.svg">
     <title>Spark</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root[data-theme="dark"] {
             --bg: #000;
@@ -34,7 +37,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { overflow-x: hidden; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
+        body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
         main { flex: 1; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-left h1 { font-size: 48px; }
@@ -45,7 +48,7 @@
         .theme-btn { background: var(--surface2); color: var(--text); border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .theme-btn:hover { background: var(--surface3); }
         .user-info { color: #0a84ff; font-weight: 500; }
-        .idea { background: var(--surface); padding: 20px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); }
+        .idea { background: var(--surface); padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); }
         .idea h3 { margin-bottom: 10px; }
         .idea p { color: var(--text2); margin-bottom: 15px; }
         .votes { display: flex; gap: 15px; align-items: center; }
@@ -79,7 +82,8 @@
         :root[data-theme="light"] .tier-1 { background: #e8e8ed; color: #636366; border-color: #d1d1d6; }
         :root[data-theme="light"] .tier-2 { background: #e0f5e0; color: #248a3d; border-color: #c0e0c0; }
         :root[data-theme="light"] .tier-3 { background: #fff3e0; color: #c93400; border-color: #ffe0b0; }
-    
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
         .filters {
             display: flex;
             justify-content: space-between;
