@@ -1,6 +1,6 @@
 function getSupabaseConfig() {
   let url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
-  let key = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+  let key = (process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
   // Handle env vars that arrive as KEY_NAME=value (Vercel quirk).
   // Only strip the prefix if the value starts with an uppercase identifier followed by '='.

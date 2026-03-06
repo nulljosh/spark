@@ -35,3 +35,19 @@ insert into posts (id, title, content, category, author_username, author_user_id
   ('seed-2', 'Micro-investment app for Gen Z', 'Round up every purchase to the nearest dollar and auto-invest the difference into a diversified ETF portfolio.', 'business', 'spark', 'system', 87, '2026-01-20T12:00:00Z'),
   ('seed-3', 'Sleep tracking without a wearable', 'Use your phone mic + accelerometer passively to track sleep cycles and give you a morning score. Zero hardware required.', 'tech', 'spark', 'system', 61, '2026-02-01T09:30:00Z')
 on conflict (id) do nothing;
+
+-- Row Level Security
+alter table users enable row level security;
+alter table posts enable row level security;
+
+-- Posts: anyone can read, API handles auth for writes
+create policy "anon_read_posts" on posts for select using (true);
+create policy "api_insert_posts" on posts for insert with check (true);
+create policy "api_update_posts" on posts for update using (true);
+create policy "api_delete_posts" on posts for delete using (true);
+
+-- Users: anyone can read profiles, no direct writes (API handles auth)
+create policy "anon_read_users" on users for select using (true);
+create policy "no_direct_write_users" on users for insert with check (false);
+create policy "no_direct_update_users" on users for update using (false);
+create policy "no_direct_delete_users" on users for delete using (false);
