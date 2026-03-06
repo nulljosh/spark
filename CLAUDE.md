@@ -13,6 +13,8 @@ Vanilla HTML/JS frontend, Vercel serverless API, Supabase PostgreSQL backend.
 - [x] iOS companion app (spark-ios)
 - [x] PWA support
 - [x] Persistent database (Supabase)
+- [x] Forgot password flow (UI ready, email pending)
+- [ ] SMTP email delivery (Resend or nodemailer) -- needed for password reset emails
 - [ ] Real-time updates via Supabase Realtime
 - [ ] Comment threads on posts
 - [ ] User profiles with post history

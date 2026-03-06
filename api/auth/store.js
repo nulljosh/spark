@@ -62,7 +62,7 @@ function mapSupabaseUser(row) {
     userId: row.id,
     username: row.username,
     email: row.email || null,
-    passwordHash: row.password,
+    passwordHash: row.password_hash || row.password,
     createdAt: row.created_at
   };
 }
@@ -93,7 +93,7 @@ async function createUser({ username, email, password }) {
         body: {
           username,
           email: email || null,
-          password: hash,
+          password_hash: hash,
           created_at: new Date().toISOString()
         }
       });
@@ -228,15 +228,88 @@ function setSessionCookie(res, sessionId) {
   }
 }
 
+// Find user by email (Supabase only)
+async function findUserByEmail(email) {
+  if (!email || !useSupabase()) return null;
+  try {
+    const rows = await supabaseRequest(`users?email=eq.${encodeURIComponent(email)}&select=*`);
+    if (Array.isArray(rows) && rows.length > 0) return mapSupabaseUser(rows[0]);
+  } catch {
+    // fall through
+  }
+  return null;
+}
+
+// Set reset token on user (Supabase only -- /tmp fallback not supported for resets)
+async function setResetToken(username, token, expires) {
+  if (!useSupabase()) return false;
+  await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
+    method: 'PATCH',
+    body: { reset_token: token, reset_token_expires: expires.toISOString() }
+  });
+  return true;
+}
+
+// Find user by reset token (validates expiry)
+async function findUserByResetToken(token) {
+  if (!token || !useSupabase()) return null;
+  try {
+    const rows = await supabaseRequest(`users?reset_token=eq.${encodeURIComponent(token)}&select=*`);
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const row = rows[0];
+    if (row.reset_token_expires && new Date(row.reset_token_expires) < new Date()) return null;
+    return mapSupabaseUser(row);
+  } catch {
+    return null;
+  }
+}
+
+// Clear reset token after use
+async function clearResetToken(username) {
+  if (!useSupabase()) return false;
+  await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
+    method: 'PATCH',
+    body: { reset_token: null, reset_token_expires: null }
+  });
+  return true;
+}
+
+// Update password hash
+async function updatePassword(username, newPassword) {
+  const hash = hashPassword(newPassword);
+  if (useSupabase()) {
+    await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
+      method: 'PATCH',
+      body: { password_hash: hash }
+    });
+    return true;
+  }
+  // /tmp fallback
+  const users = readJson(USERS_FILE, []);
+  const arr = Array.isArray(users) ? users : [];
+  const user = arr.find((u) => u.username === username);
+  if (user) {
+    user.passwordHash = hash;
+    writeJson(USERS_FILE, arr);
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
+  clearResetToken,
   createSession,
   createUser,
   deriveUser,
+  findUserByEmail,
+  findUserByResetToken,
   findUserByUsername,
   issueToken,
+  updatePassword,
   verifyToken,
   parseCookie,
   resolveSession,
+  setResetToken,
   setSessionCookie,
   verifyPassword
 };

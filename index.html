@@ -189,11 +189,22 @@
             </div>
 
             <div id="loginTab" class="tab-content active">
-                <h2 style="margin-bottom:20px">Login</h2>
-                <div id="loginError" class="error"></div>
-                <input type="text" id="loginUsername" placeholder="Username">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button class="btn" onclick="login()">Login</button>
+                <div id="loginForm">
+                    <h2 style="margin-bottom:20px">Login</h2>
+                    <div id="loginError" class="error"></div>
+                    <input type="text" id="loginUsername" placeholder="Username">
+                    <input type="password" id="loginPassword" placeholder="Password">
+                    <button class="btn" onclick="login()">Login</button>
+                    <p style="text-align:center;margin-top:15px"><a href="#" onclick="showForgotPassword(event)" style="color:var(--text3);font-size:14px;text-decoration:none">Forgot password?</a></p>
+                </div>
+                <div id="forgotForm" style="display:none">
+                    <h2 style="margin-bottom:20px">Reset Password</h2>
+                    <div id="forgotError" class="error"></div>
+                    <div id="forgotSuccess" class="success"></div>
+                    <input type="text" id="forgotInput" placeholder="Username or email">
+                    <button class="btn" onclick="submitForgotPassword()">Send Reset Link</button>
+                    <p style="text-align:center;margin-top:15px"><a href="#" onclick="showLoginForm(event)" style="color:var(--text3);font-size:14px;text-decoration:none">Back to login</a></p>
+                </div>
             </div>
 
             <div id="registerTab" class="tab-content">
@@ -313,6 +324,8 @@
             document.getElementById('loginError').textContent = '';
             document.getElementById('registerError').textContent = '';
             document.getElementById('registerSuccess').textContent = '';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
         }
         function showNewIdeaModal() {
             if (!isLoggedIn()) { showAuthModal(); return; }
@@ -495,6 +508,40 @@
             document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
             (e || event).target.classList.add('active');
             load();
+        }
+
+        // Forgot password
+        function showForgotPassword(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'block';
+            document.getElementById('forgotError').textContent = '';
+            document.getElementById('forgotSuccess').textContent = '';
+        }
+
+        function showLoginForm(e) {
+            e.preventDefault();
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        async function submitForgotPassword() {
+            const input = document.getElementById('forgotInput').value.trim();
+            const errorEl = document.getElementById('forgotError');
+            const successEl = document.getElementById('forgotSuccess');
+            errorEl.textContent = '';
+            successEl.textContent = '';
+            if (!input) { errorEl.textContent = 'Please enter your username or email'; return; }
+            try {
+                const isEmail = input.includes('@');
+                const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(isEmail ? { email: input } : { username: input })
+                });
+                const data = await res.json();
+                successEl.textContent = data.message || 'If an account exists with that info, a reset link has been sent.';
+            } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
         }
 
         // Initialize

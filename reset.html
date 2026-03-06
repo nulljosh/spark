@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Spark</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root[data-theme="dark"] {
+            --bg: #000;
+            --surface: #111;
+            --surface2: #1c1c1e;
+            --surface3: #2c2c2e;
+            --text: #f5f5f7;
+            --text2: #98989d;
+            --text3: #636366;
+            --border: rgba(255,255,255,0.06);
+        }
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f5f5f7;
+            --surface2: #ebebeb;
+            --surface3: #e0e0e0;
+            --text: #111111;
+            --text2: #636366;
+            --text3: #98989d;
+            --border: #c5c5ca;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.2s, color 0.2s; }
+        .card { background: var(--surface); padding: 40px; border-radius: 15px; width: 100%; max-width: 440px; border: 1px solid var(--border); }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .subtitle { color: var(--text3); margin-bottom: 30px; font-size: 14px; }
+        input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; font-family: inherit; }
+        .btn { background: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .error { color: #ff453a; font-size: 14px; margin-bottom: 10px; }
+        .success { color: #30d158; font-size: 14px; margin-bottom: 10px; }
+        a { color: var(--text3); font-size: 14px; text-decoration: none; }
+        a:hover { color: #0a84ff; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Reset Password</h1>
+        <p class="subtitle">Enter your new password below.</p>
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+        <div id="form">
+            <input type="password" id="password" placeholder="New password">
+            <input type="password" id="confirm" placeholder="Confirm new password">
+            <button class="btn" onclick="resetPassword()">Reset Password</button>
+        </div>
+        <div id="noToken" style="display:none">
+            <p style="color:var(--text2);margin-bottom:20px">No reset token found. Please use the link from your email.</p>
+            <a href="/">Back to Spark</a>
+        </div>
+        <div id="done" style="display:none">
+            <p style="color:var(--text2);margin-bottom:20px">Your password has been reset.</p>
+            <a href="/" id="loginLink">Back to login</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3030' : '';
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        // Apply saved theme
+        const saved = localStorage.getItem('spark_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+
+        if (!token) {
+            document.getElementById('form').style.display = 'none';
+            document.getElementById('noToken').style.display = 'block';
+        }
+
+        async function resetPassword() {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+            const errorEl = document.getElementById('error');
+            const successEl = document.getElementById('success');
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            if (!password || !confirm) { errorEl.textContent = 'Please fill in both fields'; return; }
+            if (password !== confirm) { errorEl.textContent = 'Passwords do not match'; return; }
+            if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; return; }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password })
+                });
+                const data = await res.json();
+                if (!res.ok) { errorEl.textContent = data.error || 'Reset failed'; return; }
+                document.getElementById('form').style.display = 'none';
+                document.getElementById('done').style.display = 'block';
+                successEl.textContent = data.message;
+            } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
+        }
+    </script>
+</body>
+</html>
