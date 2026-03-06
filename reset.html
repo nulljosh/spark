@@ -90,7 +90,7 @@
             if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; return; }
 
             try {
-                const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+                const res = await fetch(`${API_BASE}/api/auth/password-reset?action=reset`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token, password })

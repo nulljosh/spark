@@ -534,7 +534,7 @@
             if (!input) { errorEl.textContent = 'Please enter your username or email'; return; }
             try {
                 const isEmail = input.includes('@');
-                const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+                const res = await fetch(`${API_BASE}/api/auth/password-reset?action=forgot`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(isEmail ? { email: input } : { username: input })
