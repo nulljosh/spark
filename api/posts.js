@@ -136,7 +136,9 @@ module.exports = async function handler(req, res) {
       const { posts } = await getPostsFromDataSource();
       return res.status(200).json({ posts });
     } catch (err) {
-      return res.status(500).json({ error: err.message || 'Failed to load posts' });
+      console.error('[POSTS] Supabase fetch failed:', err.message);
+      // Return seed data as fallback when Supabase is unreachable
+      return res.status(200).json({ posts: seedPosts.map(rowToPost) });
     }
   }
 
