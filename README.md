@@ -56,11 +56,16 @@ Runs integration tests: signup → post 15 ideas → verify on feed.
 - [x] PWA support
 - [x] Persistent database (Supabase)
 - [x] Integration tests (user workflow)
-- [ ] iOS companion app (spark-ios)
+- [x] iOS companion app (spark-ios)
 - [ ] Real-time updates via Supabase Realtime
 - [ ] Comment threads on posts
 - [ ] User profiles with post history
 - [ ] Moderation tools
+
+## v1.2 — Resilience (2026-03-06)
+
+- Seed data fallback when Supabase is unreachable (no more "Failed to load ideas")
+- Forgot password flow (UI ready, email pending)
 
 ## v1.1 — Filters & Sort (2026-03-01)
 
