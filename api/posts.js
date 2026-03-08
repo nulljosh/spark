@@ -4,63 +4,63 @@ const { supabaseRequest } = require('./lib/supabase');
 const seedPosts = [
   {
     id: 'seed-1',
-    title: 'Browser extension that saves recipes from any cooking video',
-    content: 'You know when you\'re watching a cooking video and the recipe is buried in a 20-minute vlog? This would just pull out the ingredients and steps automatically. Works on YouTube, TikTok, Instagram reels, whatever.',
+    title: 'An app that tells you what bird is singing outside your window',
+    content: 'You hold your phone up, it listens for a few seconds, and tells you the species. I hear the same bird every morning at 6am and I have no idea what it is. Shazam but for birds.',
     category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
-    score: 142,
-    created_at: '2026-01-15T08:00:00Z'
+    score: 203,
+    created_at: '2026-01-12T07:15:00Z'
   },
   {
     id: 'seed-2',
-    title: 'App that texts you when your laundry is done based on your dryer timer',
-    content: 'Set a timer when you start a load and it texts you when it\'s done. Dead simple. I forget about my laundry literally every time and it sits there for hours getting musty.',
+    title: 'Tool that converts any recipe to work with whatever\'s already in your fridge',
+    content: 'You snap a photo of your fridge or just type in what you have. It takes a recipe you want to make and swaps out ingredients you don\'t have for ones you do. No more buying cilantro for one dish and letting the rest rot.',
     category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
-    score: 87,
-    created_at: '2026-01-20T12:00:00Z'
+    score: 157,
+    created_at: '2026-01-18T19:30:00Z'
   },
   {
     id: 'seed-3',
-    title: 'Tool that turns voice memos into organized notes',
-    content: 'I ramble into my phone constantly with half-formed thoughts. Something that takes those voice memos and sorts them into actual categories with bullet points would save me so much time.',
+    title: 'A browser extension that replaces LinkedIn jargon with plain English',
+    content: '"Synergize cross-functional deliverables" becomes "work with other teams." "Thought leader" becomes "person with opinions." I want to actually understand what people are saying on there without decoding corporate speak.',
     category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
-    score: 61,
-    created_at: '2026-02-01T09:30:00Z'
+    score: 94,
+    created_at: '2026-01-25T11:00:00Z'
   },
   {
     id: 'seed-4',
-    title: 'Site that compares ingredient lists across different brands',
-    content: 'Like a diff tool but for food labels. Pick two peanut butters and it highlights what\'s different. Useful for people with allergies or anyone trying to avoid certain additives.',
+    title: 'Widget that shows how much of your life you\'ve spent in meetings',
+    content: 'Pulls from your calendar and gives you a running total. Hours, days, percentage of your waking life. Maybe a little graph that goes up over time. Depressing? Sure. Motivating to decline more meetings? Absolutely.',
     category: 'business',
     author_username: 'spark',
     author_user_id: 'system',
-    score: 45,
-    created_at: '2026-02-05T14:00:00Z'
+    score: 72,
+    created_at: '2026-02-02T14:45:00Z'
   },
   {
     id: 'seed-5',
-    title: 'Chrome extension that dims everything except the video you\'re watching',
-    content: 'When I\'m watching something in a browser tab, all the comments and sidebar recommendations are distracting. Just dim everything else to like 10% opacity so the video is the only bright thing on screen.',
-    category: 'tech',
-    author_username: 'spark',
-    author_user_id: 'system',
-    score: 38,
-    created_at: '2026-02-10T11:00:00Z'
-  },
-  {
-    id: 'seed-6',
-    title: 'Neighborhood tool library -- like a Little Free Library but for drills and stuff',
-    content: 'Most people use a power drill maybe twice a year. A simple app where neighbors can list tools they\'re willing to lend out. No money involved, just borrowing and returning. Build some community while you\'re at it.',
+    title: 'Service that texts you when your favorite local restaurant has a short wait',
+    content: 'There\'s this ramen place near me that always has a 45 minute wait. But sometimes on a random Tuesday it\'s empty. I just want a text that says "hey, only 2 people in line right now." Google has the busy-times data, someone just needs to make it push notifications.',
     category: 'business',
     author_username: 'spark',
     author_user_id: 'system',
-    score: 29,
-    created_at: '2026-02-14T16:30:00Z'
+    score: 48,
+    created_at: '2026-02-08T18:20:00Z'
+  },
+  {
+    id: 'seed-6',
+    title: 'A site that shows you the actual night sky above your house right now',
+    content: 'Not a star map app where you wave your phone around. Just a simple page that loads and shows what constellations and planets are visible from your exact location tonight, what time they rise and set, and whether cloud cover will ruin it. Weather app meets astronomy.',
+    category: 'tech',
+    author_username: 'spark',
+    author_user_id: 'system',
+    score: 31,
+    created_at: '2026-02-15T21:00:00Z'
   }
 ];
 
