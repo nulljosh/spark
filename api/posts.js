@@ -4,8 +4,8 @@ const { supabaseRequest } = require('./lib/supabase');
 const seedPosts = [
   {
     id: 'seed-1',
-    title: 'Open-source AI coding assistant',
-    content: 'A local-first coding assistant that runs entirely on your machine. No API keys, no subscriptions, just Claude via Ollama.',
+    title: 'Browser extension that saves recipes from any cooking video',
+    content: 'You know when you\'re watching a cooking video and the recipe is buried in a 20-minute vlog? This would just pull out the ingredients and steps automatically. Works on YouTube, TikTok, Instagram reels, whatever.',
     category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
@@ -14,9 +14,9 @@ const seedPosts = [
   },
   {
     id: 'seed-2',
-    title: 'Micro-investment app for Gen Z',
-    content: 'Round up every purchase to the nearest dollar and auto-invest the difference into a diversified ETF portfolio.',
-    category: 'business',
+    title: 'App that texts you when your laundry is done based on your dryer timer',
+    content: 'Set a timer when you start a load and it texts you when it\'s done. Dead simple. I forget about my laundry literally every time and it sits there for hours getting musty.',
+    category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
     score: 87,
@@ -24,13 +24,43 @@ const seedPosts = [
   },
   {
     id: 'seed-3',
-    title: 'Sleep tracking without a wearable',
-    content: 'Use your phone mic + accelerometer passively to track sleep cycles and give you a morning score. Zero hardware required.',
+    title: 'Tool that turns voice memos into organized notes',
+    content: 'I ramble into my phone constantly with half-formed thoughts. Something that takes those voice memos and sorts them into actual categories with bullet points would save me so much time.',
     category: 'tech',
     author_username: 'spark',
     author_user_id: 'system',
     score: 61,
     created_at: '2026-02-01T09:30:00Z'
+  },
+  {
+    id: 'seed-4',
+    title: 'Site that compares ingredient lists across different brands',
+    content: 'Like a diff tool but for food labels. Pick two peanut butters and it highlights what\'s different. Useful for people with allergies or anyone trying to avoid certain additives.',
+    category: 'business',
+    author_username: 'spark',
+    author_user_id: 'system',
+    score: 45,
+    created_at: '2026-02-05T14:00:00Z'
+  },
+  {
+    id: 'seed-5',
+    title: 'Chrome extension that dims everything except the video you\'re watching',
+    content: 'When I\'m watching something in a browser tab, all the comments and sidebar recommendations are distracting. Just dim everything else to like 10% opacity so the video is the only bright thing on screen.',
+    category: 'tech',
+    author_username: 'spark',
+    author_user_id: 'system',
+    score: 38,
+    created_at: '2026-02-10T11:00:00Z'
+  },
+  {
+    id: 'seed-6',
+    title: 'Neighborhood tool library -- like a Little Free Library but for drills and stuff',
+    content: 'Most people use a power drill maybe twice a year. A simple app where neighbors can list tools they\'re willing to lend out. No money involved, just borrowing and returning. Build some community while you\'re at it.',
+    category: 'business',
+    author_username: 'spark',
+    author_user_id: 'system',
+    score: 29,
+    created_at: '2026-02-14T16:30:00Z'
   }
 ];
 
