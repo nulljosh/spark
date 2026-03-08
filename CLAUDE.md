@@ -20,3 +20,9 @@ Vanilla HTML/JS frontend, Vercel serverless API, Supabase PostgreSQL backend.
 - [ ] User profiles with post history
 - [ ] Topic tags and filtering
 - [ ] Moderation tools
+
+## Quick Commands
+- `./scripts/simplify.sh`
+- `./scripts/monetize.sh . --write`
+- `./scripts/audit.sh .`
+- `./scripts/ship.sh .`
