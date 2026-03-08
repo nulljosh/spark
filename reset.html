@@ -6,40 +6,40 @@
     <title>Reset Password - Spark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root[data-theme="dark"] {
-            --bg: #000;
-            --surface: #111;
-            --surface2: #1c1c1e;
-            --surface3: #2c2c2e;
-            --text: #f5f5f7;
-            --text2: #98989d;
-            --text3: #636366;
-            --border: rgba(255,255,255,0.06);
+            --bg: #09090b;
+            --surface: #18181b;
+            --surface2: #27272a;
+            --surface3: #3f3f46;
+            --text: #f4f4f5;
+            --text2: #a1a1aa;
+            --text3: #71717a;
+            --border: #27272a;
         }
         :root[data-theme="light"] {
             --bg: #ffffff;
-            --surface: #f5f5f7;
-            --surface2: #ebebeb;
-            --surface3: #e0e0e0;
-            --text: #111111;
-            --text2: #636366;
-            --text3: #98989d;
-            --border: #c5c5ca;
+            --surface: #f4f4f5;
+            --surface2: #e4e4e7;
+            --surface3: #d4d4d8;
+            --text: #18181b;
+            --text2: #71717a;
+            --text3: #a1a1aa;
+            --border: #d4d4d8;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.2s, color 0.2s; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.2s, color 0.2s; }
         .card { background: var(--surface); padding: 40px; border-radius: 15px; width: 100%; max-width: 440px; border: 1px solid var(--border); }
         h1 { font-size: 28px; margin-bottom: 8px; }
         .subtitle { color: var(--text3); margin-bottom: 30px; font-size: 14px; }
         input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; font-family: inherit; }
-        .btn { background: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
+        .btn { background: #3B82F6; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .error { color: #ff453a; font-size: 14px; margin-bottom: 10px; }
         .success { color: #30d158; font-size: 14px; margin-bottom: 10px; }
         a { color: var(--text3); font-size: 14px; text-decoration: none; }
-        a:hover { color: #0a84ff; }
+        a:hover { color: #3B82F6; }
     </style>
 </head>
 <body>

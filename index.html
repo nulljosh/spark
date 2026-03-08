@@ -11,33 +11,33 @@
     <title>Spark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root[data-theme="dark"] {
-            --bg: #000;
-            --surface: #111;
-            --surface2: #1c1c1e;
-            --surface3: #2c2c2e;
-            --text: #f5f5f7;
-            --text2: #98989d;
-            --text3: #636366;
-            --border: rgba(255,255,255,0.06);
+            --bg: #09090b;
+            --surface: #18181b;
+            --surface2: #27272a;
+            --surface3: #3f3f46;
+            --text: #f4f4f5;
+            --text2: #a1a1aa;
+            --text3: #71717a;
+            --border: #27272a;
             --modal-bg: rgba(0,0,0,0.9);
         }
         :root[data-theme="light"] {
             --bg: #ffffff;
-            --surface: #f5f5f7;
-            --surface2: #ebebeb;
-            --surface3: #e0e0e0;
-            --text: #111111;
-            --text2: #636366;
-            --text3: #98989d;
-            --border: #c5c5ca;
+            --surface: #f4f4f5;
+            --surface2: #e4e4e7;
+            --surface3: #d4d4d8;
+            --text: #18181b;
+            --text2: #71717a;
+            --text3: #a1a1aa;
+            --border: #d4d4d8;
             --modal-bg: rgba(0,0,0,0.5);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { overflow-x: hidden; }
-        body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
         main { flex: 1; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-left h1 { font-size: 48px; }
@@ -47,7 +47,7 @@
         .auth-btn:hover { background: var(--surface3); }
         .theme-btn { background: var(--surface2); color: var(--text); border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .theme-btn:hover { background: var(--surface3); }
-        .user-info { color: #0a84ff; font-weight: 500; }
+        .user-info { color: #3B82F6; font-weight: 500; }
         .idea { background: var(--surface); padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); }
         .idea h3 { margin-bottom: 10px; }
         .idea p { color: var(--text2); margin-bottom: 15px; }
@@ -55,7 +55,7 @@
         .vote-btn { background: var(--surface2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; color: var(--text3); font-weight: 700; transition: background 0.15s, color 0.15s; }
         .vote-btn:hover { background: var(--surface3); color: var(--text); }
         .vote-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .new-btn { position: fixed; bottom: 30px; right: 30px; background: #0a84ff; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .new-btn { position: fixed; bottom: 30px; right: 30px; background: #3B82F6; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .new-btn.hidden { display: none; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-bg); padding: 20px; z-index: 1000; }
         .modal.show { display: flex; align-items: center; justify-content: center; }
@@ -67,14 +67,14 @@
         .tab-content.active { display: block; }
         input, textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; font-family: inherit; }
         textarea { min-height: 100px; }
-        .btn { background: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
+        .btn { background: #3B82F6; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .close { float: right; font-size: 30px; cursor: pointer; color: var(--text3); }
         .error { color: #ff453a; font-size: 14px; margin-bottom: 10px; }
         .success { color: #30d158; font-size: 14px; margin-bottom: 10px; }
         footer { margin-top: 60px; padding: 30px 0 20px; border-top: 1px solid var(--border); color: var(--text3); font-size: 13px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         footer a { color: var(--text3); text-decoration: none; }
-        footer a:hover { color: #0a84ff; }
+        footer a:hover { color: #3B82F6; }
         .tier-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
         .tier-1 { background: #2a2a2a; color: #8e8e93; border: 1px solid #3a3a3a; }
         .tier-2 { background: #1a2a1a; color: #30d158; border: 1px solid #2a3a2a; }
@@ -114,10 +114,10 @@
             border-color: var(--accent);
         }
         .filter-btn.active, .sort-btn.active {
-            background: rgba(10, 132, 255, 0.8);
+            background: rgba(59, 130, 246, 0.8);
             backdrop-filter: blur(10px);
-            border-color: rgba(10, 132, 255, 0.6);
-            box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3);
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
             color: white;
         }
         body.dark .filter-btn, body.dark .sort-btn {
