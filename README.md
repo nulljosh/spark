@@ -10,7 +10,7 @@ Idea-sharing platform with upvoting and JWT auth. Post sparks, vote on others, n
 
 </div>
 
-![version](https://img.shields.io/badge/version-v1.0.0-blue)
+![version](https://img.shields.io/badge/version-v1.2.0-blue)
 
 ## Architecture
 
