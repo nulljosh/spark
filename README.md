@@ -1,16 +1,12 @@
-<div align="center">
+![Spark](icon.svg)
 
 # Spark
 
-<img src="icon.svg" alt="Spark" width="120" />
+![version](https://img.shields.io/badge/version-v1.2.0-blue)
 
 Idea-sharing platform with upvoting and JWT auth.
 
-[spark.heyitsmejosh.com](https://spark.heyitsmejosh.com)
-
-</div>
-
-![version](https://img.shields.io/badge/version-v1.2.0-blue)
+[Live](https://spark.heyitsmejosh.com)
 
 ## Features
 
@@ -38,6 +34,10 @@ Deploy: push to main, Vercel deploys automatically.
 - [ ] Comment threads
 - [ ] User profiles with post history
 - [ ] Moderation tools
+
+## Changelog
+
+- v1.2.0
 
 ## License
 
