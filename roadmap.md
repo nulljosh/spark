@@ -25,3 +25,6 @@
 
 ## Stashed 2026-07-19
 - [ ] iOS 1.0 is WAITING_FOR_REVIEW (since 06-27) while 2.2.0 builds (4,5 + today) sit unattached — decide: let 1.0 review land, or cancel and submit 2.2.0. Not auto-decided.
+
+## Ingested 2026-07-25
+- [ ] Splash/landing page needs the cursive-font fix applied too (same issue flagged on echo — see echo/roadmap.md). Never use cursive.
