@@ -144,7 +144,7 @@ module.exports = async function handler(req, res) {
       return res.status(429).json({ error: 'Too many requests' });
     }
 
-    const { title, content, category, linked_repo } = req.body || {};
+    const { title, content, category, linked_repo, date, time } = req.body || {};
     if (typeof title !== 'string' || title.length > 200) return res.status(400).json({ error: 'Title too long (max 200)' });
     if (typeof content !== 'string' || content.length > 5000) return res.status(400).json({ error: 'Content too long (max 5000)' });
     if (!title || !content) {
@@ -159,7 +159,7 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      const { post } = await addPostToDataSource({ title, content, category, linked_repo, user });
+      const { post } = await addPostToDataSource({ title, content, category, linked_repo, date, time, user });
       return res.status(201).json({ post });
     } catch (err) {
       console.error('[POSTS] Create failed:', err.message);
