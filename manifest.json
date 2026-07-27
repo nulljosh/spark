@@ -1,6 +1,6 @@
 {
-  "name": "Spark",
-  "short_name": "Spark",
+  "name": "Sparkjar",
+  "short_name": "Sparkjar",
   "description": "Where ideas become reality",
   "start_url": "/app.html",
   "display": "standalone",

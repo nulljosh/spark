@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#111" media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" href="/icon-192.svg">
-    <title>Spark</title>
+    <title>Sparkjar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="tokens.css">
@@ -193,10 +193,10 @@
             border-top: 1px solid var(--border);
         }
         /* Apple Liquid Glass -- filter/sort buttons */
-        .rfs-strip { display: flex; gap: 12px; overflow-x: auto; padding: 4px 0 16px; margin-bottom: 8px; }
+        .rfs-strip { display: flex; align-items: flex-start; gap: 12px; overflow-x: auto; padding: 4px 0 16px; margin-bottom: 8px; }
         .rfs-card { flex: 0 0 260px; border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: inherit; text-decoration: none; }
         .rfs-card:hover { border-color: var(--text3); }
-        .rfs-card .rfs-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); }
+        .rfs-card .rfs-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rfs-card h4 { margin: 4px 0 6px; font-size: 14px; }
         .rfs-card p { margin: 0; font-size: 13px; color: var(--text3); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -248,7 +248,7 @@
     <main>
         <div class="header">
             <div class="header-left">
-                <h1>Spark</h1>
+                <h1>Sparkjar</h1>
             </div>
             <div class="header-right">
                 <div class="bell-wrap" id="bellWrap" style="display:none">
@@ -388,7 +388,7 @@
         <div class="modal-box">
             <span class="close" onclick="document.getElementById('ideaBaseModal').classList.remove('show')">&times;</span>
             <h2 style="margin-bottom:20px">Generate Ideas</h2>
-            <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Enter a topic and the AI daemon will generate 8 ideas and seed them into Spark.</p>
+            <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Enter a topic and the AI daemon will generate 8 ideas and seed them into Sparkjar.</p>
             <div id="ideaBaseError" class="error"></div>
             <input type="text" id="ideaBaseTopic" placeholder="Topic (e.g. sustainable cities, health tech)" maxlength="200">
             <textarea id="ideaBaseDesc" placeholder="Additional context (optional)" maxlength="500" style="margin-top:10px;height:80px"></textarea>
@@ -397,7 +397,7 @@
     </div>
 
     <footer>
-        <span>&copy; 2026 Spark. All rights reserved.</span>
+        <span>&copy; 2026 Sparkjar. All rights reserved.</span>
         <span>
             <a href="https://github.com/nulljosh/spark" target="_blank">GitHub</a>
             &nbsp;&middot;&nbsp;

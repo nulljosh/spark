@@ -4,13 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#111">
-<title>Spark — Where ideas become reality</title>
+<title>Sparkjar — Where ideas become reality</title>
 <meta name="description" content="A feed of AI-generated startup and project ideas, voted and enriched by the crowd. Vote, comment, and turn the best ones into something real.">
 <link rel="apple-touch-icon" href="/icon-192.svg">
 <link rel="icon" href="/icon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400..900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
 <style>
   :root {
     --bg: #111111;
@@ -20,8 +18,8 @@
     --text3: rgba(232,232,240,0.35);
     --accent: #3B82F6;
     --border: rgba(232,232,240,0.09);
-    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Fraunces', Georgia, serif;
+    --font: -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif;
+    --font-display: var(--font);
     --radius-pill: 999px;
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
     --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -53,7 +51,7 @@
 
   .hero { max-width: 1080px; margin: 0 auto; padding: 5rem 1.5rem 4rem; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center; }
   .hero-copy { animation: fadeUp 0.8s var(--ease) both; }
-  .hero h1 { font-style: italic; font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
+  .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); max-width: 460px; margin: 0 0 2rem; }
   .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
   .status-pill { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; border-radius: var(--radius-pill); background: rgba(255,255,255,0.04); border: 1px solid var(--border); font-size: 0.8125rem; color: var(--text2); }
@@ -65,7 +63,7 @@
 
   section { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
   .section-head { max-width: 480px; margin: 0 auto 3rem; text-align: center; }
-  .section-head h2 { font-style: italic; font-size: 2rem; }
+  .section-head h2 { font-size: 2rem; }
 
   .icon-tile { width: 44px; height: 44px; border-radius: 12px; background: rgba(59,130,246,0.14); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: var(--accent); font-size: 1.25rem; }
 
@@ -77,7 +75,7 @@
   #how { background: var(--bg2); padding: 5rem 0; max-width: none; }
   .how-inner { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
-  .step-num { font-family: var(--font-display); font-style: italic; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .step-num { font-family: var(--font-display); font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
   .step h3 { font-size: 1.0625rem; font-weight: 600; margin-bottom: 0.4rem; }
   .step p { font-size: 0.875rem; color: var(--text2); line-height: 1.55; margin: 0; }
 
@@ -98,12 +96,12 @@
 <body>
 <header>
   <div class="header-inner">
-    <a href="/" class="logo"><img src="/icon.svg" alt=""> Spark</a>
+    <a href="/" class="logo"><img src="/icon.svg" alt=""> Sparkjar</a>
     <nav class="main-nav">
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
     </nav>
-    <a href="/app.html" class="header-cta">Open Spark</a>
+    <a href="/app.html" class="header-cta">Open Sparkjar</a>
   </div>
 </header>
 
@@ -120,13 +118,13 @@
   </div>
   <div class="hero-art">
     <div class="glow"></div>
-    <img src="/screenshots/spark-feed.png" alt="Spark idea feed" onerror="this.style.display='none'">
+    <img src="/screenshots/spark-feed.png" alt="Sparkjar idea feed" onerror="this.style.display='none'">
   </div>
 </div>
 
 <section id="features">
   <div class="section-head">
-    <div class="eyebrow">Why Spark</div>
+    <div class="eyebrow">Why Sparkjar</div>
     <h2>Built for finding the next thing</h2>
   </div>
   <div class="features-grid">
@@ -181,7 +179,7 @@
 
 <footer>
   <div class="footer-inner">
-    <span>&copy; 2026 Spark</span>
+    <span>&copy; 2026 Sparkjar</span>
     <div>
       <a href="/tos.html">Terms</a>
       &nbsp;·&nbsp;

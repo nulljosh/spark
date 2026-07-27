@@ -12,6 +12,18 @@ settings:
   SWIFT_VERSION: "6.0"
   MARKETING_VERSION: "2.2.0"
   CURRENT_PROJECT_VERSION: "3"
+schemes:
+  Spark:
+    build:
+      targets:
+        Spark: all
+        SparkUITests: [test]
+    test:
+      targets:
+        - SparkUITests
+    run:
+      config: Debug
+    shared: true
 targets:
   Spark:
     type: application
@@ -58,6 +70,16 @@ targets:
       - target: Spark
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.heyitsmejosh.spark.tests
+      GENERATE_INFOPLIST_FILE: YES
+  SparkUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: Spark
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.heyitsmejosh.spark.uitests
       GENERATE_INFOPLIST_FILE: YES
   SparkWidgetsExtension:
     type: app-extension

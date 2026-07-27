@@ -552,6 +552,7 @@ struct ProfileView: View {
                             }
                             .buttonStyle(.borderedProminent)
                             .tint(.sparkBlue)
+                            .accessibilityIdentifier("signin_button")
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 24)
@@ -850,6 +851,7 @@ private struct SparkFloatingTabBar: View {
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
                 .accessibilityLabel(tabs[index].label)
+                .accessibilityIdentifier("tabbar_\(tabs[index].label.lowercased())")
             }
         }
         .padding(.horizontal, 10)

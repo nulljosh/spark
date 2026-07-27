@@ -173,7 +173,7 @@ async function handleIdeaBase(req, res) {
 
 let rfsCache = { items: null, ts: 0 };
 const RFS_TTL_MS = 12 * 60 * 60 * 1000;
-const RFS_ENTRY_RE = /<div id="([\w-]+)"><div class="border[^"]*py-10[^"]*"><div class="w-full"><div class="mb-6"><h3[^>]*>([^<]+)<span.*?<\/h3><span[^>]*>By<!-- --> (.*?)<\/a><\/span><\/div>.*?whitespace-pre-wrap[^>]*>(.*?)<\/div><\/div><\/div><\/div><\/div><\/div>/gs;
+const RFS_ENTRY_RE = /<div id="([\w-]+)"><div class="border[^"]*py-10[^"]*"><div class="w-full"><div class="mb-6"><h3[^>]*>([^<]+)<span.*?<\/h3><span[^>]*>By<!-- --> (.*?)<\/span><\/div>.*?whitespace-pre-wrap[^>]*>(.*?)<\/div><\/div><\/div><\/div><\/div><\/div>/gs;
 
 function stripTags(s) {
   return s.replace(/<[^>]+>/g, '').replace(/&#x27;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
@@ -188,7 +188,7 @@ async function fetchRfs() {
   while ((m = RFS_ENTRY_RE.exec(html))) {
     items.push({
       slug: m[1],
-      title: m[2].trim(),
+      title: stripTags(m[2]),
       author: stripTags(m[3]),
       description: stripTags(m[4]),
       url: `https://www.ycombinator.com/rfs#${m[1]}`
