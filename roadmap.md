@@ -3,13 +3,11 @@
 
 ## From Icons.pdf / Asc.pdf (imported 2026-07-12)
 - [ ] Sparkjar iOS: 4 screenshots + archive/upload — verified 2026-07-26: archive/upload done (build 202607191845 VALID on ASC 2026-07-19). Still only 1 of 4 screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline plan wired up for this repo yet, needs the pipeline set up from scratch (not a quick add), not attempted this pass.
-- [x] Spark Mac 1.0: build + metadata + submit — **already done**, roadmap was stale: verified 2026-07-26 via `asc versions list --app 6785162492 --platform MAC_OS` — version 1.0 is `WAITING_FOR_REVIEW` (submitted 2026-07-21), build attached.
 
 ## 2026-07-14 dump
 - [ ] Hook up AI (Gemini preferred — check existing integration; Qwen fallback) for idea generation
 - [ ] After AI works: infinite scroll + pagination on Ideas page
 - [ ] Landing page + registration/onboarding flow
-- [x] Fix broken Create view — root cause found + fixed 2026-07-26: `api/posts.js`'s POST handler destructured only `{title, content, category, linked_repo}` from the request body, silently dropping `date`/`time` that the "New Idea" modal (`app.html`) sends and `addPostToDataSource` already supports — those two fields never saved. Fixed by adding `date, time` to the destructure and the call. `npx vitest run tests` — 34 passed.
 - [ ] Replace purple app icon with correct branding; bump version
 
 ## App Store submission (parked 2026-07-14, wrap-up)
