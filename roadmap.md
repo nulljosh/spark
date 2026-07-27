@@ -25,4 +25,4 @@
 - [ ] **NEEDS JOSHUA'S DECISION** — iOS 1.0 still WAITING_FOR_REVIEW (confirmed 2026-07-26, since 06-27) while 2.2.0 builds (build 202607191845, VALID) sit unattached — decide: let 1.0 review land, or cancel and submit 2.2.0. Not auto-decided, not touched this pass.
 
 ## Ingested 2026-07-25
-- [ ] Splash/landing page needs the cursive-font fix applied too (same issue flagged on echo — see echo/roadmap.md). Never use cursive.
+- [x] Splash/landing page needs the cursive-font fix applied too (same issue flagged on echo — see echo/roadmap.md). Never use cursive. DONE 2026-07-27: removed Fraunces, switched to system fonts (SF Pro, Helvetica). Committed and deployed.
