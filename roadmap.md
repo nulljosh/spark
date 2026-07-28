@@ -23,3 +23,6 @@
 
 ## Stashed 2026-07-19
 - [ ] **NEEDS JOSHUA'S DECISION** — iOS 1.0 still WAITING_FOR_REVIEW (confirmed 2026-07-26, since 06-27) while 2.2.0 builds (build 202607191845, VALID) sit unattached — decide: let 1.0 review land, or cancel and submit 2.2.0. Not auto-decided, not touched this pass.
+
+## From App Store.pdf (imported 2026-07-28)
+- [ ] Sparkjar macOS App Version 1.0 submission has an issue — ASC email "There's an issue with your Sparkjar (macOS) submission" received 2026-07-28 5:20 AM. Pull the reasons and fix.
