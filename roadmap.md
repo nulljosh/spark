@@ -26,3 +26,6 @@
 
 ## From App Store.pdf (imported 2026-07-28)
 - [ ] Sparkjar macOS App Version 1.0 submission has an issue — ASC email "There's an issue with your Sparkjar (macOS) submission" received 2026-07-28 5:20 AM. Pull the reasons and fix.
+
+## From App Store.pdf (imported 2026-07-29)
+- [ ] Sparkjar iOS 1.0 AND macOS 1.0 both show Rejected on ASC + a red "View App Review Issues & Messages" banner (Notification Center confirms both rejected within hours of each other) — pull the reasons via `asc review doctor` / dashboard and fix. Supersedes an earlier "Sparkjar: good!" note — that's stale.
