@@ -25,7 +25,7 @@
 - [ ] **NEEDS JOSHUA'S DECISION** — iOS 1.0 still WAITING_FOR_REVIEW (confirmed 2026-07-26, since 06-27) while 2.2.0 builds (build 202607191845, VALID) sit unattached — decide: let 1.0 review land, or cancel and submit 2.2.0. Not auto-decided, not touched this pass.
 
 ## From App Store.pdf (imported 2026-07-28)
-- [ ] Sparkjar macOS App Version 1.0 submission has an issue — ASC email "There's an issue with your Sparkjar (macOS) submission" received 2026-07-28 5:20 AM. Pull the reasons and fix.
+- [x] Sparkjar macOS App Version 1.0 submission has an issue — RESOLVED 2026-08-02. Root cause: both the iOS and macOS 1.0 review submissions each had exactly one review item — a stale `inAppPurchaseVersion` pointing at an IAP that no longer exists (`asc iap list` returns empty) — same pattern as the earlier Lexly/Sparkjar Mac fix. The app version itself had 0 blocking errors on `asc validate` (only a non-blocking empty-subtitle warning). Fix: canceled both stale review submissions (`asc review submissions-cancel`), created fresh submissions containing only the `appStoreVersions` item (no IAP), and resubmitted (`asc review submissions-submit`). Both now WAITING_FOR_REVIEW as of 2026-08-02.
 
 ## From App Store.pdf (imported 2026-07-29)
-- [ ] Sparkjar iOS 1.0 AND macOS 1.0 both show Rejected on ASC + a red "View App Review Issues & Messages" banner (Notification Center confirms both rejected within hours of each other) — pull the reasons via `asc review doctor` / dashboard and fix. Supersedes an earlier "Sparkjar: good!" note — that's stale.
+- [x] Sparkjar iOS 1.0 AND macOS 1.0 both show Rejected on ASC — RESOLVED 2026-08-02, same fix as above (single stale-IAP review item on both platforms, no metadata/build issue). Both resubmitted, WAITING_FOR_REVIEW.
