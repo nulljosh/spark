@@ -1,5 +1,5 @@
 
-- Fn-cap headroom (2026-07-05): 10/12 used. When needed, merge api/posts/[id]/index.js + vote.js into api/posts.js dispatch (rewrite /api/posts/:id(/vote) in vercel.json) → frees 2 slots. Mechanical, ~30min. Deferred, no feature currently blocked.
+- [x] Fn-cap headroom: DONE 2026-08-02 — merged api/posts/[id]/index.js (DELETE) + vote.js into api/posts.js's dispatch (id/vote query params), added matching rewrites in vercel.json before the catch-all. 8/12 functions now (was 10/12), 4 slots free.
 
 ## From Icons.pdf / Asc.pdf (imported 2026-07-12)
 - [ ] Sparkjar iOS: 4 screenshots + archive/upload — verified 2026-07-26: archive/upload done (build 202607191845 VALID on ASC 2026-07-19). Still only 1 of 4 screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline plan wired up for this repo yet, needs the pipeline set up from scratch (not a quick add), not attempted this pass.

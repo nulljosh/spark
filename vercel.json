@@ -5,6 +5,14 @@
       "destination": "/api/auth?action=$1"
     },
     {
+      "source": "/api/posts/([^/]+)/vote",
+      "destination": "/api/posts?id=$1&vote=1"
+    },
+    {
+      "source": "/api/posts/([^/]+)",
+      "destination": "/api/posts?id=$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

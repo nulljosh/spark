@@ -123,6 +123,66 @@ async function votePostInDataSource({ id, voteType, user }) {
 }
 
 module.exports = async function handler(req, res) {
+  const { id, vote } = req.query || {};
+
+  if (id && vote && req.method === 'POST') {
+    const user = parseToken(req.headers.authorization, req.headers.cookie);
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { voteType } = req.body || {};
+    if (!voteType || !['up', 'down'].includes(voteType)) {
+      return res.status(400).json({ error: 'voteType must be "up" or "down"' });
+    }
+
+    try {
+      const { post } = await votePostInDataSource({ id, voteType, user });
+      if (!post) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+      return res.status(200).json({ post });
+    } catch (err) {
+      if (err.message === 'not_found') return res.status(404).json({ error: 'Post not found' });
+      console.error('[VOTE] Failed:', err.message);
+      return res.status(500).json({ error: 'Failed to vote' });
+    }
+  }
+
+  if (id && req.method === 'DELETE') {
+    const user = parseToken(req.headers.authorization, req.headers.cookie);
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+      // Fetch the post to verify ownership
+      const rows = await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}&select=*`);
+      const post = Array.isArray(rows) ? rows[0] : null;
+
+      if (!post) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+
+      if (post.author_user_id !== user.userId) {
+        return res.status(403).json({ error: 'You can only delete your own posts' });
+      }
+
+      // Ownership is enforced above in JS. Use the service role so the delete
+      // isn't silently dropped by RLS (which keys off auth.uid(), absent here).
+      // Requires SUPABASE_SERVICE_ROLE_KEY in env to actually remove the row.
+      await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        useServiceRole: true
+      });
+
+      return res.status(200).json({ deleted: true });
+    } catch (err) {
+      console.error('[POSTS] Delete failed:', err.message);
+      return res.status(500).json({ error: 'Failed to delete post' });
+    }
+  }
+
   if (req.method === 'GET') {
     try {
       const { posts } = await getPostsFromDataSource();
