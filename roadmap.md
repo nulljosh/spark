@@ -18,9 +18,10 @@ added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08
   Without this var the endpoint returns a clear 500 and logs the missing name — it never
   fakes success.
 
-- [ ] **Apply the migration** `migrations/007_apple_signin.sql` (adds `users.apple_id` +
-  index) via the Supabase SQL editor, same way `006_github_oauth.sql` was applied. Until
-  this runs the endpoint will 500 on the user lookup.
+- [x] **Apply the migration** `migrations/007_apple_signin.sql` — DONE 2026-08-03, applied to
+  the shared `spark` Supabase project (`tjsxsqlxjmanwvmywwvw`) via MCP as migration
+  `apple_signin`. `users.apple_id` + the partial index now exist. Additive only, no data
+  touched.
 
 - [ ] **Then rebuild and resubmit.** The capability change **invalidates the existing
   provisioning profile** — regenerate it (`asc profiles`) before archiving, and verify the
