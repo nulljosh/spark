@@ -6,12 +6,19 @@ earlier note demanding a Services ID, a `.p8` key, `APPLE_TEAM_ID`, `APPLE_KEY_I
 Apple's *public* JWKS to verify a token, and the `APPLE_ID_AUTH` capability was already
 added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08-03.
 
-- [ ] **Set one env var.** The `vercel` CLI is not installed on this machine, which is the
-  only reason this is not already done. Either install it (`npm i -g vercel`) or run:
+- [ ] **Set one env var.** The `vercel` CLI is not installed on this machine — a side effect
+  of the Vercel→Cloudflare migration, not a sign sparkjar has moved. Sparkjar is still one of
+  the apps **on Vercel** pending a Workers rewrite, so this is still a Vercel env var today:
   ```
   npx vercel env add APPLE_CLIENT_ID production
   # value: com.heyitsmejosh.spark
   ```
+  **Note this is throwaway work.** When sparkjar moves to Cloudflare Workers, this becomes a
+  `wrangler secret put APPLE_CLIENT_ID`, and `api/_lib/auth/apple.js` (a Node serverless
+  handler using `module.exports`/`req`/`res`) needs porting to a Workers fetch handler along
+  with the rest of `api/`. The JWKS verification logic itself is portable — it's plain
+  `fetch` + JWT verify, no Node-only APIs — but the handler signature is not. Fold the Apple
+  endpoint into the Workers rewrite rather than doing this migration twice.
   This is the *audience* the server checks. Native Sign in with Apple sets the identity
   token's `aud` to the **app's bundle ID** — not a Services ID. (A future web flow would use
   a Services ID; `APPLE_CLIENT_ID` is comma-separated to allow both without a code change.)
