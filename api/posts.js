@@ -19,7 +19,7 @@ const seedPosts = [
   { id: 'seed-12', title: 'Walking directions that prioritize shade in summer', content: 'Google Maps finds the fastest route but in August I want the route with the most tree cover. Use satellite imagery to estimate shade coverage on each street.', category: 'tech', author_username: 'lex', author_user_id: 'system', score: 144, created_at: '2026-03-25T12:00:00Z' }
 ];
 
-const LIST_COLUMNS = 'id,title,category,author_username,author_user_id,score,created_at,enriched,linked_repo,date,time';
+const LIST_COLUMNS = 'id,title,category,author_username,author_user_id,score,created_at,enriched,linked_repo,date,time,pinned_until';
 
 function parseToken(authHeader, cookieHeader) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -51,13 +51,15 @@ function rowToPost(r) {
     enrichmentPlan: r.enrichment_plan || null,
     enrichmentSpec: r.enrichment_spec || null,
     date: r.date || null,
-    time: r.time || null
+    time: r.time || null,
+    pinned: Boolean(r.pinned_until && new Date(r.pinned_until) > new Date())
   };
 }
 
 async function getPostsFromDataSource({ limit, offset } = {}) {
-  // Only fetch columns needed for the feed list view (no content)
-  let query = `posts?select=${LIST_COLUMNS}&order=score.desc,created_at.desc`;
+  // Only fetch columns needed for the feed list view (no content).
+  // Pro posts pinned in the last 24h sort first, then the usual score/recency order.
+  let query = `posts?select=${LIST_COLUMNS}&order=pinned_until.desc.nullslast,score.desc,created_at.desc`;
   if (Number.isFinite(limit)) query += `&limit=${limit}`;
   if (Number.isFinite(offset)) query += `&offset=${offset}`;
   const rows = await supabaseRequest(query);
@@ -71,7 +73,7 @@ async function getPostsFromDataSource({ limit, offset } = {}) {
   return { posts: rows.map(rowToPost) };
 }
 
-async function addPostToDataSource({ title, content, category, linked_repo, date, time, user }) {
+async function addPostToDataSource({ title, content, category, linked_repo, date, time, user, isPro }) {
   const post = {
     title,
     content,
@@ -97,7 +99,8 @@ async function addPostToDataSource({ title, content, category, linked_repo, date
       author_username: user.username,
       author_user_id: user.userId,
       score: 0,
-      created_at: post.createdAt
+      created_at: post.createdAt,
+      pinned_until: isPro ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : null
     }
   });
   const row = Array.isArray(rows) ? rows[0] : rows;
@@ -206,7 +209,15 @@ module.exports = async function handler(req, res) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    if (!checkRateLimit('post:' + getIp(req), 10, 60_000)) {
+    let isPro = false;
+    try {
+      const rows = await supabaseRequest(`users?user_id=eq.${encodeURIComponent(user.userId)}&select=is_pro`);
+      isPro = Boolean(rows && rows[0] && rows[0].is_pro);
+    } catch (err) {
+      console.error('[POSTS] Pro status lookup failed:', err.message);
+    }
+
+    if (!isPro && !checkRateLimit('post:' + getIp(req), 10, 60_000)) {
       return res.status(429).json({ error: 'Too many requests' });
     }
 
@@ -225,7 +236,7 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      const { post } = await addPostToDataSource({ title, content, category, linked_repo, date, time, user });
+      const { post } = await addPostToDataSource({ title, content, category, linked_repo, date, time, user, isPro });
       return res.status(201).json({ post });
     } catch (err) {
       console.error('[POSTS] Create failed:', err.message);
