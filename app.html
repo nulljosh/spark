@@ -295,6 +295,7 @@
         </div>
         <div id="rfsStrip" class="rfs-strip hidden"></div>
         <div id="feed">Loading...</div>
+        <div id="feedSentinel"></div>
     </main>
 
     <button class="new-btn hidden" id="newIdeaBtn" onclick="showNewIdeaModal()">+ New Idea</button>
@@ -663,6 +664,29 @@
             } catch (e) { alert('Network error: ' + e.message); }
         }
 
+        const FEED_BATCH_SIZE = 20;
+
+        function renderNextFeedBatch() {
+            const posts = window.feedPosts || [];
+            const start = window.feedRendered || 0;
+            const batch = posts.slice(start, start + FEED_BATCH_SIZE);
+            if (batch.length === 0) return;
+            document.getElementById('feed').insertAdjacentHTML('beforeend', batch.map(p => renderIdea(p)).join(''));
+            window.feedRendered = start + batch.length;
+            loadCommentCounts(batch.map(p => p.id));
+        }
+
+        // ponytail: paginates the already-fetched array client-side (whole feed is one API
+        // call); switch to real server-side offset paging (api/posts.js already accepts
+        // ?limit&offset) if the feed grows large enough that fetching it all up front is slow.
+        const feedScrollObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) renderNextFeedBatch();
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const sentinel = document.getElementById('feedSentinel');
+            if (sentinel) feedScrollObserver.observe(sentinel);
+        });
+
         async function load() {
             try {
                 const res = await fetch(`${API_BASE}/api/posts`);
@@ -695,8 +719,14 @@
                     });
                 }
                 
-                document.getElementById('feed').innerHTML = posts.length > 0 ? posts.map(p => renderIdea(p)).join('') : `<div style="color:var(--text3);text-align:center;padding:40px">No ideas in this category.</div>`;
-                if (posts.length > 0) loadCommentCounts(posts.map(p => p.id));
+                window.feedPosts = posts;
+                window.feedRendered = 0;
+                if (posts.length === 0) {
+                    document.getElementById('feed').innerHTML = `<div style="color:var(--text3);text-align:center;padding:40px">No ideas in this category.</div>`;
+                    return;
+                }
+                document.getElementById('feed').innerHTML = '';
+                renderNextFeedBatch();
             } catch(e) {
                 // Client-side fallback seed data when API is unreachable
                 const fallbackPosts = [

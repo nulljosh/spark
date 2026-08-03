@@ -55,16 +55,17 @@ function rowToPost(r) {
   };
 }
 
-async function getPostsFromDataSource() {
+async function getPostsFromDataSource({ limit, offset } = {}) {
   // Only fetch columns needed for the feed list view (no content)
-  const rows = await supabaseRequest(
-    `posts?select=${LIST_COLUMNS}&order=score.desc,created_at.desc`
-  );
+  let query = `posts?select=${LIST_COLUMNS}&order=score.desc,created_at.desc`;
+  if (Number.isFinite(limit)) query += `&limit=${limit}`;
+  if (Number.isFinite(offset)) query += `&offset=${offset}`;
+  const rows = await supabaseRequest(query);
 
   if (!Array.isArray(rows) || rows.length === 0) {
     // DB is empty -- schema.sql seeds should have run.
     // Trigger seed endpoint or return fallback. Don't maintain a second copy of seed inserts here.
-    return { posts: seedPosts.map(rowToPost) };
+    return { posts: offset ? [] : seedPosts.map(rowToPost) };
   }
 
   return { posts: rows.map(rowToPost) };
@@ -185,7 +186,12 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const { posts } = await getPostsFromDataSource();
+      const limit = Number.parseInt(req.query && req.query.limit, 10);
+      const offset = Number.parseInt(req.query && req.query.offset, 10);
+      const { posts } = await getPostsFromDataSource({
+        limit: Number.isFinite(limit) ? limit : undefined,
+        offset: Number.isFinite(offset) ? offset : undefined
+      });
       return res.status(200).json({ posts });
     } catch (err) {
       console.error('[POSTS] Supabase fetch failed:', err.message);
