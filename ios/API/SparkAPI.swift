@@ -23,6 +23,7 @@ enum APIError: LocalizedError, Equatable {
 protocol SparkAPIProtocol: Sendable {
     func login(username: String, password: String) async throws -> AuthResponse
     func register(username: String, email: String?, password: String) async throws -> AuthResponse
+    func appleSignIn(identityToken: String, givenName: String?, familyName: String?, email: String?) async throws -> AuthResponse
     func deleteAccount() async throws
     func fetchPosts() async throws -> [Post]
     func createPost(title: String, content: String, category: String, linkedRepo: String?) async throws -> Post
@@ -149,6 +150,23 @@ final class SparkAPI: SparkAPIProtocol, Sendable {
         if let email, !email.isEmpty { payload["email"] = email }
         let body = try JSONSerialization.data(withJSONObject: payload)
         let req = try request("/api/auth/register", method: "POST", body: body)
+        let result: AuthResponse = try await perform(req)
+        saveToken(result.token)
+        return result
+    }
+
+    // Apple returns fullName/email ONLY on the first authorization, so both are
+    // optional here and the server treats stored values as authoritative.
+    func appleSignIn(identityToken: String, givenName: String?, familyName: String?, email: String?) async throws -> AuthResponse {
+        var payload: [String: Any] = ["identityToken": identityToken]
+        var fullName: [String: String] = [:]
+        if let givenName, !givenName.isEmpty { fullName["givenName"] = givenName }
+        if let familyName, !familyName.isEmpty { fullName["familyName"] = familyName }
+        if !fullName.isEmpty { payload["fullName"] = fullName }
+        if let email, !email.isEmpty { payload["email"] = email }
+
+        let body = try JSONSerialization.data(withJSONObject: payload)
+        let req = try request("/api/auth/apple", method: "POST", body: body)
         let result: AuthResponse = try await perform(req)
         saveToken(result.token)
         return result

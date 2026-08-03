@@ -1,11 +1,36 @@
 ## Blocked on Joshua
 
-- [ ] **Sign in with Apple is a stub returning HTTP 501 — this is the live cause of the 2.1(a) rejection.** `api/_lib/auth/apple.js` is a one-line handler that returns `501 {"error":"Apple Sign In not yet configured — add APPLE_CLIENT_ID and APPLE_TEAM_ID to Vercel env"}`. Meanwhile `ios/ContentView.swift:630` ships a real `SignInWithAppleButton` wired to it (`ios/Models/AppState.swift:78 handleAppleSignIn`), so tapping it always errors — exactly what App Review reported (submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`, reviewed build 202607191845, iPhone 17 Pro Max / iPad Air M3, iOS 26.6). Needs from Joshua, in order:
-  1. Create a Sign in with Apple **Services ID** + **key** in the Apple Developer portal for `com.heyitsmejosh.spark`, return URL `https://sparkjar.heyitsmejosh.com/api/auth/apple`.
-  2. `vercel env add APPLE_CLIENT_ID` and `vercel env add APPLE_TEAM_ID` (plus the key id / private key the implementation ends up needing).
-  3. Then the 501 stub has to be replaced with a real token-verification handler — that is a genuine multi-hour build, not a config flip (sparkjar's GitHub OAuth is hand-rolled, no Supabase Auth shortcut available here).
-  **Alternative that avoids all of the above:** remove the Sign in with Apple button entirely, as was done for Litigate iOS 1.0.1 b4. Weigh against Guideline 4.8 — sparkjar still offers GitHub sign-in, so dropping Apple may itself draw a 4.8 flag. This is a product decision, not a code one.
-- [ ] **DO NOT RESUBMIT sparkjar iOS until the above is resolved.** The dead-hostname half of the rejection is fixed (below), but the Sign in with Apple failure the reviewer explicitly listed as step 3-4 is untouched, so resubmitting now invites a second 2.1(a) rejection.
+Two mechanical steps, both ~1 minute. **No Apple Developer portal work is required** — the
+earlier note demanding a Services ID, a `.p8` key, `APPLE_TEAM_ID`, `APPLE_KEY_ID` and a
+`APPLE_PRIVATE_KEY` was wrong and has been deleted. Native Sign in with Apple only needs
+Apple's *public* JWKS to verify a token, and the `APPLE_ID_AUTH` capability was already
+added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08-03.
+
+- [ ] **Set one env var.** The `vercel` CLI is not installed on this machine, which is the
+  only reason this is not already done. Either install it (`npm i -g vercel`) or run:
+  ```
+  npx vercel env add APPLE_CLIENT_ID production
+  # value: com.heyitsmejosh.spark
+  ```
+  This is the *audience* the server checks. Native Sign in with Apple sets the identity
+  token's `aud` to the **app's bundle ID** — not a Services ID. (A future web flow would use
+  a Services ID; `APPLE_CLIENT_ID` is comma-separated to allow both without a code change.)
+  Without this var the endpoint returns a clear 500 and logs the missing name — it never
+  fakes success.
+
+- [ ] **Apply the migration** `migrations/007_apple_signin.sql` (adds `users.apple_id` +
+  index) via the Supabase SQL editor, same way `006_github_oauth.sql` was applied. Until
+  this runs the endpoint will 500 on the user lookup.
+
+- [ ] **Then rebuild and resubmit.** The capability change **invalidates the existing
+  provisioning profile** — regenerate it (`asc profiles`) before archiving, and verify the
+  built app with `codesign -d --entitlements :- <path>.app`: it must show both
+  `com.apple.developer.applesignin` and `application-identifier`. A missing
+  `application-identifier` is what made Uprighty's builds TestFlight-ineligible (ITMS-90886).
+
+Future, not needed now: revoking Apple tokens on account deletion (Apple requires it for
+apps offering account deletion, which `api/_lib/auth/delete-account.js` does) is the one
+thing that would later need a `.p8` key and the client_secret JWT exchange. Not built.
 
 ## Fixed 2026-08-03 — dead hostname (partial fix for the 2.1(a) rejection)
 

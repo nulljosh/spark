@@ -56,6 +56,11 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.jt.spark
+        # Required for the native SignInWithAppleButton. xcodegen regenerates
+        # Spark.entitlements from this block, so it must live here — editing
+        # the .entitlements file directly gets clobbered on `xcodegen generate`.
+        com.apple.developer.applesignin:
+          - Default
     dependencies:
       - target: SparkWidgetsExtension
     buildToolPlugins:

@@ -81,9 +81,19 @@ final class AppState {
             error = err.localizedDescription
         case .success(let auth):
             guard let cred = auth.credential as? ASAuthorizationAppleIDCredential else { return }
-            // ponytail: stub — /api/auth/apple returns 501 until APPLE_CLIENT_ID/TEAM_ID set in Vercel
-            error = "Apple Sign In coming soon — use username/password for now."
-            _ = cred // suppress unused warning
+            guard let tokenData = cred.identityToken,
+                  let identityToken = String(data: tokenData, encoding: .utf8) else {
+                error = "Apple did not return an identity token."
+                return
+            }
+            await authenticate {
+                try await self.api.appleSignIn(
+                    identityToken: identityToken,
+                    givenName: cred.fullName?.givenName,
+                    familyName: cred.fullName?.familyName,
+                    email: cred.email
+                )
+            }
         }
     }
 
