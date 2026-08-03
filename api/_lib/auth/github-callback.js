@@ -1,7 +1,7 @@
 const { supabaseRequest } = require('../supabase');
 const { createSession, issueToken, setSessionCookie } = require('../store');
 
-const SITE_URL = process.env.SITE_URL || 'https://spark.heyitsmejosh.com';
+const SITE_URL = process.env.SITE_URL || 'https://sparkjar.heyitsmejosh.com';
 
 async function getGithubToken(code) {
   const res = await fetch('https://github.com/login/oauth/access_token', {

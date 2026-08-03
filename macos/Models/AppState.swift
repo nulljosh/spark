@@ -111,7 +111,7 @@ final class AppState {
     }
 
     func exportPostURL(postId: String) -> URL {
-        URL(string: "https://spark.heyitsmejosh.com/api/ai?type=notes&id=\(postId)")!
+        URL(string: "https://sparkjar.heyitsmejosh.com/api/ai?type=notes&id=\(postId)")!
     }
 
     func fetchIdeaBases() async throws -> [IdeaBase] {

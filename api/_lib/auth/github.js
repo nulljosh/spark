@@ -7,7 +7,7 @@ module.exports = function handler(req, res) {
   const params = new URLSearchParams({
     client_id: clientId,
     scope: 'user:email',
-    redirect_uri: `${process.env.SITE_URL || 'https://spark.heyitsmejosh.com'}/api/auth/github-callback`,
+    redirect_uri: `${process.env.SITE_URL || 'https://sparkjar.heyitsmejosh.com'}/api/auth/github-callback`,
   });
   res.writeHead(302, { Location: `https://github.com/login/oauth/authorize?${params}` });
   res.end();

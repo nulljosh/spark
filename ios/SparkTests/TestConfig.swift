@@ -10,7 +10,7 @@ enum TestConfig {
     // Defaults (overridden by TestConfig.local.swift)
     nonisolated(unsafe) static var _username = "PLACEHOLDER"
     nonisolated(unsafe) static var _password = "PLACEHOLDER"
-    nonisolated(unsafe) static var _baseURL = "https://spark.heyitsmejosh.com"
+    nonisolated(unsafe) static var _baseURL = "https://sparkjar.heyitsmejosh.com"
 
     static var hasRealCredentials: Bool {
         username != "PLACEHOLDER" && password != "PLACEHOLDER"

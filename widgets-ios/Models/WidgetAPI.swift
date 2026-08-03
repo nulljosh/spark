@@ -1,7 +1,7 @@
 import Foundation
 
 struct WidgetAPI {
-    static let baseURL = "https://spark.heyitsmejosh.com"
+    static let baseURL = "https://sparkjar.heyitsmejosh.com"
     private static nonisolated(unsafe) let defaults = UserDefaults(suiteName: "group.com.jt.spark")
 
     private static var session: URLSession {
