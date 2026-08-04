@@ -88,6 +88,11 @@ async function addPostToDataSource({ title, content, category, linked_repo, date
 
   const rows = await supabaseRequest('posts', {
     method: 'POST',
+    // RLS policy authenticated_insert_posts only admits the `authenticated`
+    // role. This app does its own JWT auth, so Supabase always sees `anon` and
+    // rejected every insert with "new row violates row-level security policy".
+    // Same reason the DELETE path below already sets this.
+    useServiceRole: true,
     body: {
       id: 'post-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
       title: post.title,

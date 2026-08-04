@@ -36,6 +36,10 @@ async function addComment({ postId, content, user }) {
   };
   const rows = await supabaseRequest('comments', {
     method: 'POST',
+    // Same as posts: authenticated_insert_comments admits only the
+    // `authenticated` role, and this app's own JWT auth means Supabase sees
+    // `anon`, so inserts were blocked by RLS.
+    useServiceRole: true,
     body: comment
   });
   const row = Array.isArray(rows) ? rows[0] : rows;
