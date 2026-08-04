@@ -51,7 +51,10 @@ function verifyToken(token) {
 function mapSupabaseUser(row) {
   if (!row) return null;
   return {
-    userId: row.id,
+    // Prefer the app-level user_id over the serial PK, matching the GitHub and
+    // Apple paths (`user.user_id || user.id`). Returning row.id gave
+    // email-registered users a numeric id while OAuth users got a string one.
+    userId: row.user_id || row.id,
     username: row.username,
     email: row.email || null,
     passwordHash: row.password_hash || row.password,
@@ -80,12 +83,22 @@ async function createUser({ username, email, password }) {
 
   if (useSupabase()) {
     try {
+      // useServiceRole is required: RLS policy no_direct_write_users blocks all
+      // anon INSERTs on users. Without it this threw and silently fell through
+      // to /tmp, which on Vercel is per-instance and ephemeral -- so email
+      // sign-ups appeared to succeed and then vanished. Matches the GitHub and
+      // Apple paths, which already do this.
       const rows = await supabaseRequest('users', {
         method: 'POST',
+        useServiceRole: true,
         body: {
+          // user_id is NOT NULL with no default; omitting it violated the
+          // constraint even when RLS was satisfied.
+          user_id: `user-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
           username,
           email: email || null,
           password_hash: hash,
+          password_salt: null,
           created_at: new Date().toISOString()
         }
       });
@@ -237,6 +250,7 @@ async function setResetToken(username, token, expires) {
   if (!useSupabase()) return false;
   await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
     method: 'PATCH',
+    useServiceRole: true,
     body: { reset_token: token, reset_token_expires: expires.toISOString() }
   });
   return true;
@@ -261,6 +275,7 @@ async function clearResetToken(username) {
   if (!useSupabase()) return false;
   await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
     method: 'PATCH',
+    useServiceRole: true,
     body: { reset_token: null, reset_token_expires: null }
   });
   return true;
@@ -272,6 +287,7 @@ async function updatePassword(username, newPassword) {
   if (useSupabase()) {
     await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
       method: 'PATCH',
+      useServiceRole: true,
       body: { password_hash: hash }
     });
     return true;
