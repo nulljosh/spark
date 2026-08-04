@@ -10,8 +10,14 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 10;
 
 function useSupabase() {
-  const { url, key } = getSupabaseConfig();
-  return !!(url && key);
+  // getSupabaseConfig returns { url, anonKey, serviceRoleKey } -- there is no
+  // `key` property. Destructuring `key` yielded undefined, so this always
+  // returned false and EVERY auth path silently skipped Supabase for the
+  // ephemeral /tmp store. Accounts never persisted, which is what App Review
+  // hit as "unable to sign up or sign in". posts.js was unaffected because it
+  // calls supabaseRequest directly rather than gating on this.
+  const { url, anonKey, serviceRoleKey } = getSupabaseConfig();
+  return !!(url && (anonKey || serviceRoleKey));
 }
 
 // Password hashing (bcrypt -- matches existing Supabase data)
@@ -104,8 +110,12 @@ async function createUser({ username, email, password }) {
       });
       const row = Array.isArray(rows) ? rows[0] : rows;
       return mapSupabaseUser(row);
-    } catch {
-      // fall through to /tmp
+    } catch (err) {
+      // Do NOT swallow this silently. A failure here falls through to the /tmp
+      // store, which on Vercel is per-instance and ephemeral -- the account
+      // looks created and then does not exist. That silent fallback is what
+      // hid a production-wide sign-up outage until App Review caught it.
+      console.error('[AUTH] Supabase createUser failed, falling back to /tmp:', err && err.message);
     }
   }
 
