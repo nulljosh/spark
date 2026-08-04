@@ -6,10 +6,25 @@ function stripEnvPrefix(val) {
   return m ? m[1].trim() : val;
 }
 
+// Strip a *literal* trailing backslash-n / backslash-r (the two characters \ and n),
+// not a real newline. Vercel env vars set via `echo` instead of `printf` end up
+// carrying these, and String.trim() does not remove them because they are not
+// whitespace. This silently broke production for weeks: SUPABASE_URL became
+// "...supabase.co\n" (DNS failure) and SUPABASE_ANON_KEY became "<jwt>\n"
+// (Invalid API key), so every Supabase call threw and the app fell back to seed
+// data and in-memory auth -- which is what App Review saw as a broken app.
+function stripLiteralEscapes(val) {
+  return val.replace(/(?:\\[rn])+$/, '').trim();
+}
+
+function cleanEnv(val) {
+  return stripLiteralEscapes(stripEnvPrefix((val || '').trim()));
+}
+
 function getSupabaseConfig() {
-  let url = stripEnvPrefix((process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim());
-  let anonKey = stripEnvPrefix((process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim());
-  let serviceRoleKey = stripEnvPrefix((process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim());
+  let url = cleanEnv(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL);
+  let anonKey = cleanEnv(process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  let serviceRoleKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   return { url, anonKey, serviceRoleKey };
 }
@@ -73,6 +88,7 @@ async function supabaseRpc(fnName, params = {}, { useServiceRole = false } = {})
 }
 
 module.exports = {
+  cleanEnv,
   getSupabaseConfig,
   supabaseRequest,
   supabaseRpc
