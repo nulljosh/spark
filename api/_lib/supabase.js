@@ -31,7 +31,14 @@ function getSupabaseConfig() {
 
 async function supabaseRequest(path, { method = 'GET', body, useServiceRole = false } = {}) {
   const { url, anonKey, serviceRoleKey } = getSupabaseConfig();
-  const key = (useServiceRole && serviceRoleKey) ? serviceRoleKey : anonKey;
+  // Never silently downgrade a service-role call to the anon key. The anon role has
+  // column privileges only on the public columns (see migration
+  // 20260804000001_restrict_anon_user_columns), so a downgraded auth read returns 403
+  // -- which findUserByUsername's catch swallows, silently falling back to the
+  // ephemeral /tmp store. That failure mode looks exactly like "all accounts vanished"
+  // and is what App Review previously hit. Fail loudly instead.
+  if (useServiceRole && !serviceRoleKey) throw new Error('supabase_service_role_key_missing');
+  const key = useServiceRole ? serviceRoleKey : anonKey;
   if (!url || !key) throw new Error('supabase_not_configured');
 
   const res = await fetch(`${url}/rest/v1/${path}`, {
@@ -60,7 +67,14 @@ async function supabaseRequest(path, { method = 'GET', body, useServiceRole = fa
 
 async function supabaseRpc(fnName, params = {}, { useServiceRole = false } = {}) {
   const { url, anonKey, serviceRoleKey } = getSupabaseConfig();
-  const key = (useServiceRole && serviceRoleKey) ? serviceRoleKey : anonKey;
+  // Never silently downgrade a service-role call to the anon key. The anon role has
+  // column privileges only on the public columns (see migration
+  // 20260804000001_restrict_anon_user_columns), so a downgraded auth read returns 403
+  // -- which findUserByUsername's catch swallows, silently falling back to the
+  // ephemeral /tmp store. That failure mode looks exactly like "all accounts vanished"
+  // and is what App Review previously hit. Fail loudly instead.
+  if (useServiceRole && !serviceRoleKey) throw new Error('supabase_service_role_key_missing');
+  const key = useServiceRole ? serviceRoleKey : anonKey;
   if (!url || !key) throw new Error('supabase_not_configured');
 
   const res = await fetch(`${url}/rest/v1/rpc/${fnName}`, {

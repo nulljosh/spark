@@ -72,7 +72,9 @@ function mapSupabaseUser(row) {
 async function findUserByUsername(username) {
   if (useSupabase()) {
     try {
-      const rows = await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}&select=*`);
+      // Service role required: this reads password_hash to verify logins, and the
+      // anon role no longer holds column privileges on the sensitive columns.
+      const rows = await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}&select=*`, { useServiceRole: true });
       if (Array.isArray(rows) && rows.length > 0) return mapSupabaseUser(rows[0]);
     } catch {
       // fall through to /tmp
@@ -247,7 +249,9 @@ function setSessionCookie(res, sessionId) {
 async function findUserByEmail(email) {
   if (!email || !useSupabase()) return null;
   try {
-    const rows = await supabaseRequest(`users?email=eq.${encodeURIComponent(email)}&select=*`);
+    // Service role required: filters on `email` and reads password_hash, both of
+    // which the anon role no longer has column privileges for.
+    const rows = await supabaseRequest(`users?email=eq.${encodeURIComponent(email)}&select=*`, { useServiceRole: true });
     if (Array.isArray(rows) && rows.length > 0) return mapSupabaseUser(rows[0]);
   } catch {
     // fall through
@@ -270,7 +274,8 @@ async function setResetToken(username, token, expires) {
 async function findUserByResetToken(token) {
   if (!token || !useSupabase()) return null;
   try {
-    const rows = await supabaseRequest(`users?reset_token=eq.${encodeURIComponent(token)}&select=*`);
+    // Service role required: filters on `reset_token`, which anon can no longer read.
+    const rows = await supabaseRequest(`users?reset_token=eq.${encodeURIComponent(token)}&select=*`, { useServiceRole: true });
     if (!Array.isArray(rows) || rows.length === 0) return null;
     const row = rows[0];
     if (row.reset_token_expires && new Date(row.reset_token_expires) < new Date()) return null;
