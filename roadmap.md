@@ -54,9 +54,30 @@ to `Sparkjar` in `macos/project.yml`, leaving scheme/target/bundle ID alone.
       (Vercel marks it sensitive) so it was not re-added with `printf`. If service-role
       writes ever fail, suspect the same trailing `\n` — `cleanEnv()` should already
       neutralise it, but re-adding it cleanly is the certain fix.
-- [ ] Security follow-up, out of scope tonight: the `anon_read_users` RLS policy lets
-      anyone holding the anon key read the whole `users` row, including `password_hash`
-      and `reset_token`. Worth narrowing to the columns the client actually needs.
+- [x] Security follow-up: the `anon_read_users` RLS policy let anyone holding the anon
+      key read the whole `users` row, including `password_hash` and `reset_token`.
+      **CLOSED 2026-08-04.** Confirmed live first (as `anon` I could read every user's
+      bcrypt hash and email), then fixed in two ordered steps. RLS is row-level and
+      cannot restrict columns, so the fix is column-level GRANTs, which Postgres ANDs
+      with the row policy: migration `20260804000001_restrict_anon_user_columns` revokes
+      blanket SELECT from `anon`/`authenticated` and re-grants only
+      `id, user_id, username, created_at, avatar_url, is_pro` (the columns
+      `api/users.js`, `api/user.js`, `api/posts.js` and `api/stripe.js` actually read).
+      That required an app change first: `findUserByUsername`, `findUserByEmail` and
+      `findUserByResetToken` in `store.js` were reading with the **anon** key and
+      genuinely need `password_hash`/`reset_token`, so they now pass
+      `useServiceRole: true`. Ordering was mandatory — applying the migration before the
+      deploy would have 403'd those reads, which `findUserByUsername`'s bare `catch`
+      swallows, silently falling back to the ephemeral `/tmp` store (the exact
+      "accounts vanished" failure App Review hit twice). Deploy `2679926` was confirmed
+      READY in production before the migration ran. Also hardened
+      `supabaseRequest`/`supabaseRpc` to throw `supabase_service_role_key_missing`
+      instead of silently downgrading a service-role call to the anon key, since that
+      downgrade is what would re-trigger the same silent failure.
+      Verified after: `select password_hash` as `anon` → `42501 permission denied`;
+      register-collision → 409 (proves the service-role DB read works, not a `/tmp`
+      fallback); login wrong-password → 401 not 500; `/api/users` and `/api/user` → 200
+      with public fields intact. `get_advisors` reports no remaining `users` findings.
 
 ## Blocked on Joshua
 
