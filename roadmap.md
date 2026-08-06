@@ -150,16 +150,10 @@ Real bugs, ranked:
 Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *from* `lingo.` (a redirect source doesn't need to resolve — harmless, arguably should stay); `talli/src/api.js:340` lists both `talli.` and `tally.` in a CORS allowlist (extra entry, no effect); `journal/_site/**` hits are generated build output inside historical posts.
 
 
-## From Icons.pdf / Asc.pdf (imported 2026-07-12)
-- [ ] Sparkjar iOS: 4 screenshots + archive/upload — verified 2026-07-26: archive/upload done (build 202607191845 VALID on ASC 2026-07-19). Still only 1 of 4 screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline plan wired up for this repo yet, needs the pipeline set up from scratch (not a quick add), not attempted this pass.
-
-## 2026-07-14 dump
-- [ ] Landing page + registration/onboarding flow
-
-## App Store submission (parked 2026-07-14, wrap-up)
-- [ ] 4 screenshots (fastlane snapshot, iPhone 11 Pro Max / 14 Plus sims)
-- [ ] archive + upload build (asc workflow run ship-ios)
-- [ ] submit
+## App Store submission checklist (consolidated 2026-08-06)
+- [ ] Rebuild + resubmit BOTH platforms — reviewed builds (iOS `202607191845`, macOS build 3) predate the production-bug fixes above, new binaries required. See "Blocked on Joshua" above for the Sign in with Apple provisioning-profile regen this also needs.
+- [ ] Screenshots: only 1 of 4 iOS screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline wired up for this repo yet, needs setup from scratch.
+- [ ] Landing page + registration/onboarding flow.
 
 ## From Sparkjar.pdf (imported 2026-07-19)
 - [x] Domain rename applied in code 2026-08-03 (commit a458002): all 10 `spark.heyitsmejosh.com` refs → `sparkjar.` across ios/macos/watchos/widgets + api SITE_URL fallbacks. Also fixed the fastlane `support_url.txt`/`privacy_url.txt`/`marketing_url.txt`, which still pointed at the dead host — ASC itself was already correct, but a `fastlane deliver` would have pushed the dead URL back onto the listing (Guideline 1.5 rejection). **Bundle-ID rename `com.heyitsmejosh.spark` → `sparkjar` still deliberately pending** — separate coordinated change.
