@@ -87,7 +87,7 @@ earlier note demanding a Services ID, a `.p8` key, `APPLE_TEAM_ID`, `APPLE_KEY_I
 Apple's *public* JWKS to verify a token, and the `APPLE_ID_AUTH` capability was already
 added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08-03.
 
-- [ ] **Set one env var.** The `vercel` CLI is not installed on this machine — a side effect
+- [x] **Set one env var — CONFIRMED 2026-08-06.** `APPLE_CLIENT_ID` already present in Vercel production env (set ~2026-08-03, value marked Sensitive/hidden by Vercel so content not re-verified, but the var exists and the endpoint depends on it existing, not on inspecting the value locally). Note below on the throwaway/Workers-migration nature still applies. The vercel CLI is not installed on this machine — a side effect
   of the Vercel→Cloudflare migration, not a sign sparkjar has moved. Sparkjar is still one of
   the apps **on Vercel** pending a Workers rewrite, so this is still a Vercel env var today:
   ```
