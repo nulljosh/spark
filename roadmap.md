@@ -152,6 +152,9 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 
 ## App Store submission checklist (consolidated 2026-08-06)
 - [ ] Rebuild + resubmit BOTH platforms — reviewed builds (iOS `202607191845`, macOS build 3) predate the production-bug fixes above, new binaries required. See "Blocked on Joshua" above for the Sign in with Apple provisioning-profile regen this also needs.
+
+## From Apple Notes (imported 2026-08-08)
+- [ ] **"TestFlight icon looks super old" — not a bug, expected staleness.** Checked via `asc builds list`: the latest uploaded iOS build (`8d32852e…`, version `202607191845`) was uploaded 2026-07-19T18:47. The app icon (`ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png`) was last regenerated in commit `613a87b` on 2026-08-03 — 2 weeks *after* that build. No build has been uploaded since the icon fix, so TestFlight/ASC is correctly showing the icon that shipped in the last real upload — this is covered by the existing "Rebuild + resubmit BOTH platforms" item above, not a separate bug.
 - [ ] Screenshots: only 1 of 4 iOS screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline wired up for this repo yet, needs setup from scratch.
 - [ ] Landing page + registration/onboarding flow.
 
