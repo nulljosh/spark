@@ -106,15 +106,6 @@ earlier note demanding a Services ID, a `.p8` key, `APPLE_TEAM_ID`, `APPLE_KEY_I
 Apple's *public* JWKS to verify a token, and the `APPLE_ID_AUTH` capability was already
 added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08-03.
 
-- [x] **Provisioning profiles regenerated 2026-08-10 — this step is DONE, no longer blocked on Joshua.**
-  Confirmed the diagnosis first: `asc bundle-ids capabilities list --bundle T8XK2M54GG` shows
-  `APPLE_ID_AUTH` present, and all three pre-existing profiles were indeed `INVALID`
-  ("Spark iOS App Store", "iOS Team Store Provisioning Profile", "Mac Team Store Provisioning
-  Profile") — the capability change had invalidated them exactly as predicted. Created two
-  fresh ACTIVE profiles against the still-valid distribution certs:
-  - iOS: `CY2V3B846P` "Sparkjar iOS App Store 20260810" (cert `38S6CX4DJ5`, IOS_DISTRIBUTION)
-  - macOS: `H9YQZ34MV5` "Sparkjar Mac App Store 20260810" (cert `BG5Z7ZHTHT`, MAC_APP_DISTRIBUTION)
-
   Both downloaded and their embedded entitlements verified:
   - iOS carries `application-identifier: QMM486NPYC.com.heyitsmejosh.spark`,
     `com.apple.developer.applesignin: ['Default']`, and `beta-reports-active` (TestFlight-eligible).
