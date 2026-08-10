@@ -1,3 +1,38 @@
+# Sparkjar Roadmap
+
+## ASC state verified 2026-08-10 — BOTH PLATFORMS ARE REJECTED, not "waiting for review"
+
+`~/Documents/Code/CLAUDE.md` and older notes here say "iOS + Mac 1.0 WAITING_FOR_REVIEW
+(2026-08-02 resubmitted)". **That is wrong.** Live state from `asc versions list --app 6785162492`:
+
+| Platform | Version | State | Version id |
+|---|---|---|---|
+| IOS | 1.0 | `REJECTED` | `14770136-f866-42b4-850b-eef60edc51e7` |
+| MAC_OS | 1.0 | `REJECTED` | `9a2a36d5-5358-425d-a659-015c3f3bc840` |
+
+Both 08-02 resubmissions came back rejected. The open submissions are stuck in
+`UNRESOLVED_ISSUES`: iOS `13b90678-12c4-47ae-b2a2-7df0cdcda784` (submitted 2026-08-02T18:04Z),
+macOS `0dac7261-a62e-4865-b9ea-d20b36cc0cef` (2026-08-02T11:11Z).
+
+**The phantom-IAP pattern is back — and it is not unique to sparkjar.** Each stuck submission
+holds exactly one item, state `REJECTED`, reported by `asc review history` as type
+`inAppPurchaseVersion`. But `asc iap list --app 6785162492` returns **zero IAPs**. The same
+signature appears on healstack (also 0 IAPs). Decoding the item id is informative:
+`base64 -d` on `MTNiOTA2NzgtMTJjNC00N2FlLWIyYTItN2RmMGNkY2RhNzg0fDZ8ODg3NTQzMDM5` gives
+`13b90678-…|6|887543039` — a type code `6` plus a numeric resource id, so asc's
+"inAppPurchaseVersion" label may just be a mislabelled type code rather than a real IAP.
+Do not go hunting for an IAP to fix; there isn't one.
+
+Worth noting: the bundle ID still has the `IN_APP_PURCHASE` capability enabled while the app
+ships no IAPs. That is a plausible contributor and is cheap to turn off if the next
+resubmission bounces the same way — but it is a hypothesis, not a confirmed cause.
+
+- [ ] **Read the actual rejection text in Resolution Center.** The public API does not expose
+  reviewer messages; `asc web review show --app 6785162492` would, but `asc web auth status`
+  is `authenticated:false` and re-auth (`asc-login`) needs an interactive 2FA code from
+  Joshua. **Until someone reads Resolution Center, the real rejection reason is unknown** —
+  the rebuild below is necessary but may not be sufficient.
+
 ## Email verification and password-reset flow — SMTP/Resend integration missing
 
 The signup flow has optional email-verification (soft gate, existing accounts grandfathered, login never blocked) and password-reset flow implemented at `/api/auth/verify-email.js` and `/api/auth/password-reset.js`, but both silently no-op on Vercel production. Root cause: the `mail.js` utility checks for SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM env vars, and none are set on Vercel. **Options:** (1) integrate Resend API (same provider Epiphany uses) by setting RESEND_API_KEY env var, adding sparkjar.heyitsmejosh.com as a Resend sending domain + DKIM/SPF records in Cloudflare, then replacing mail.js's SMTP code with Resend calls; (2) set up an SMTP relay on Vercel. Resend is simpler — costs $20/month at scale but free tier is enough for this app. Not fixed this session.
@@ -54,6 +89,10 @@ to `Sparkjar` in `macos/project.yml`, leaving scheme/target/bundle ID alone.
 - [ ] Rebuild + resubmit BOTH platforms. The reviewed builds (iOS `202607191845`,
       macOS build 3) predate the dead-host fix, so new binaries are required even
       though the server side is now correct.
+      **Re-verified 2026-08-10:** newest build on the record is still `202607191845`,
+      uploaded 2026-07-19T18:47 — genuinely older than the 08-03/08-04 production
+      fixes. The rebuild requirement is real, not stale. Provisioning is no longer a
+      blocker (see "ASC state verified 2026-08-10" below).
 - [ ] Note for the next session: `SUPABASE_SERVICE_ROLE_KEY` could not be read back
       (Vercel marks it sensitive) so it was not re-added with `printf`. If service-role
       writes ever fail, suspect the same trailing `\n` — `cleanEnv()` should already
@@ -67,11 +106,34 @@ earlier note demanding a Services ID, a `.p8` key, `APPLE_TEAM_ID`, `APPLE_KEY_I
 Apple's *public* JWKS to verify a token, and the `APPLE_ID_AUTH` capability was already
 added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08-03.
 
-- [ ] **Then rebuild and resubmit.** The capability change **invalidates the existing
-  provisioning profile** — regenerate it (`asc profiles`) before archiving, and verify the
-  built app with `codesign -d --entitlements :- <path>.app`: it must show both
-  `com.apple.developer.applesignin` and `application-identifier`. A missing
-  `application-identifier` is what made Uprighty's builds TestFlight-ineligible (ITMS-90886).
+- [x] **Provisioning profiles regenerated 2026-08-10 — this step is DONE, no longer blocked on Joshua.**
+  Confirmed the diagnosis first: `asc bundle-ids capabilities list --bundle T8XK2M54GG` shows
+  `APPLE_ID_AUTH` present, and all three pre-existing profiles were indeed `INVALID`
+  ("Spark iOS App Store", "iOS Team Store Provisioning Profile", "Mac Team Store Provisioning
+  Profile") — the capability change had invalidated them exactly as predicted. Created two
+  fresh ACTIVE profiles against the still-valid distribution certs:
+  - iOS: `CY2V3B846P` "Sparkjar iOS App Store 20260810" (cert `38S6CX4DJ5`, IOS_DISTRIBUTION)
+  - macOS: `H9YQZ34MV5` "Sparkjar Mac App Store 20260810" (cert `BG5Z7ZHTHT`, MAC_APP_DISTRIBUTION)
+
+  Both downloaded and their embedded entitlements verified:
+  - iOS carries `application-identifier: QMM486NPYC.com.heyitsmejosh.spark`,
+    `com.apple.developer.applesignin: ['Default']`, and `beta-reports-active` (TestFlight-eligible).
+  - macOS carries `com.apple.application-identifier: QMM486NPYC.com.heyitsmejosh.spark`
+    and `com.apple.developer.applesignin: ['Default']`.
+
+  **Correction to the old instruction above:** the check "must show `application-identifier`"
+  is iOS-only. macOS profiles use the prefixed key `com.apple.application-identifier` — a
+  macOS profile will *never* show the bare `application-identifier`, so don't read its
+  absence there as the ITMS-90886 failure. Check the prefixed key on Mac, the bare one on iOS.
+
+  Note: the three old INVALID profiles were deliberately left in place (deleting them is riskier
+  than leaving them; Xcode ignores invalid profiles). If manual signing picks one by name,
+  delete "Spark iOS App Store" specifically — the new profile has a distinct name.
+
+- [ ] **Then rebuild and resubmit both platforms.** Now unblocked — archive with the profiles
+  above, then verify the built app with `codesign -d --entitlements :- <path>.app` before upload.
+  Remember `asc builds upload` reports success even on FAILED uploads — always confirm with
+  `asc builds uploads list`.
 
 Future, not needed now: revoking Apple tokens on account deletion (Apple requires it for
 apps offering account deletion, which `api/_lib/auth/delete-account.js` does) is the one
