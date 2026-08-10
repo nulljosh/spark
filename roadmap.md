@@ -185,3 +185,16 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 ## App Store submission freeze — until 2026-08-18
 - [ ] **BLOCKED: no App Store submission on any app until 2026-08-18.** Account is under a Guideline 5.6 Developer Code of Conduct review suspension (Curvely, Transcriptly, Wiretext, NYC Survive). Apple warns that continued similar submissions may result in removal from the Apple Developer Program. Full detail: wiki `ship-plan.md` § "Guideline 5.6 suspension (2026-08-10)". TestFlight builds, pushes and web deploys are still fine.
 - [ ] Sparkjar 1.0 REJECTED 2.1(a) (build 202607191845): Sign in with Apple returns an error, sign-up returns an error, and other sections show a server error. Production auth is broken end-to-end. Fix and verify against the live backend before any resubmit.
+
+## Auth investigation 2026-08-10 — production API is HEALTHY
+Tested the live API directly (the exact flows the reviewer reported failing):
+- `POST /api/auth/register` → **201**, returns a valid JWT.
+- `POST /api/auth/login` with `{username, password}` → **200**, valid JWT.
+- `GET /api/posts` → **200**, full payload. No server error.
+- `POST /api/auth/apple` with a bogus token → **401 "Invalid Apple credentials"**, NOT the 500 "misconfigured" branch — so `APPLE_CLIENT_ID` **is** set in production.
+So the backend is not broken today, and Sign in with Apple is configured. The reviewed build was
+**202607191845 (July 19)** and `asc builds list` confirms that is still the newest build — no
+newer build has been uploaded since. So the failure is either client-side in that July 19 build
+or was transient backend state on review day (Aug 3).
+- [ ] Cut a fresh build and manually exercise sign-up, username sign-in, and Sign in with Apple on a real device before resubmitting. Do not resubmit the July 19 build.
+- [ ] Note: login takes `username`, not email. Register accepts an optional email. Confirm the reviewer wasn't typing an email into the username field — if that's plausible, accept either.
