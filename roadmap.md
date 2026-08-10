@@ -198,3 +198,25 @@ newer build has been uploaded since. So the failure is either client-side in tha
 or was transient backend state on review day (Aug 3).
 - [ ] Cut a fresh build and manually exercise sign-up, username sign-in, and Sign in with Apple on a real device before resubmitting. Do not resubmit the July 19 build.
 - [ ] Note: login takes `username`, not email. Register accepts an optional email. Confirm the reviewer wasn't typing an email into the username field — if that's plausible, accept either.
+
+## 2026-08-10 — build environment blockers found (will bite the Aug 18 rebuild)
+Tried to prove the "just rebuild, no code change" claim by compiling current `main`. App sources
+compile clean — across four build attempts **not one error came from app code**. Two local
+toolchain problems block a clean build, though, and both need fixing before the Aug 18 rebuild:
+
+1. **CoreSimulator is out of date** — "Current version (1051.54.0) is older than build version
+   (1051.55.0)… Simulator device support disabled." With simulator support off, `XCTest` can't
+   resolve, so the `SparkUITests` target fails (`UITests/PreviewScreenshot.swift:1:8: unable to
+   resolve module dependency: 'XCTest'`). Fix: `sudo xcodebuild -runFirstLaunch` (needs sudo, so
+   run it yourself: `! sudo xcodebuild -runFirstLaunch`).
+2. **SwiftLint SPM checkout collides with its own build dir on a case-insensitive volume.**
+   SwiftLint ships a Bazel `BUILD` file; macOS treats `BUILD` and `build` as the same name, so
+   Xcode's attempt to create `build/` inside the checkout fails with "File exists but is not a
+   directory". Workaround that works: pass an explicit `-derivedDataPath` (e.g.
+   `-derivedDataPath /tmp/sparkdd`). Clearing DerivedData alone does NOT fix it — it recreates.
+   Also pass `-skipPackagePluginValidation` or the SwiftLint plugin blocks the build on trust.
+
+Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the archive path used by
+`asc workflow run ship-ios` should not hit blocker 1 — but verify rather than assume on Aug 18.
+- [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator.
+- [ ] Then rebuild from main and confirm a clean archive before the Aug 18 resubmit.
