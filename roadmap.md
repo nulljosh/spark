@@ -1,3 +1,7 @@
+## Email verification and password-reset flow — SMTP/Resend integration missing
+
+The signup flow has optional email-verification (soft gate, existing accounts grandfathered, login never blocked) and password-reset flow implemented at `/api/auth/verify-email.js` and `/api/auth/password-reset.js`, but both silently no-op on Vercel production. Root cause: the `mail.js` utility checks for SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM env vars, and none are set on Vercel. **Options:** (1) integrate Resend API (same provider Epiphany uses) by setting RESEND_API_KEY env var, adding sparkjar.heyitsmejosh.com as a Resend sending domain + DKIM/SPF records in Cloudflare, then replacing mail.js's SMTP code with Resend calls; (2) set up an SMTP relay on Vercel. Resend is simpler — costs $20/month at scale but free tier is enough for this app. Not fixed this session.
+
 ## App Review demo account (reusable)
 
 App Review requires demo credentials (macOS 2.1(a) "Information Needed").
