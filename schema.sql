@@ -9,6 +9,8 @@ create table if not exists users (
   email text,
   password_salt text not null,
   password_hash text not null,
+  verified boolean not null default false,
+  verify_token text,
   created_at timestamptz default now()
 );
 
@@ -26,6 +28,7 @@ create table if not exists posts (
 
 -- Indexes
 create index if not exists idx_users_username on users(username);
+create index if not exists idx_users_verify_token on users(verify_token);
 create index if not exists idx_posts_score on posts(score desc);
 create index if not exists idx_posts_created on posts(created_at desc);
 

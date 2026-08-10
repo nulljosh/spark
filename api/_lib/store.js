@@ -64,6 +64,7 @@ function mapSupabaseUser(row) {
     username: row.username,
     email: row.email || null,
     passwordHash: row.password_hash || row.password,
+    verified: row.verified ?? false,
     createdAt: row.created_at
   };
 }
@@ -296,6 +297,41 @@ async function clearResetToken(username) {
   return true;
 }
 
+// Email verification tokens (Supabase only, same as reset tokens above).
+// ponytail: no expiry — an unverified account is not privileged, so a stale
+// verify link costs nothing. Add an expires column if that changes.
+async function setVerifyToken(username, token) {
+  if (!useSupabase()) return false;
+  await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
+    method: 'PATCH',
+    useServiceRole: true,
+    body: { verify_token: token }
+  });
+  return true;
+}
+
+async function findUserByVerifyToken(token) {
+  if (!token || !useSupabase()) return null;
+  try {
+    const rows = await supabaseRequest(`users?verify_token=eq.${encodeURIComponent(token)}&select=*`, { useServiceRole: true });
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    return mapSupabaseUser(rows[0]);
+  } catch {
+    return null;
+  }
+}
+
+// Consumes the token, so a link only works once.
+async function markVerified(username) {
+  if (!useSupabase()) return false;
+  await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`, {
+    method: 'PATCH',
+    useServiceRole: true,
+    body: { verified: true, verify_token: null }
+  });
+  return true;
+}
+
 // Update password hash
 async function updatePassword(username, newPassword) {
   const hash = hashPassword(newPassword);
@@ -332,8 +368,11 @@ module.exports = {
   findUserByEmail,
   findUserByResetToken,
   findUserByUsername,
+  findUserByVerifyToken,
   isDaemon,
   issueToken,
+  markVerified,
+  setVerifyToken,
   updatePassword,
   verifyToken,
   parseCookie,

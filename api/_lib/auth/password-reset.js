@@ -1,38 +1,13 @@
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { sendMail, baseUrl } = require('../mail');
 const { findUserByUsername, findUserByEmail, setResetToken, findUserByResetToken, updatePassword, clearResetToken } = require('../store');
 const { getIp, checkRateLimit } = require('../ratelimit');
 
 const GENERIC_MESSAGE = 'If an account exists with that info, a reset link has been sent.';
 
-// Configure SMTP transport — set these env vars:
-//   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
-// For Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_USER=you@gmail.com, SMTP_PASS=app-password
-function getTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  if (!host || !user || !pass) return null;
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  });
-}
-
 async function sendResetEmail(email, token) {
-  const transport = getTransport();
-  if (!transport) {
-    console.warn('[password-reset] SMTP not configured — skipping email send');
-    return;
-  }
-  const baseUrl = process.env.APP_URL || 'https://sparkjar.heyitsmejosh.com';
-  const resetLink = `${baseUrl}/reset-password?token=${token}`;
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-  await transport.sendMail({
-    from,
+  const resetLink = `${baseUrl()}/reset-password?token=${token}`;
+  await sendMail({
     to: email,
     subject: 'Spark — Password Reset',
     text: `You requested a password reset.\n\nClick here to reset your password:\n${resetLink}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.`,
