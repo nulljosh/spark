@@ -174,3 +174,10 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 - [ ] Also set `APP_URL=https://sparkjar.heyitsmejosh.com` — verify/reset links are built from `baseUrl()`.
 - Note: `epiphany.heyitsmejosh.com` is verified in Resend; root `heyitsmejosh.com` and `sparkjar.heyitsmejosh.com` are NOT.
 - Full plan: `~/.claude/plans/tldr-shorter-and-bang-snazzy-cray.md`
+
+## Rejection reason pulled 2026-08-10 (Resolution Center)
+- [ ] **iOS 1.0 REJECTED — Guideline 2.1(a) Performance/App Completeness.** Reviewed 2026-08-03 on iPhone 17 Pro Max + iPad Air 11" (M3), iOS/iPadOS 26.6, build `202607191845` (uploaded 07-19). Submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`. Apple's repro: launch → sign-in screen → tap **Sign in with Apple** → error; → sign-up page → create account → error; → other sections → **server error**. 3 screenshots downloaded to `.asc/web-review/6785162492/13b90678-.../`.
+- [ ] **This is NOT an IAP problem.** `asc review history` labels the rejected item `inAppPurchaseVersion`, but the app has zero IAPs — the item ID decodes as `<uuid>|6|<num>`, so `6` is a mislabelled type code. Same trap previously mis-diagnosed on Lexly and Sparkjar Mac in July. Do not go hunting for an IAP.
+- [ ] **Likely root cause is already documented above:** the broken mail sender (SMTP → Resend migration item). Registration and password-reset both send mail; a failing sender surfaces to a reviewer as exactly "create an account → error" plus a server error elsewhere. Fix the Resend migration + `APP_URL` first, then verify sign-up end-to-end on a clean device before rebuilding.
+- [ ] Sign in with Apple erroring is a separate check — provisioning profiles were INVALID until 2026-08-10 (now `CY2V3B846P` iOS / `H9YQZ34MV5` macOS, both ACTIVE with `applesignin` entitlement verified). The reviewed build predates those, so it shipped without a valid SiWA entitlement. A rebuild on the new profiles may resolve this half on its own.
+- [ ] Order of work: fix mail → verify signup + SiWA on a real device → rebuild BOTH platforms on the new profiles → resubmit. Do not resubmit the 07-19 build.
