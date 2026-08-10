@@ -100,3 +100,11 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 - [ ] **"TestFlight icon looks super old" — not a bug, expected staleness.** Checked via `asc builds list`: the latest uploaded iOS build (`8d32852e…`, version `202607191845`) was uploaded 2026-07-19T18:47. The app icon (`ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png`) was last regenerated in commit `613a87b` on 2026-08-03 — 2 weeks *after* that build. No build has been uploaded since the icon fix, so TestFlight/ASC is correctly showing the icon that shipped in the last real upload — this is covered by the existing "Rebuild + resubmit BOTH platforms" item above, not a separate bug.
 - [ ] Screenshots: only 1 of 4 iOS screenshots exist (`screenshots/ios/01-feed-6.7.png`) — no fastlane/Snapfile or asc-shots-pipeline wired up for this repo yet, needs setup from scratch.
 - [ ] Landing page + registration/onboarding flow.
+
+## Email transport is dead (found 2026-08-09)
+
+- [ ] **Password reset has never worked.** `vercel env ls production` has no `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`, so `_lib/mail.js` `sendMail()` no-ops with a console.warn. `password-reset.js` still returns "If an account exists with that info, a reset link has been sent" — users are told a link went out and nothing is delivered. The same dead path now also swallows the new sign-up verification email.
+- [ ] Fix = Resend, not SMTP. `RESEND_API_KEY` already exists on epiphany's Vercel env (see `epiphany/server/api/_email.js` for the working sender). Steps: add `sparkjar.heyitsmejosh.com` via `POST api.resend.com/domains`, create the returned DKIM/SPF/MX records in Cloudflare via API (`CLOUDFLARE_API_TOKEN` in `~/.config/fish/secrets.fish`), verify, then rewrite `api/_lib/mail.js` to Resend keeping the `sendMail({to,subject,text,html})` signature so register.js/password-reset.js stay untouched. Swap `nodemailer` for `resend` in package.json.
+- [ ] Also set `APP_URL=https://sparkjar.heyitsmejosh.com` — verify/reset links are built from `baseUrl()`.
+- Note: `epiphany.heyitsmejosh.com` is verified in Resend; root `heyitsmejosh.com` and `sparkjar.heyitsmejosh.com` are NOT.
+- Full plan: `~/.claude/plans/tldr-shorter-and-bang-snazzy-cray.md`
