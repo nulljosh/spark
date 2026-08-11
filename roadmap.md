@@ -220,3 +220,6 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 `asc workflow run ship-ios` should not hit blocker 1 — but verify rather than assume on Aug 18.
 - [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator.
 - [ ] Then rebuild from main and confirm a clean archive before the Aug 18 resubmit.
+
+## From Apple Notes (imported 2026-08-10)
+- [x] Landing page: iPhone screenshot is way too big — `index.html` `.screenshot-container img` was `max-width: 100%`, stretching the 1320×2868 portrait shot to ~1080×2346; capped at `min(100%, 300px)`.
