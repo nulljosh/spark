@@ -5,7 +5,16 @@
 	<key>method</key>
 	<string>app-store-connect</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>teamID</key>
+	<string>QMM486NPYC</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.heyitsmejosh.spark</key>
+		<string>Sparkjar iOS App Store 20260810</string>
+		<key>com.heyitsmejosh.spark.widgets</key>
+		<string>Spark Widgets App Store</string>
+	</dict>
 	<key>destination</key>
 	<string>export</string>
 </dict>

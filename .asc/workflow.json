@@ -12,8 +12,8 @@
       "description": "Bump, archive, upload, and submit the iOS app",
       "steps": [
         { "name": "bump", "run": "cd ios && asc xcode version edit --version \"$VERSION\" --build-number \"$(date +%Y%m%d%H%M)\"" },
-        { "name": "archive", "run": "cd ios && asc xcode archive --project Spark.xcodeproj --scheme Spark --archive-path ../.asc/artifacts/Spark.xcarchive --xcodebuild-flag=-skipPackagePluginValidation --output json" },
-        { "name": "export", "run": "cd ios && asc xcode export --archive-path ../.asc/artifacts/Spark.xcarchive --export-options ExportOptions.plist --ipa-path ../.asc/artifacts/Spark.ipa --output json" },
+        { "name": "archive", "run": "cd ios && asc xcode archive --project Spark.xcodeproj --scheme Spark --archive-path ../.asc/artifacts/Spark.xcarchive --overwrite --xcodebuild-flag=-skipPackagePluginValidation --xcodebuild-flag=-derivedDataPath --xcodebuild-flag=/tmp/sparkdd --output json" },
+        { "name": "export", "run": "cd ios && asc xcode export --archive-path ../.asc/artifacts/Spark.xcarchive --export-options ExportOptions.plist --ipa-path ../.asc/artifacts/Spark.ipa --overwrite --output json" },
         { "name": "publish", "if": "SUBMIT", "run": "asc publish appstore --app $IOS_APP_ID --ipa .asc/artifacts/Spark.ipa --version $VERSION --wait --submit --confirm --output json" }
       ]
     },

@@ -6,3 +6,4 @@ node_modules/.vite/
 .asc/release/
 .asc/runs/
 **/.asc/artifacts/
+ios/build/
