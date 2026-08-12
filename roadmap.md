@@ -323,11 +323,38 @@ Also confirmed: the macOS app has **no** Sign in with Apple (no `ASAuthorization
 `macos/`), so its missing `applesignin` entitlement is correct, not a bug. Don't "fix" it.
 
 ### Left before the 2026-08-18 submit
-- [ ] Verify Sign in with Apple on a real device — the entitlement is now in the binary
-      (`codesign -d --entitlements` confirms `applesignin: Default`), but it has never been
-      exercised end-to-end against `/api/auth/apple`.
-- [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
-- [ ] Screenshots: only 1 of 4 iOS shots exist, no Snapfile wired up yet.
+
+- [x] **Sign in with Apple, server side — VERIFIED 2026-08-12.**
+      `node api/_lib/auth/apple.selfcheck.js` → **7/7 passed**. Combined with the entitlement now
+      confirmed in the binary (`codesign -d --entitlements` shows `applesignin: Default`), both
+      halves that can be checked headlessly are green.
+- [ ] **Sign in with Apple, on a real device.** Still open and NOT headless-checkable — it needs
+      a human tapping the button against `/api/auth/apple`. This is the one item that genuinely
+      requires Joshua.
+- [ ] **iPad screenshots — this is a submission BLOCKER, not a nice-to-have.**
+      `TARGETED_DEVICE_FAMILY = "1,2"`: Sparkjar is a **universal** app, which is exactly why the
+      reviewer tested an iPad Air 11-inch. Apple requires iPad screenshots for any app offered on
+      iPad, and there are currently **zero**. `ios/fastlane/Snapfile` lists only
+      `iPhone 11 Pro Max` and `iPhone 14 Plus` — it needs an iPad device added. Available locally:
+      `iPad Pro 13-inch (M5)`, `iPad Air 11-inch (M4)`, `iPad (A16)`.
+      (Alternative, if iPad support is not actually wanted: set the family to `1` and the whole
+      iPad requirement disappears. That is a product call for Joshua, not a cleanup.)
+- [ ] **Screenshot pipeline is a from-scratch build — bigger than the old note claimed.**
+      The previous line here said "no Snapfile wired up yet"; that was wrong in both directions.
+      Actual state checked 2026-08-12:
+      - `ios/fastlane/Snapfile` — **exists** (2 iPhone devices, `scheme("Spark")`,
+        `output_directory ./fastlane/screenshots`)
+      - `ios/fastlane/Fastfile` — **missing**
+      - snapshot helper (`SnapshotHelper.swift`) — **missing**
+      - `.env.accounts.local` — **missing**; use the `appreview` / `Reviewfb12f9a4!Aa`
+        credentials already documented in this file instead of seeding a new account
+      - `ios/UITests/PreviewScreenshot.swift` — exists, and is now correctly scoped to the
+        `SparkUITests` target only (it used to leak into the app target and break the archive)
+      Only 2 shots exist total: `screenshots/spark-feed.png`, `screenshots/ios/01-feed-6.7.png`.
+      Next session: load the `appstore-screenshots` skill, create a dedicated `Sparkjar-Shots`
+      simulator (concurrent sessions fight over the shared one), and mock **every** network path —
+      a 401 mid-run silently screenshots the login screen and the test still passes green.
+      Budget a real block of time; this is simulator-heavy.
 - [ ] Then, and only after 2026-08-18, submit both platforms.
 
 ## Build+upload — RESOLVED 2026-08-12, see section above (found 2026-08-12)
