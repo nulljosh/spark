@@ -238,9 +238,6 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 - [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator.
 - [ ] Then rebuild from main and confirm a clean archive before the Aug 18 resubmit.
 
-## From Apple Notes (imported 2026-08-10)
-- [x] Landing page: iPhone screenshot is way too big — `index.html` `.screenshot-container img` was `max-width: 100%`, stretching the 1320×2868 portrait shot to ~1080×2346; capped at `min(100%, 300px)`.
-
 ## From Apple Notes (imported 2026-08-11)
 - [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze until 2026-08-18)
 
@@ -324,10 +321,6 @@ Also confirmed: the macOS app has **no** Sign in with Apple (no `ASAuthorization
 
 ### Left before the 2026-08-18 submit
 
-- [x] **Sign in with Apple, server side — VERIFIED 2026-08-12.**
-      `node api/_lib/auth/apple.selfcheck.js` → **7/7 passed**. Combined with the entitlement now
-      confirmed in the binary (`codesign -d --entitlements` shows `applesignin: Default`), both
-      halves that can be checked headlessly are green.
 - [ ] **Sign in with Apple, on a real device.** Still open and NOT headless-checkable — it needs
       a human tapping the button against `/api/auth/apple`. This is the one item that genuinely
       requires Joshua.
