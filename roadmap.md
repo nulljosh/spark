@@ -276,3 +276,25 @@ Known build-env blockers to clear first, from `036cc3a`: stale CoreSimulator, an
 - [ ] Verify Sign in with Apple against the live endpoint — `api/_lib/auth/apple.selfcheck.js`
       already exists, run it rather than writing a new check.
 - [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
+
+## Build+upload — blocked on a version decision (found 2026-08-12)
+
+healstack's equivalent upload succeeded today (build 202608121022, VALID, not submitted).
+sparkjar did not get that far, for one reason:
+
+**`ios/project.yml` says `MARKETING_VERSION "2.2.0"`, but ASC only has version 1.0** (iOS and
+macOS, both REJECTED). 2.2.0 is the *web* app's version leaking into the iOS project. A 2.2.0
+build cannot attach to the 1.0 record, so the upload would fail or mint an unwanted version.
+
+Recommended: set `MARKETING_VERSION` to `1.0` to match the only record that exists (the iOS app
+has never shipped, so aligning down is smaller than minting a new version), then:
+
+    asc workflow run ship-ios VERSION:1.0 SUBMIT:false
+    asc publish appstore --app 6785162492 --ipa .asc/artifacts/Spark.ipa --version 1.0 --wait
+
+Note `.asc/workflow.json`'s publish step hardcodes `--submit` — `SUBMIT:false` skips it, and the
+separate publish above omits it. Do NOT submit before 2026-08-18.
+
+Known local blockers still to clear (from `036cc3a`): pass `-derivedDataPath /tmp/sparkdd` and
+`-skipPackagePluginValidation` for the SwiftLint case-collision; CoreSimulator staleness needs
+`! sudo xcodebuild -runFirstLaunch` from Joshua if the archive path hits it.
