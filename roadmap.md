@@ -1,5 +1,22 @@
 # Sparkjar Roadmap
 
+## App Review rejection reason — READ FROM RESOLUTION CENTER 2026-08-12
+
+**Guideline 2.1(a) — Performance — App Completeness.** Reviewed 2026-08-03 on iPhone 17 Pro
+Max **and iPad Air 11-inch (M3)**, iOS/iPadOS 26.6, version 1.0 (202607191845).
+
+> Bug description: The user is unable to sign up or sign in to access the app.
+> 1. Launch the app  2. Go to the sign in screen  3. Tap the **Sign in with Apple** option
+> 4. **The app returns an error**  5. Go to the sign up page  6. Try to create an account
+> 7. **The app returns an error**  8. Check other sections  9. **The app displays a server error**
+
+Three separate failures: Sign in with Apple, email sign-up, and a server error elsewhere in
+the app. Note the reviewer tested on iPad too. Same root cause as healstack and lexly Mac.
+
+Source: `asc web review show --app 6785162492 --apple-id trommatic@icloud.com` (needs `asc-login`;
+the public API only returns a generic "unresolved issues" wrapper). Submissions frozen
+until 2026-08-18 regardless — fix and stage, do not submit.
+
 ## ASC state verified 2026-08-10 — BOTH PLATFORMS ARE REJECTED, not "waiting for review"
 
 `~/Documents/Code/CLAUDE.md` and older notes here say "iOS + Mac 1.0 WAITING_FOR_REVIEW
@@ -223,3 +240,6 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 
 ## From Apple Notes (imported 2026-08-10)
 - [x] Landing page: iPhone screenshot is way too big — `index.html` `.screenshot-container img` was `max-width: 100%`, stretching the 1320×2868 portrait shot to ~1080×2346; capped at `min(100%, 300px)`.
+
+## From Apple Notes (imported 2026-08-11)
+- [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze until 2026-08-18)
