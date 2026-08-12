@@ -260,3 +260,19 @@ this half is already fixed. Still to verify before resubmitting (freeze lifts 20
       work on every device it's offered on. Test iPad, not just iPhone.
 - [ ] `demoAccountName` in ASC is the bare string `appreview`, not the email. Confirm the app
       accepts a username there; if it wants an email, set `appreview@heyitsmejosh.com`.
+
+## Sign-in rejection — diagnosed, needs a build upload (confirmed 2026-08-12)
+
+Two independent findings now agree: `efb4862` (2026-08-10) identified a **dead API host in
+the reviewed build**, and this session confirmed the `appreview` demo account was created
+2026-08-04, one day **after** the 2026-08-03 review. Both causes are addressed in main.
+
+As with healstack, the fix exists only in the repo — it has to be built and uploaded.
+Known build-env blockers to clear first, from `036cc3a`: stale CoreSimulator, and a SwiftLint
+`BUILD`/`build` case collision.
+
+- [ ] Clear the two build-env blockers, archive + upload, verify with
+      `asc builds uploads list` (uploads report success even when they fail).
+- [ ] Verify Sign in with Apple against the live endpoint — `api/_lib/auth/apple.selfcheck.js`
+      already exists, run it rather than writing a new check.
+- [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
