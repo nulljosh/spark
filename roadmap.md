@@ -277,7 +277,60 @@ Known build-env blockers to clear first, from `036cc3a`: stale CoreSimulator, an
       already exists, run it rather than writing a new check.
 - [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
 
-## Build+upload — blocked on a version decision (found 2026-08-12)
+## BUILDS UPLOADED 2026-08-12 — both platforms VALID, neither submitted
+
+Everything below in this file about needing a rebuild is now DONE. Fresh binaries off current
+`main` (dead host gone, demo account exists) are on both 1.0 records:
+
+| Platform | Build | Build id | State | Attached |
+|---|---|---|---|---|
+| IOS | `202608121456` | `a4804d19-c597-4429-a4a9-86dc11990ea4` | VALID | yes |
+| MAC_OS | `202608121459` | `2cccd363-28bb-44db-9f7d-8c7d8645ce47` | VALID | yes |
+
+Verified with `asc builds list --app 6785162492`, not with the upload command's own exit code.
+**Neither is submitted** — `SUBMIT:false` throughout, and the standalone publish/upload calls
+omitted `--submit`. Freeze holds until 2026-08-18.
+
+Four blockers were real and are fixed in `41ef562`:
+
+1. **Version mismatch** — `ios/project.yml` had `MARKETING_VERSION 2.2.0` (the web app's
+   version). ASC only has 1.0, so the build could not attach. Set to `1.0`; macOS `1.0.0` →
+   `1.0` too, since ASC stores the literal string.
+2. **iOS was pointed at an INVALID profile.** `PROVISIONING_PROFILE_SPECIFIER` said
+   `Spark iOS App Store` (`7R5XHS8Y5M`, INVALID, no applesignin). Repointed to
+   `Sparkjar iOS App Store 20260810` (`CY2V3B846P`, ACTIVE). Both it and the widgets profile
+   had to be downloaded and installed locally — neither was on this machine.
+3. **`ExportOptions.plist` used automatic signing**, so export re-derived
+   `iOS Team Store Provisioning Profile` which lacks applesignin, and failed even after the
+   archive signed correctly. Now `manual` with both profiles pinned.
+4. **UITests were compiling into the app target.** `ios/project.yml`'s app target excluded
+   `SparkTests` but not `UITests`, so `PreviewScreenshot.swift` built into `Spark` and the
+   archive died on `unable to resolve module dependency: 'XCTest'`. The earlier note guessed
+   the scheme's `SparkUITests: [test]` scoping protected the archive path — **it did not**,
+   because the file was never in the UITests target as far as the app target was concerned.
+   **This also means the stale-CoreSimulator item below is a red herring for archiving** —
+   `sudo xcodebuild -runFirstLaunch` was never needed. Leave it for running actual tests.
+
+The SwiftLint `BUILD`/`build` case collision is real and now handled in `.asc/workflow.json`
+via `-derivedDataPath /tmp/sparkdd` on the iOS archive step.
+
+macOS note: `asc xcode export` fails with "did not produce an .ipa file" because macOS exports
+a `.pkg`. Export with `xcodebuild -exportArchive` directly, then
+`asc builds upload --pkg`, then `asc versions attach-build --version-id <v> --build-id <b>`.
+`ship-mac`'s `--ipa-path` will keep failing until the workflow learns about pkgs.
+
+Also confirmed: the macOS app has **no** Sign in with Apple (no `ASAuthorization` anywhere in
+`macos/`), so its missing `applesignin` entitlement is correct, not a bug. Don't "fix" it.
+
+### Left before the 2026-08-18 submit
+- [ ] Verify Sign in with Apple on a real device — the entitlement is now in the binary
+      (`codesign -d --entitlements` confirms `applesignin: Default`), but it has never been
+      exercised end-to-end against `/api/auth/apple`.
+- [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
+- [ ] Screenshots: only 1 of 4 iOS shots exist, no Snapfile wired up yet.
+- [ ] Then, and only after 2026-08-18, submit both platforms.
+
+## Build+upload — RESOLVED 2026-08-12, see section above (found 2026-08-12)
 
 healstack's equivalent upload succeeded today (build 202608121022, VALID, not submitted).
 sparkjar did not get that far, for one reason:
