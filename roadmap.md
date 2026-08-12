@@ -243,3 +243,20 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 
 ## From Apple Notes (imported 2026-08-11)
 - [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze until 2026-08-18)
+
+## Sign-in rejection — ROOT CAUSE FOUND 2026-08-12
+
+The demo account handed to reviewers is `appreview` / `appreview@heyitsmejosh.com`.
+Queried the shared spark Supabase (`public.users`, sparkjar uses hand-rolled auth, not
+`auth.users`): that row was **created 2026-08-04 04:42 UTC**. The review was
+**2026-08-03** — *the demo account did not exist when the reviewer tried to sign in.*
+
+That fully explains "the user is unable to sign up or sign in". The account exists now, so
+this half is already fixed. Still to verify before resubmitting (freeze lifts 2026-08-18):
+
+- [ ] Sign in with Apple returning an error — separate from the missing account, verify live.
+- [ ] The "server error" the reviewer hit in other sections — reproduce and fix.
+- [ ] Reviewer tested on **iPad Air 11-inch** too; Guideline 5.6 explicitly requires the app
+      work on every device it's offered on. Test iPad, not just iPhone.
+- [ ] `demoAccountName` in ASC is the bare string `appreview`, not the email. Confirm the app
+      accepts a username there; if it wants an email, set `appreview@heyitsmejosh.com`.
