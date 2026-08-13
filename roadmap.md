@@ -11,7 +11,14 @@ Max **and iPad Air 11-inch (M3)**, iOS/iPadOS 26.6, version 1.0 (202607191845).
 > 7. **The app returns an error**  8. Check other sections  9. **The app displays a server error**
 
 Three separate failures: Sign in with Apple, email sign-up, and a server error elsewhere in
-the app. Note the reviewer tested on iPad too. Same root cause as healstack and lexly Mac.
+the app. Note the reviewer tested on iPad too. **FIXED 2026-08-12** — all three are one root cause:
+the 2026-07-19 binary hardcoded `baseURL = "https://spark.heyitsmejosh.com"` (a host that no
+longer resolves). Commit a458002 (2026-08-03) repointed to live sparkjar.heyitsmejosh.com, but
+that landed after the review build snapshot. Production is healthy (verified 2026-08-12: auth
+endpoints responding). Rebuilt iOS (202608121456) + macOS (202608121459), both VALID and awaiting
+the 2026-08-18 freeze lift. Verified backend Sign in with Apple server-side (7/7 auth token checks
+passed).  **Not the same root cause as healstack or lexly** — Sparkjar doesn't use Supabase Auth
+(it has its own Vercel API); the others do.
 
 Source: `asc web review show --app 6785162492 --apple-id trommatic@icloud.com` (needs `asc-login`;
 the public API only returns a generic "unresolved issues" wrapper). Submissions frozen
@@ -43,12 +50,6 @@ Do not go hunting for an IAP to fix; there isn't one.
 Worth noting: the bundle ID still has the `IN_APP_PURCHASE` capability enabled while the app
 ships no IAPs. That is a plausible contributor and is cheap to turn off if the next
 resubmission bounces the same way — but it is a hypothesis, not a confirmed cause.
-
-- [ ] **Read the actual rejection text in Resolution Center.** The public API does not expose
-  reviewer messages; `asc web review show --app 6785162492` would, but `asc web auth status`
-  is `authenticated:false` and re-auth (`asc-login`) needs an interactive 2FA code from
-  Joshua. **Until someone reads Resolution Center, the real rejection reason is unknown** —
-  the rebuild below is necessary but may not be sufficient.
 
 ## Email verification and password-reset flow — SMTP/Resend integration missing
 
@@ -103,13 +104,6 @@ display name is an Apple trademark violation. Set `CFBundleDisplayName`/`PRODUCT
 to `Sparkjar` in `macos/project.yml`, leaving scheme/target/bundle ID alone.
 
 ### Still to do
-- [ ] Rebuild + resubmit BOTH platforms. The reviewed builds (iOS `202607191845`,
-      macOS build 3) predate the dead-host fix, so new binaries are required even
-      though the server side is now correct.
-      **Re-verified 2026-08-10:** newest build on the record is still `202607191845`,
-      uploaded 2026-07-19T18:47 — genuinely older than the 08-03/08-04 production
-      fixes. The rebuild requirement is real, not stale. Provisioning is no longer a
-      blocker (see "ASC state verified 2026-08-10" below).
 - [ ] Note for the next session: `SUPABASE_SERVICE_ROLE_KEY` could not be read back
       (Vercel marks it sensitive) so it was not re-added with `printf`. If service-role
       writes ever fail, suspect the same trailing `\n` — `cleanEnv()` should already
@@ -138,11 +132,6 @@ added headlessly to bundle ID `T8XK2M54GG` (`com.heyitsmejosh.spark`) on 2026-08
   than leaving them; Xcode ignores invalid profiles). If manual signing picks one by name,
   delete "Spark iOS App Store" specifically — the new profile has a distinct name.
 
-- [ ] **Then rebuild and resubmit both platforms.** Now unblocked — archive with the profiles
-  above, then verify the built app with `codesign -d --entitlements :- <path>.app` before upload.
-  Remember `asc builds upload` reports success even on FAILED uploads — always confirm with
-  `asc builds uploads list`.
-
 Future, not needed now: revoking Apple tokens on account deletion (Apple requires it for
 apps offering account deletion, which `api/_lib/auth/delete-account.js` does) is the one
 thing that would later need a `.p8` key and the client_secret JWT exchange. Not built.
@@ -166,9 +155,6 @@ All 40 `*.heyitsmejosh.com` hostnames curled. Dead (`000`, no DNS): `books`, `br
 Real bugs, ranked:
 
 Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *from* `lingo.` (a redirect source doesn't need to resolve — harmless, arguably should stay); `talli/src/api.js:340` lists both `talli.` and `tally.` in a CORS allowlist (extra entry, no effect); `journal/_site/**` hits are generated build output inside historical posts.
-
-## App Store submission checklist (consolidated 2026-08-06)
-- [ ] Rebuild + resubmit BOTH platforms — reviewed builds (iOS `202607191845`, macOS build 3) predate the production-bug fixes above, new binaries required. See "Blocked on Joshua" above for the Sign in with Apple provisioning-profile regen this also needs.
 
 ## From Apple Notes (imported 2026-08-08)
 - [ ] **"TestFlight icon looks super old" — not a bug, expected staleness.** Checked via `asc builds list`: the latest uploaded iOS build (`8d32852e…`, version `202607191845`) was uploaded 2026-07-19T18:47. The app icon (`ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png`) was last regenerated in commit `613a87b` on 2026-08-03 — 2 weeks *after* that build. No build has been uploaded since the icon fix, so TestFlight/ASC is correctly showing the icon that shipped in the last real upload — this is covered by the existing "Rebuild + resubmit BOTH platforms" item above, not a separate bug.
@@ -251,23 +237,8 @@ Queried the shared spark Supabase (`public.users`, sparkjar uses hand-rolled aut
 That fully explains "the user is unable to sign up or sign in". The account exists now, so
 this half is already fixed. Still to verify before resubmitting (freeze lifts 2026-08-18):
 
-- [x] Sign in with Apple returning an error — **server side is clean, verified 2026-08-12.**
-      Three independent checks: `APPLE_CLIENT_ID` *is* set on production (an unset one returns
-      HTTP 500 "Apple Sign In is misconfigured" per `api/_lib/auth/apple.js:91-95`; production
-      returns 401 on a bogus token, i.e. it reached JWT verification); the bundle ID
-      `com.heyitsmejosh.spark` (`T8XK2M54GG`) has the **APPLE_ID_AUTH** capability; and
-      `apple.selfcheck.js` passes 7/7. Whatever the reviewer hit was in the July 19 binary,
-      not in the backend. Note `com.heyitsmejosh.spark.mac` (`R99P7ZLSP4`) has **no**
-      APPLE_ID_AUTH — irrelevant while macOS has no sign-in UI, but required before it gets one.
-- [x] The "server error" the reviewer hit in other sections — explained, not a live bug. The
-      reviewer never got a session (demo account didn't exist yet + dead API host), so every
-      authenticated endpoint returned an error. `POST /api/auth/register` and
-      `/api/auth/login` both return valid tokens against production today.
 - [ ] Reviewer tested on **iPad Air 11-inch** too; Guideline 5.6 explicitly requires the app
       work on every device it's offered on. Test iPad, not just iPhone.
-- [x] `demoAccountName` in ASC is the bare string `appreview` — **correct as-is, verified
-      2026-08-12**: `POST /api/auth/login` with `{"username":"appreview"}` against production
-      returns a valid token. Do not change it to the email.
 
 ## Sign-in rejection — diagnosed, needs a build upload (confirmed 2026-08-12)
 
@@ -281,8 +252,6 @@ Known build-env blockers to clear first, from `036cc3a`: stale CoreSimulator, an
 
 - [ ] Clear the two build-env blockers, archive + upload, verify with
       `asc builds uploads list` (uploads report success even when they fail).
-- [x] Verify Sign in with Apple against the live endpoint — ran `node
-      api/_lib/auth/apple.selfcheck.js` 2026-08-12: **7/7 passed**.
 - [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
 
 ## BUILDS UPLOADED 2026-08-12 — both platforms VALID, neither submitted
