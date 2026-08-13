@@ -251,12 +251,23 @@ Queried the shared spark Supabase (`public.users`, sparkjar uses hand-rolled aut
 That fully explains "the user is unable to sign up or sign in". The account exists now, so
 this half is already fixed. Still to verify before resubmitting (freeze lifts 2026-08-18):
 
-- [ ] Sign in with Apple returning an error — separate from the missing account, verify live.
-- [ ] The "server error" the reviewer hit in other sections — reproduce and fix.
+- [x] Sign in with Apple returning an error — **server side is clean, verified 2026-08-12.**
+      Three independent checks: `APPLE_CLIENT_ID` *is* set on production (an unset one returns
+      HTTP 500 "Apple Sign In is misconfigured" per `api/_lib/auth/apple.js:91-95`; production
+      returns 401 on a bogus token, i.e. it reached JWT verification); the bundle ID
+      `com.heyitsmejosh.spark` (`T8XK2M54GG`) has the **APPLE_ID_AUTH** capability; and
+      `apple.selfcheck.js` passes 7/7. Whatever the reviewer hit was in the July 19 binary,
+      not in the backend. Note `com.heyitsmejosh.spark.mac` (`R99P7ZLSP4`) has **no**
+      APPLE_ID_AUTH — irrelevant while macOS has no sign-in UI, but required before it gets one.
+- [x] The "server error" the reviewer hit in other sections — explained, not a live bug. The
+      reviewer never got a session (demo account didn't exist yet + dead API host), so every
+      authenticated endpoint returned an error. `POST /api/auth/register` and
+      `/api/auth/login` both return valid tokens against production today.
 - [ ] Reviewer tested on **iPad Air 11-inch** too; Guideline 5.6 explicitly requires the app
       work on every device it's offered on. Test iPad, not just iPhone.
-- [ ] `demoAccountName` in ASC is the bare string `appreview`, not the email. Confirm the app
-      accepts a username there; if it wants an email, set `appreview@heyitsmejosh.com`.
+- [x] `demoAccountName` in ASC is the bare string `appreview` — **correct as-is, verified
+      2026-08-12**: `POST /api/auth/login` with `{"username":"appreview"}` against production
+      returns a valid token. Do not change it to the email.
 
 ## Sign-in rejection — diagnosed, needs a build upload (confirmed 2026-08-12)
 
@@ -270,8 +281,8 @@ Known build-env blockers to clear first, from `036cc3a`: stale CoreSimulator, an
 
 - [ ] Clear the two build-env blockers, archive + upload, verify with
       `asc builds uploads list` (uploads report success even when they fail).
-- [ ] Verify Sign in with Apple against the live endpoint — `api/_lib/auth/apple.selfcheck.js`
-      already exists, run it rather than writing a new check.
+- [x] Verify Sign in with Apple against the live endpoint — ran `node
+      api/_lib/auth/apple.selfcheck.js` 2026-08-12: **7/7 passed**.
 - [ ] Test on **iPad** — the reviewer used an iPad Air 11-inch.
 
 ## BUILDS UPLOADED 2026-08-12 — both platforms VALID, neither submitted
