@@ -1,5 +1,30 @@
 # Sparkjar Roadmap
 
+## Account deletion + avatar upload were 500ing — FIXED 2026-08-13 (`dfabe6e`)
+
+Found while re-verifying the 2.1(a) rejection against production. The `users` table has
+**two** id columns: `id` (bigint identity PK) and `user_id` (text, the `user-<ts>-<rand>`
+value carried in the JWT). `delete-account.js` and `avatar.js` both filtered
+`users?id=eq.${user.userId}` — a text value against the bigint column, which Postgres
+rejects, so the request 500'd.
+
+- **Account deletion was fully broken in production.** App Store Guideline 5.1.1(v)
+  requires working in-app account deletion, so this was a live rejection risk independent
+  of the 2.1(a) issue.
+- **Avatar upload half-failed**: the blob was written to storage, then the PATCH threw, so
+  the user got "Upload failed" *and* an orphaned blob, with no avatar set.
+- `github-callback.js` is fine — it filters by a row's real `id` from a `select=*`.
+- Regression test added in `tests/auth.test.mjs` (static scan of `api/`, fails if the bigint
+  column is ever filtered by a text userId). Verified it fails on the bug, passes on the fix.
+- Deployed manually with `vercel --prod` (git auto-deploy still isn't firing for this
+  project — see the 2026-08-03 note). Verified live: register → delete → 200 `{ok:true}`,
+  login afterwards → 401.
+
+**Re-verified the 2.1(a) fix holds** (same session, against production): login 200,
+register 201, `/api/posts` 200, stats/profile/notifications all 200. All Swift `baseURL`s
+across ios/macos/watchos/widgets point at `sparkjar.heyitsmejosh.com`. Still not submitted —
+freeze until 2026-08-18.
+
 ## App Review rejection reason — READ FROM RESOLUTION CENTER 2026-08-12
 
 **Guideline 2.1(a) — Performance — App Completeness.** Reviewed 2026-08-03 on iPhone 17 Pro
