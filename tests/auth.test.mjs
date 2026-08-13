@@ -141,3 +141,21 @@ describe('Cookie parsing', () => {
     expect(parseCookie('')).toEqual({});
   });
 });
+
+// The `users` table has TWO id columns: `id` (bigint identity PK) and `user_id`
+// (text, the "user-<ts>-<rand>" value carried in the JWT). Filtering the bigint
+// column by a text userId makes Postgres error, so the request 500s. That broke
+// account deletion (App Store 5.1.1(v)) and avatar upload silently.
+describe('users table queries filter by the correct id column', () => {
+  const apiFiles = fs
+    .readdirSync('api', { recursive: true })
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => `api/${f}`);
+
+  it('never filters the bigint `id` column by a text userId', () => {
+    const offenders = apiFiles.filter((f) =>
+      /users\?id=eq\.\$\{[^}]*userId/.test(fs.readFileSync(f, 'utf8'))
+    );
+    expect(offenders).toEqual([]);
+  });
+});

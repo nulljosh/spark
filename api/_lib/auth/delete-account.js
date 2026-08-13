@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    await supabaseRequest(`users?id=eq.${encodeURIComponent(identity.userId)}`, {
+    await supabaseRequest(`users?user_id=eq.${encodeURIComponent(identity.userId)}`, {
       method: 'DELETE',
       useServiceRole: true
     });
