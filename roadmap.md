@@ -376,3 +376,7 @@ separate publish above omits it. Do NOT submit before 2026-08-18.
 Known local blockers still to clear (from `036cc3a`): pass `-derivedDataPath /tmp/sparkdd` and
 `-skipPackagePluginValidation` for the SwiftLint case-collision; CoreSimulator staleness needs
 `! sudo xcodebuild -runFirstLaunch` from Joshua if the archive path hits it.
+
+### From Notes (2026-08-14)
+- [ ] **Landing page UI bump.** Functional but sparse — needs a product screenshot (or similar) to
+  fill the dead space. Same pass as the inkpress landing page.
