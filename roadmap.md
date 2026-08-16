@@ -443,34 +443,74 @@ don't run on workerd, for one POST); Stripe needs `createFetchHttpClient()` and
   (7 cases covering the translation contract, including that the raw unparsed body
   survives for Stripe signature verification).
 
-### Remaining — needs Joshua
-- [ ] **Set production secrets** (preview already has JWT_SECRET / SUPABASE_URL /
-      SUPABASE_ANON_KEY, but with a *throwaway* JWT secret):
-      `npx wrangler pages secret put <NAME> --project-name sparkjar`
-      Required: `JWT_SECRET` (**must be the same value Vercel uses**, or every
-      existing session and token is invalidated), `SUPABASE_URL`,
-      `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
-      Optional: `RESEND_API_KEY`, `MAIL_FROM`, `STRIPE_SECRET_KEY`,
-      `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `GITHUB_CLIENT_ID`,
-      `GITHUB_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `GEMMA_KEY`, `SPARK_DAEMON_SECRET`.
-      None of these are on this machine; `SUPABASE_SERVICE_ROLE_KEY` for the shared
-      spark project could not be found locally (healstack's `.env.local` has only
-      URL + anon key). The Vercel CLI token is expired (`invalidToken`), so
-      `vercel env pull` needs a `vercel login` first.
-- [ ] **Create the `spark-avatars` Supabase Storage bucket, public**, or avatar
-      upload 404s. One-time, on the shared spark project.
-- [ ] **Verify sign-up/sign-in end-to-end on preview** once the service-role key is
-      set. Could not be done here — `findUserByUsername`/`createUser` both require
-      it, so registration is untestable without it.
-- [ ] **Then cut DNS.** Point `sparkjar.heyitsmejosh.com` at the `sparkjar` Pages
-      project (`CLOUDFLARE_DNS_TOKEN` in `~/.config/fish/secrets.fish` — note it is
-      deliberately *not* `CLOUDFLARE_API_TOKEN`). Deliberately not done here: it is
-      a live cutover and wants an explicit go-ahead. Keep the Vercel project as
-      rollback; `vercel.json` is intentionally retained so rollback still works.
-- [ ] **Stripe webhook URL** must be repointed in the Stripe dashboard after the
-      DNS cut, or Pro unlocks stop landing.
-- [ ] The daemon (`daemon/spark-daemon.js`) posts to the live host — confirm it
-      still authenticates after cutover (`SPARK_DAEMON_SECRET`).
+## CUTOVER COMPLETE 2026-08-16 — live on Cloudflare Pages
+
+`https://sparkjar.heyitsmejosh.com` now serves the Cloudflare Pages build. Vercel is
+abandoned per Joshua's 2026-08-16 directive: do not run `vercel login`, do not read
+env from Vercel, migrate rather than restore access.
+
+**Where the service-role key actually was.** It is not in any repo `.env`. The
+Supabase *personal access token* (`sbp_…`) is in the login keychain under service
+name **`Supabase CLI`**; with it, the Management API returns every project key:
+`GET https://api.supabase.com/v1/projects/<ref>/api-keys?reveal=true`. That is the
+route to use next time — `supabase projects api-keys` hangs waiting on an
+interactive login and is a dead end in a non-interactive shell. Note
+`curvely/.env.local` *does* hold a `SUPABASE_SERVICE_ROLE_KEY`, but it is the
+**epiphany** project's (`rlyqnnzanktwfeevfiij`) and 401s against spark — there are
+exactly two projects on the free tier and it is easy to grab the wrong one.
+
+- [x] **Production secrets set** on the `sparkjar` Pages project (production env):
+      `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+      `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`,
+      `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"`. All values also
+      written to `~/.config/fish/secrets.fish` as the source of truth
+      (`SPARKJAR_JWT_SECRET`, `SPARK_SUPABASE_*`, `RESEND_API_KEY`).
+      **`JWT_SECRET` is freshly generated, NOT Vercel's** — the old
+      "must match Vercel" constraint only existed for a dual-platform cutover and
+      is void now that Vercel is dropped. Consequence: every session issued by the
+      Vercel deployment is invalid, so existing users are logged out once.
+      `RESEND_API_KEY` came from `curvely/.env.local`; only
+      `epiphany.heyitsmejosh.com` is a verified Resend sender, hence the `MAIL_FROM`
+      override rather than new DKIM/SPF records.
+- [x] **`spark-avatars` bucket created**, public, on the shared spark project.
+- [x] **Sign-up / sign-in verified end-to-end on the live domain**, not just
+      preview: register 201 → login 200 → 216-char JWT → authed
+      `GET /api/user?username=` 200 → wrong password 401. Rows confirmed landing in
+      Supabase `users`, so the ephemeral `/tmp` store that App Review saw as
+      "all accounts vanished" is genuinely gone. Probe accounts deleted after.
+- [x] **DNS cut.** `sparkjar.heyitsmejosh.com` CNAME `cname.vercel-dns.com` →
+      `sparkjar.pages.dev`, proxied. Custom domain attached to the Pages project
+      first via `POST /accounts/<acct>/pages/projects/sparkjar/domains` using
+      wrangler's OAuth token (it carries `pages:write`; the
+      `CLOUDFLARE_DNS_TOKEN` in `secrets.fish` is DNS-only and cannot do this).
+      **Order matters** — the domain must be attached before the CNAME flip or the
+      site 522s. It 522'd for ~6 minutes here while the cert issued; that is the
+      expected cutover window, not a fault. Vercel project and `vercel.json` left
+      in place as rollback, DNS-cut only.
+- [x] **Verified live**: `server: cloudflare` and no `x-vercel-*` headers; all six
+      security headers intact; CORS matches the old vercel.json values; `/`, `/app`,
+      `/tos`, `/reset`, `/support` all 200 with distinct correct titles;
+      `/api/posts?limit=2` returns exactly 2 real Supabase rows;
+      `/api/auth/bogus` 404; `/api/posts/seed-1/vote` 401 unauthenticated.
+
+### Still open after the cutover
+- [ ] **Stripe is not configured at all**, so the webhook repoint is moot until it
+      is. No `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID`
+      exists on this machine or in Pages secrets. When Stripe is set up, the
+      webhook URL must point at `https://sparkjar.heyitsmejosh.com/api/stripe-webhook`
+      or Pro unlocks will not land. Needs Joshua (Stripe dashboard).
+- [ ] The daemon (`daemon/spark-daemon.js`) posts to the live host and needs
+      `SPARK_DAEMON_SECRET`, which is not set in Pages secrets — the daemon will
+      fail to authenticate until it is. Value unknown, needs Joshua.
+- [ ] Optional OAuth secrets still unset: `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`,
+      `APPLE_CLIENT_ID`, `GEMMA_KEY`. Sign in with GitHub/Apple will not work until
+      they are.
+- [ ] Two stale probe accounts (`probe1786367989`, `probe1786367990b`) predate this
+      session by ~6 days and were left alone deliberately — test residue from an
+      earlier run, safe to delete but not mine to remove.
+- [ ] Email sending is now wired but **never actually delivered a message** — the
+      register probe deliberately omitted an address. Register once with a real
+      address to confirm Resend delivers off the epiphany sender domain.
 
 ### Deliberate behaviour change
 vercel.json's `/(.*) -> /app.html` catch-all was **not** carried over. `app.html`
