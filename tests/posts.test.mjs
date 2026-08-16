@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
-import fs from 'fs';
 
 const require = createRequire(import.meta.url);
 
+// The /tmp JSON store is gone (no filesystem on Cloudflare Workers). These
+// tests run against the opt-in in-memory store instead; production leaves
+// SPARK_ALLOW_MEMORY_STORE unset so a missing Supabase config fails loudly.
+process.env.SPARK_ALLOW_MEMORY_STORE = '1';
+
 beforeEach(() => {
-  try { fs.unlinkSync('/tmp/spark-users.json'); } catch {}
-  try { fs.unlinkSync('/tmp/spark-sessions.json'); } catch {}
+  require('../api/_lib/store')._resetMemoryStore();
 });
 
 const { parseToken, seedPosts } = require('../api/posts');
@@ -34,10 +37,17 @@ describe('parseToken', () => {
 
   it('should fall back to session cookie', () => {
     const user = { username: 'cookieuser', userId: 'user-cookie' };
-    const session = createSession({ user, token: 'tok' });
+    // Sessions are stateless now: the cookie carries the signed JWT, so it has
+    // to be a real issued token rather than the placeholder string this test
+    // used when sessions were looked up in /tmp/spark-sessions.json.
+    const session = createSession({ user, token: issueToken(user) });
     const result = parseToken(null, `spark_session=${session.id}`);
     expect(result).not.toBeNull();
     expect(result.username).toBe('cookieuser');
+  });
+
+  it('should reject a session cookie that is not a valid signed token', () => {
+    expect(parseToken(null, 'spark_session=forged')).toBeNull();
   });
 });
 

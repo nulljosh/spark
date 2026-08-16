@@ -1,0 +1,20 @@
+name = "sparkjar"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# nodejs_compat is load-bearing: api/_lib/store.js and api/_lib/auth/apple.js use
+# node:crypto (randomBytes, createHash, createPublicKey) plus jsonwebtoken and
+# bcryptjs. With the flag they run unmodified, which is why no auth code had to
+# be rewritten for this migration.
+
+[vars]
+ALLOWED_ORIGIN = "https://sparkjar.heyitsmejosh.com"
+APP_URL = "https://sparkjar.heyitsmejosh.com"
+
+# Secrets are NOT set here. Set them with:
+#   npx wrangler pages secret put <NAME> --project-name sparkjar
+# Required: JWT_SECRET, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+# Optional: RESEND_API_KEY, MAIL_FROM, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+#           STRIPE_PRICE_ID, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+#           APPLE_CLIENT_ID, GEMMA_KEY, SPARK_DAEMON_SECRET

@@ -101,9 +101,47 @@ async function supabaseRpc(fnName, params = {}, { useServiceRole = false } = {})
   return data;
 }
 
+// Upload bytes to a public Supabase Storage bucket and return the public URL.
+//
+// ponytail: replaces @vercel/blob, which is Vercel-only and would have needed an
+// R2 bucket + binding to survive the Cloudflare move. Supabase is already a
+// dependency and already has the service-role key, so this adds no new infra.
+// Requires the bucket to exist and be public — created once, see roadmap.
+async function supabaseStorageUpload(bucket, path, body, contentType) {
+  const { url, serviceRoleKey } = getSupabaseConfig();
+  if (!url) throw new Error('supabase_not_configured');
+  if (!serviceRoleKey) throw new Error('supabase_service_role_key_missing');
+
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const res = await fetch(`${url}/storage/v1/object/${bucket}/${encodedPath}`, {
+    method: 'POST',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      'Content-Type': contentType,
+      'x-upsert': 'true'
+    },
+    body
+  });
+
+  if (!res.ok) {
+    let detail = `supabase_storage_http_${res.status}`;
+    try {
+      const data = await res.json();
+      detail = (data && (data.message || data.error)) || detail;
+    } catch { /* non-JSON error body */ }
+    const err = new Error(detail);
+    err.status = res.status;
+    throw err;
+  }
+
+  return `${url}/storage/v1/object/public/${bucket}/${encodedPath}`;
+}
+
 module.exports = {
   cleanEnv,
   getSupabaseConfig,
   supabaseRequest,
-  supabaseRpc
+  supabaseRpc,
+  supabaseStorageUpload
 };

@@ -4,15 +4,16 @@
   "description": "Idea-sharing platform with filters, voting, auth",
   "main": "index.html",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "build": "bash scripts/build-static.sh",
+    "dev": "npm run build && npx wrangler pages dev dist",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name sparkjar"
   },
   "author": "Joshua Trommel",
   "license": "MIT",
   "dependencies": {
-    "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3",
-    "resend": "^6.9.4",
     "stripe": "^22.4.0"
   },
   "devDependencies": {

@@ -382,30 +382,125 @@ Known local blockers still to clear (from `036cc3a`): pass `-derivedDataPath /tm
 - [ ] **Landing page UI bump.** Functional but sparse — needs a product screenshot (or similar) to
   fill the dead space. Same pass as the inkpress landing page.
 
+## Cloudflare Pages migration — DONE 2026-08-16 (code + preview verified)
+
+Sparkjar is off Vercel serverless and onto Cloudflare Pages + Pages Functions,
+matching the pattern the other 12 migrated repos use. **Not yet live** — the
+custom domain still points at Vercel. Cutting over is a separate, deliberate step
+(below), and the Vercel project stays in place as the rollback fallback.
+
+Preview: https://preview-migration.sparkjar.pages.dev (Pages project `sparkjar`)
+
+### How it was done
+- `functions/_adapter.js` translates the Vercel `(req, res)` signature into a
+  Pages `Response`. **All 2371 lines of handler logic under `api/` are unchanged** —
+  only the transport differs. The surface the handlers actually use is tiny
+  (`req.method/headers/query/body/url`, `res.status().json()`, `setHeader`/`getHeader`),
+  which is why a shim beat a rewrite.
+- `functions/api/[[route]].js` is one catch-all that replaces all 10 Vercel
+  functions *and* vercel.json's rewrites (`/api/auth/:action`,
+  `/api/posts/:id/vote`, `/api/posts/:id`). The Hobby 12-function cap is now moot.
+- `static/_headers` carries over every security header from vercel.json.
+  CORS is stamped on API responses by the catch-all.
+- `scripts/build-static.sh` assembles `dist/` (the repo root also holds
+  node_modules/, ios/, macos/ — publishing it directly would upload all of that).
+
+### Four things that had to change (platform-forced, not preference)
+1. **`JWT_SECRET` was read at module load** and threw at isolate startup, taking
+   down every route including ones that never sign a token. Vercel has env vars
+   at require-time; Workers attaches bindings per-request. Now read lazily via
+   `jwtSecret()` — still fails loud, just at first use.
+2. **Sessions were a `/tmp/spark-sessions.json` file.** No filesystem on Workers,
+   and it was already broken on Vercel: `/tmp` is per-instance, so a login on one
+   instance produced a cookie every other instance rejected. Sessions are now
+   stateless — the cookie carries the JWT `issueToken()` already mints, and
+   `resolveSession` verifies it. Call sites unchanged.
+3. **The `/tmp` user store is gone.** Same filesystem problem, and this is the
+   silent fallback this file repeatedly blames for "accounts vanished" at App
+   Review. Supabase is the only real store now; a missing config throws
+   `user_store_unavailable` instead of pretending to persist. An opt-in in-memory
+   map (`SPARK_ALLOW_MEMORY_STORE=1`) exists **for tests only** — never set it in
+   production.
+4. **`@vercel/blob` (avatar upload) → Supabase Storage.** Vercel-only; the
+   alternative was provisioning R2. Supabase was already a dependency with the
+   service-role key. New helper `supabaseStorageUpload()` in `api/_lib/supabase.js`.
+
+Also: `resend` SDK → plain `fetch` (the SDK pulls Node stream/http internals that
+don't run on workerd, for one POST); Stripe needs `createFetchHttpClient()` and
+`constructEventAsync` on workerd (sync signature verification throws).
+
+### Verified on the deployed preview, not just locally
+- Static: `/`, `/app`, `/tos`, `/reset`, `/support`, `/tokens.css`, `/icon.svg` all
+  200 with correct, distinct titles.
+- `GET /api/posts` returns **real shared-Supabase rows** (not the seed fallback);
+  `?limit=2` returns exactly 2, so query passthrough works.
+- Rewrites: `/api/auth/login` → 401 "Invalid username or password" (routed, hit the
+  DB); `/api/auth/bogus` → 404; `/api/posts/seed-1/vote` → 401 (routed, auth enforced).
+- All 6 security headers present; CORS matches the old vercel.json values.
+- `jwt.sign`/`jwt.verify` round-trip and `crypto.createHash` confirmed working on
+  workerd via a throwaway probe route (removed after).
+- `npm test`: 44 passed / 6 skipped, up from 35 — added `tests/adapter.test.mjs`
+  (7 cases covering the translation contract, including that the raw unparsed body
+  survives for Stripe signature verification).
+
+### Remaining — needs Joshua
+- [ ] **Set production secrets** (preview already has JWT_SECRET / SUPABASE_URL /
+      SUPABASE_ANON_KEY, but with a *throwaway* JWT secret):
+      `npx wrangler pages secret put <NAME> --project-name sparkjar`
+      Required: `JWT_SECRET` (**must be the same value Vercel uses**, or every
+      existing session and token is invalidated), `SUPABASE_URL`,
+      `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+      Optional: `RESEND_API_KEY`, `MAIL_FROM`, `STRIPE_SECRET_KEY`,
+      `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `GITHUB_CLIENT_ID`,
+      `GITHUB_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `GEMMA_KEY`, `SPARK_DAEMON_SECRET`.
+      None of these are on this machine; `SUPABASE_SERVICE_ROLE_KEY` for the shared
+      spark project could not be found locally (healstack's `.env.local` has only
+      URL + anon key). The Vercel CLI token is expired (`invalidToken`), so
+      `vercel env pull` needs a `vercel login` first.
+- [ ] **Create the `spark-avatars` Supabase Storage bucket, public**, or avatar
+      upload 404s. One-time, on the shared spark project.
+- [ ] **Verify sign-up/sign-in end-to-end on preview** once the service-role key is
+      set. Could not be done here — `findUserByUsername`/`createUser` both require
+      it, so registration is untestable without it.
+- [ ] **Then cut DNS.** Point `sparkjar.heyitsmejosh.com` at the `sparkjar` Pages
+      project (`CLOUDFLARE_DNS_TOKEN` in `~/.config/fish/secrets.fish` — note it is
+      deliberately *not* `CLOUDFLARE_API_TOKEN`). Deliberately not done here: it is
+      a live cutover and wants an explicit go-ahead. Keep the Vercel project as
+      rollback; `vercel.json` is intentionally retained so rollback still works.
+- [ ] **Stripe webhook URL** must be repointed in the Stripe dashboard after the
+      DNS cut, or Pro unlocks stop landing.
+- [ ] The daemon (`daemon/spark-daemon.js`) posts to the live host — confirm it
+      still authenticates after cutover (`SPARK_DAEMON_SECRET`).
+
+### Deliberate behaviour change
+vercel.json's `/(.*) -> /app.html` catch-all was **not** carried over. `app.html`
+has no client-side router (its only history call is a post-OAuth
+`replaceState('/')`), so that rule just rendered the app shell on typo'd URLs.
+Unknown paths now 404. Pages also 308-redirects `/app.html` → `/app`
+(extension-stripping); that is normal Pages behaviour, same as litigate.
+
 ## Stashed 2026-08-15
 
-- [ ] **Finish the Resend migration — 3 credentialed steps left.** The code is merged and
-  tested; only the account/env side remains. Nothing sends until these are done.
-  1. **Get a Resend API key.** It is not on this machine — epiphany's `.env.local` has
-     `RESEND_API_KEY=""` (empty), and it is absent from Keychain and `~/.config/fish/secrets.fish`.
-     It lives only in epiphany's *Vercel* env. Either pull it from the Vercel dashboard or mint a
-     new one at resend.com. Note the Vercel CLI token
-     (`~/Library/Application Support/com.vercel.cli/auth.json`) is **expired** — the API returns
-     `{"error":{"code":"forbidden","invalidToken":true}}` — so `vercel env` / the REST API can't
-     read or write env vars until a `vercel login` re-auth.
-  2. **Register the sending domain.** `POST https://api.resend.com/domains` with
-     `{"name":"sparkjar.heyitsmejosh.com"}`, then create the returned DKIM/SPF/MX records on the
-     `heyitsmejosh.com` zone via the Cloudflare API (`CLOUDFLARE_DNS_TOKEN` in
-     `~/.config/fish/secrets.fish` — note it is *not* `CLOUDFLARE_API_TOKEN`), then poll
-     `POST /domains/{id}/verify`. Only `epiphany.heyitsmejosh.com` is verified today.
-     **Interim shortcut:** `mail.js` reads a `MAIL_FROM` env override, so setting
-     `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"` makes mail work immediately off the
-     already-verified domain, without waiting on DNS.
-  3. **Set the env vars** on sparkjar's Vercel project (it is on **Vercel**, not Cloudflare Pages —
-     per `~/Documents/Code/CLAUDE.md`, sparkjar is one of the 5 not yet migrated):
-     `RESEND_API_KEY`, `APP_URL=https://sparkjar.heyitsmejosh.com`, optionally `MAIL_FROM`.
-     Then verify end-to-end: register with a real address and confirm the mail arrives.
-     Adds no new serverless functions, so the Hobby 12-function cap (8–10/12 used) is untouched.
+- [x] **Resend migration — code done, credentials still outstanding.** Superseded
+  in part by the migration above: `api/_lib/mail.js` no longer uses the `resend`
+  SDK (plain `fetch` now, workerd-compatible). The account/env side is unchanged
+  and still blocks any mail actually sending:
+  1. **Get a Resend API key.** Not on this machine — epiphany's `.env.local` has
+     `RESEND_API_KEY=""` (empty), and it is absent from Keychain and
+     `~/.config/fish/secrets.fish`. It lives only in epiphany's *Vercel* env, and
+     the Vercel CLI token is expired, so `vercel env` can't read it until a
+     `vercel login`. Either re-auth and pull it, or mint a new one at resend.com.
+  2. **Sending domain.** Only `epiphany.heyitsmejosh.com` is verified in Resend.
+     **Interim shortcut:** set `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"`
+     and mail works immediately off that verified domain, no DNS needed. Doing
+     `sparkjar.heyitsmejosh.com` properly means `POST https://api.resend.com/domains`,
+     creating the returned DKIM/SPF/MX records on the `heyitsmejosh.com` zone via
+     the Cloudflare API (`CLOUDFLARE_DNS_TOKEN`), then polling
+     `POST /domains/{id}/verify`.
+  3. **Set the env vars** — now on **Cloudflare Pages**, not Vercel:
+     `npx wrangler pages secret put RESEND_API_KEY --project-name sparkjar`
+     (plus optional `MAIL_FROM`). `APP_URL` is already set in `wrangler.toml`.
+     Then verify end-to-end by registering with a real address.
 
 - [ ] **Correction: the roadmap's own "Email transport is dead" section is misleading about the
   rejection.** The later `## ROOT CAUSE FOUND 2026-08-10` section supersedes it — the iOS 1.0

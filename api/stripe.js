@@ -4,7 +4,14 @@ const { parseToken } = require('./posts');
 
 let stripe;
 function getStripe() {
-  if (!stripe) stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  // createFetchHttpClient is required on workerd — the SDK's default client uses
+  // node:http, which isn't available even with nodejs_compat. Same pattern as
+  // healstack/functions/api/stripe.js.
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      httpClient: Stripe.createFetchHttpClient()
+    });
+  }
   return stripe;
 }
 

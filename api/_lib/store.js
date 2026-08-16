@@ -3,8 +3,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { getSupabaseConfig, supabaseRequest } = require('../_lib/supabase');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) throw new Error('JWT_SECRET environment variable is required');
+// Read lazily, not at module load. On Vercel env vars exist when the module is
+// first required; on Cloudflare Workers bindings are only attached per-request,
+// so a top-level read threw "JWT_SECRET environment variable is required" at
+// isolate startup and took down every route, including ones that never sign a
+// token. Still fails loud — just at first use rather than at boot, so a missing
+// secret is a 500 on the auth path instead of a dead worker.
+function jwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is required');
+  return secret;
+}
 const JWT_EXPIRES_IN = '7d';
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 10;
@@ -35,7 +44,7 @@ function verifyPassword(password, user) {
 function issueToken(user) {
   return jwt.sign(
     { username: user.username, userId: user.userId },
-    JWT_SECRET,
+    jwtSecret(),
     { expiresIn: JWT_EXPIRES_IN }
   );
 }
@@ -45,7 +54,7 @@ function issueToken(user) {
 // "username:userId", with userId being public in the posts feed).
 function verifyToken(token) {
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, jwtSecret());
     return { username: payload.username, userId: payload.userId };
   } catch {
     return null;
@@ -142,75 +151,72 @@ function deriveUser(username, password) {
   };
 }
 
-// /tmp fallback storage (kept for when Supabase is not configured)
-const fs = require('fs');
-const path = require('path');
-const USERS_FILE = '/tmp/spark-users.json';
+// The /tmp user store is gone. Workers has no filesystem, and on Vercel it was
+// actively harmful: /tmp is per-instance and ephemeral, so an account created
+// through this path existed only on the instance that served the request and
+// vanished immediately afterwards. Sign-ups appeared to succeed and then did
+// not exist — the exact failure App Review reported as "unable to sign up or
+// sign in", and what several comments above are working around.
+//
+// Supabase is now the only real user store. The in-memory map below exists so
+// the auth tests have something to write to; it is opt-in via
+// SPARK_ALLOW_MEMORY_STORE=1 and must never be set in production, where a
+// missing Supabase config has to fail loudly rather than silently "succeed".
+const memoryUsers = new Map();
 
-function readJson(filePath, fallback) {
-  try {
-    if (!fs.existsSync(filePath)) return fallback;
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    if (!raw.trim()) return fallback;
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
+function memoryStoreEnabled() {
+  return process.env.SPARK_ALLOW_MEMORY_STORE === '1';
 }
 
-function writeJson(filePath, data) {
-  const dir = path.dirname(filePath);
-  fs.mkdirSync(dir, { recursive: true });
-  const tempPath = `${filePath}.tmp`;
-  fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
-  fs.renameSync(tempPath, filePath);
+function _resetMemoryStore() {
+  memoryUsers.clear();
 }
 
 function findUserLocal(username) {
-  const users = readJson(USERS_FILE, []);
-  return (Array.isArray(users) ? users : []).find((u) => u.username === username) || null;
+  if (!memoryStoreEnabled()) return null;
+  return memoryUsers.get(username) || null;
 }
 
 function createUserLocal(user) {
-  const users = readJson(USERS_FILE, []);
-  const arr = Array.isArray(users) ? users : [];
-  arr.push(user);
-  writeJson(USERS_FILE, arr);
+  if (!memoryStoreEnabled()) {
+    throw new Error('user_store_unavailable: Supabase is not configured');
+  }
+  memoryUsers.set(user.username, user);
   return user;
 }
 
-// Session management (kept for cookie-based auth)
-const SESSIONS_FILE = '/tmp/spark-sessions.json';
-
+// Session management — stateless, backed by the signed JWT itself.
+//
+// Was a /tmp/spark-sessions.json file. That could not move to Workers (no
+// filesystem), and it was already broken on Vercel: /tmp is per-instance and
+// ephemeral, so a login handled by one instance produced a cookie that every
+// other instance rejected. Sessions "randomly" vanished — the same silent
+// fallback this file's other comments blame for the App Review sign-in failures.
+//
+// The cookie now carries the JWT that issueToken() already mints, so resolving a
+// session is just verifying that token. Same 7-day lifetime (JWT_EXPIRES_IN),
+// same HttpOnly cookie, no shared state, nothing to expire-sweep. Call sites are
+// unchanged: createSession still returns { id, username, userId, ... } and
+// callers still pass session.id to setSessionCookie.
 function createSession({ user, token }) {
-  const sessions = readJson(SESSIONS_FILE, []);
-  const arr = Array.isArray(sessions) ? sessions : [];
   const now = Date.now();
-  const session = {
-    id: crypto.randomBytes(24).toString('hex'),
+  return {
+    id: token,
     username: user.username,
     userId: user.userId,
     token,
     createdAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SESSION_TTL_MS).toISOString()
   };
-  arr.push(session);
-  writeJson(SESSIONS_FILE, arr);
-  return session;
 }
 
 function resolveSession(sessionId) {
   if (!sessionId) return null;
-  const sessions = readJson(SESSIONS_FILE, []);
-  const arr = Array.isArray(sessions) ? sessions : [];
-  const now = Date.now();
-  const active = arr.filter((s) => {
-    const expiresAt = Date.parse(s.expiresAt);
-    return Number.isFinite(expiresAt) && expiresAt > now;
-  });
-  const session = active.find((s) => s.id === sessionId) || null;
-  if (active.length !== arr.length) writeJson(SESSIONS_FILE, active);
-  return session;
+  // verifyToken returns null on a bad/expired signature, which is exactly the
+  // "no active session" contract the old lookup had.
+  const payload = verifyToken(sessionId);
+  if (!payload) return null;
+  return { id: sessionId, token: sessionId, username: payload.username, userId: payload.userId };
 }
 
 function parseCookie(cookieHeader) {
@@ -379,5 +385,7 @@ module.exports = {
   resolveSession,
   setResetToken,
   setSessionCookie,
-  verifyPassword
+  verifyPassword,
+  // test-only seam, see memoryStoreEnabled
+  _resetMemoryStore
 };

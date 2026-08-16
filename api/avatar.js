@@ -1,6 +1,7 @@
-const { put, del } = require('@vercel/blob');
 const { parseCookie, resolveSession, verifyToken } = require('./_lib/store');
-const { supabaseRequest } = require('./_lib/supabase');
+const { supabaseRequest, supabaseStorageUpload } = require('./_lib/supabase');
+
+const AVATAR_BUCKET = 'spark-avatars';
 
 function parseAuth(req) {
   const auth = req.headers.authorization;
@@ -35,19 +36,20 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Image too large (max 2MB)' });
     }
 
-    const blob = await put(`spark-avatars/${user.userId}-${Date.now()}.${ext}`, buffer, {
-      access: 'public',
-      contentType,
-      addRandomSuffix: false,
-    });
+    const avatarUrl = await supabaseStorageUpload(
+      AVATAR_BUCKET,
+      `${user.userId}-${Date.now()}.${ext}`,
+      buffer,
+      contentType
+    );
 
     await supabaseRequest(
       `users?user_id=eq.${encodeURIComponent(user.userId)}`,
-      { method: 'PATCH', body: { avatar_url: blob.url }, useServiceRole: true }
+      { method: 'PATCH', body: { avatar_url: avatarUrl }, useServiceRole: true }
     );
 
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    return res.status(200).json({ ok: true, avatarUrl: blob.url });
+    return res.status(200).json({ ok: true, avatarUrl });
   } catch (err) {
     console.error('[avatar] Error:', err.message);
     return res.status(500).json({ error: err.message || 'Upload failed' });

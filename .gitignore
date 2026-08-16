@@ -7,3 +7,8 @@ node_modules/.vite/
 .asc/runs/
 **/.asc/artifacts/
 ios/build/
+
+# Cloudflare Pages
+dist/
+.dev.vars
+.wrangler/

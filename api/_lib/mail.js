@@ -2,20 +2,46 @@
 //   RESEND_API_KEY  — required, or sendMail no-ops
 //   MAIL_FROM       — optional, defaults to noreply@sparkjar.heyitsmejosh.com
 //   APP_URL         — optional, base for verify/reset links
-let _resend = null;
+//
+// ponytail: plain fetch against the REST endpoint instead of the `resend` SDK.
+// The SDK pulls in Node stream/http internals that don't run on workerd, and
+// this is one POST — the dependency bought nothing. Same client shape is kept
+// (`emails.send` returning `{ error }`) so _setClient stays a usable test seam.
+let _client = null;
 
-async function getResend() {
-  if (_resend) return _resend;
-  if (!process.env.RESEND_API_KEY) return null;
-  const { Resend } = await import('resend');
-  _resend = new Resend(process.env.RESEND_API_KEY);
-  return _resend;
+function restClient(apiKey) {
+  return {
+    emails: {
+      async send(payload) {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        let data = null;
+        try { data = await res.json(); } catch { data = null; }
+        if (!res.ok) {
+          return { error: { message: (data && (data.message || data.name)) || `resend_http_${res.status}` } };
+        }
+        return { data, error: null };
+      }
+    }
+  };
 }
 
-// Test seam: `await import('resend')` can't be stubbed from CJS, and the send
-// path is the one worth testing. Used only by mail.selfcheck.js.
+function getClient() {
+  if (_client) return _client;
+  if (!process.env.RESEND_API_KEY) return null;
+  _client = restClient(process.env.RESEND_API_KEY);
+  return _client;
+}
+
+// Test seam: lets mail.selfcheck.js swap in a fake without network access.
 function _setClient(client) {
-  _resend = client;
+  _client = client;
 }
 
 function from() {
@@ -26,12 +52,12 @@ function from() {
 // rather than a 500 on sign-up. A real send failure still throws — callers in
 // register.js/password-reset.js catch it so the user-facing flow never breaks.
 async function sendMail({ to, subject, text, html }) {
-  const resend = await getResend();
-  if (!resend) {
+  const client = getClient();
+  if (!client) {
     console.warn('[mail] RESEND_API_KEY not configured — skipping email send');
     return false;
   }
-  const { error } = await resend.emails.send({ from: from(), to, subject, text, html });
+  const { error } = await client.emails.send({ from: from(), to, subject, text, html });
   if (error) throw new Error(error.message);
   return true;
 }

@@ -1,12 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
+// Still needed further down to scan api/ source files on disk (not for the
+// removed /tmp user store).
 import fs from 'fs';
 
 const require = createRequire(import.meta.url);
 
+// The /tmp JSON store is gone (no filesystem on Cloudflare Workers). These
+// tests run against the opt-in in-memory store instead; production leaves
+// SPARK_ALLOW_MEMORY_STORE unset so a missing Supabase config fails loudly.
+process.env.SPARK_ALLOW_MEMORY_STORE = '1';
+
 beforeEach(() => {
-  try { fs.unlinkSync('/tmp/spark-users.json'); } catch {}
-  try { fs.unlinkSync('/tmp/spark-sessions.json'); } catch {}
+  require('../api/_lib/store')._resetMemoryStore();
 });
 
 const {
@@ -113,13 +119,22 @@ describe('Derived users', () => {
 describe('Sessions', () => {
   it('should create and resolve a session', () => {
     const user = { username: 'sessuser', userId: 'user-sess-1' };
-    const session = createSession({ user, token: 'tok' });
+    // Sessions are stateless: session.id *is* the signed JWT, so resolving one
+    // means verifying it. A placeholder string no longer resolves, which is the
+    // point — a forged cookie can't mint a session.
+    const session = createSession({ user, token: issueToken(user) });
     expect(session.id).toBeTruthy();
     expect(session.username).toBe('sessuser');
 
     const resolved = resolveSession(session.id);
     expect(resolved).not.toBeNull();
     expect(resolved.username).toBe('sessuser');
+    expect(resolved.userId).toBe('user-sess-1');
+  });
+
+  it('should not resolve an unsigned session id', () => {
+    expect(resolveSession('tok')).toBeNull();
+    expect(resolveSession(undefined)).toBeNull();
   });
 
   it('should return null for invalid session', () => {

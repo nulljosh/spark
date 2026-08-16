@@ -2,7 +2,11 @@ const Stripe = require('stripe');
 const { supabaseRequest } = require('./_lib/supabase');
 
 let stripe;
-const getStripe = () => stripe || (stripe = new Stripe(process.env.STRIPE_SECRET_KEY));
+// createFetchHttpClient: workerd has no node:http, which the SDK's default
+// client requires. Same pattern as healstack/functions/api/stripe-webhook.js.
+const getStripe = () => stripe || (stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  httpClient: Stripe.createFetchHttpClient()
+}));
 
 const config = {
   api: { bodyParser: false },
@@ -24,7 +28,10 @@ module.exports = async function handler(req, res) {
 
   let event;
   try {
-    event = getStripe().webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    // constructEventAsync, not constructEvent: signature verification must use
+    // WebCrypto (async) on workerd. The sync variant needs node:crypto's
+    // synchronous HMAC and throws at runtime on Workers.
+    event = await getStripe().webhooks.constructEventAsync(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error('[WEBHOOK] Signature verification failed:', err.message);
     return res.status(400).json({ error: 'Webhook signature verification failed' });
