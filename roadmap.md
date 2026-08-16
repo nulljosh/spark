@@ -549,3 +549,19 @@ Unknown paths now 404. Pages also 308-redirects `/app.html` → `/app`
   error). `~/Documents/Code/CLAUDE.md` confirms this independently and records the rebuild on
   2026-08-12. The Resend work is real and worth doing — password reset and email verification
   genuinely never sent — but it is **not** the resubmission blocker. Do not re-link the two.
+
+## Blocked 2026-08-16 — Resend API key is INVALID
+
+- [ ] **`RESEND_API_KEY` is dead — regenerate it.** Verified by calling the Resend API directly:
+  `GET https://api.resend.com/domains` returns `400 {"message":"API key is invalid"}`. The key
+  currently set as a Cloudflare Pages production secret was recovered from `curvely/.env.local`
+  during the 2026-08-16 cutover; it is the ONLY Resend key present anywhere on the machine
+  (checked every `~/Documents/Code/*/.env*`). The Security Rotation Log records a Resend
+  rotation on 2026-05-02, so curvely's copy is almost certainly the pre-rotation key.
+  **Consequence:** sparkjar signup-verification and password-reset mail will fail in production
+  even though the wiring is correct. Do not chase this as a code bug — `api/_lib/mail.js` is fine.
+  **Fix:** generate a fresh key at resend.com/api-keys (the `get-api-key` skill can drive this),
+  put it in `~/.config/fish/secrets.fish`, then
+  `npx wrangler pages secret put RESEND_API_KEY --project-name sparkjar`. Re-verify with the
+  same `GET /domains` call before trusting it, then confirm `MAIL_FROM`'s domain shows `verified`.
+  Epiphany uses the same key, so epiphany's mail is likely broken too — check it.
