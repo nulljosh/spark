@@ -1,37 +1,38 @@
-const nodemailer = require('nodemailer');
+// Resend transport. Set these env vars:
+//   RESEND_API_KEY  — required, or sendMail no-ops
+//   MAIL_FROM       — optional, defaults to noreply@sparkjar.heyitsmejosh.com
+//   APP_URL         — optional, base for verify/reset links
+let _resend = null;
 
-// Configure SMTP transport — set these env vars:
-//   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
-// For Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_USER=you@gmail.com, SMTP_PASS=app-password
-function getTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  if (!host || !user || !pass) return null;
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  });
+async function getResend() {
+  if (_resend) return _resend;
+  if (!process.env.RESEND_API_KEY) return null;
+  const { Resend } = await import('resend');
+  _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
 }
 
-// No-ops when SMTP is unconfigured so a missing env var degrades to "no email"
-// rather than a 500 on sign-up.
+// Test seam: `await import('resend')` can't be stubbed from CJS, and the send
+// path is the one worth testing. Used only by mail.selfcheck.js.
+function _setClient(client) {
+  _resend = client;
+}
+
+function from() {
+  return process.env.MAIL_FROM || 'Spark <noreply@sparkjar.heyitsmejosh.com>';
+}
+
+// No-ops when Resend is unconfigured so a missing env var degrades to "no email"
+// rather than a 500 on sign-up. A real send failure still throws — callers in
+// register.js/password-reset.js catch it so the user-facing flow never breaks.
 async function sendMail({ to, subject, text, html }) {
-  const transport = getTransport();
-  if (!transport) {
-    console.warn('[mail] SMTP not configured — skipping email send');
+  const resend = await getResend();
+  if (!resend) {
+    console.warn('[mail] RESEND_API_KEY not configured — skipping email send');
     return false;
   }
-  await transport.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to,
-    subject,
-    text,
-    html,
-  });
+  const { error } = await resend.emails.send({ from: from(), to, subject, text, html });
+  if (error) throw new Error(error.message);
   return true;
 }
 
@@ -39,4 +40,4 @@ function baseUrl() {
   return process.env.APP_URL || 'https://sparkjar.heyitsmejosh.com';
 }
 
-module.exports = { sendMail, baseUrl };
+module.exports = { sendMail, baseUrl, from, _setClient };

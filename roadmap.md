@@ -189,7 +189,8 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 ## Email transport is dead (found 2026-08-09)
 
 - [ ] **Password reset has never worked.** `vercel env ls production` has no `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`, so `_lib/mail.js` `sendMail()` no-ops with a console.warn. `password-reset.js` still returns "If an account exists with that info, a reset link has been sent" — users are told a link went out and nothing is delivered. The same dead path now also swallows the new sign-up verification email.
-- [ ] Fix = Resend, not SMTP. `RESEND_API_KEY` already exists on epiphany's Vercel env (see `epiphany/server/api/_email.js` for the working sender). Steps: add `sparkjar.heyitsmejosh.com` via `POST api.resend.com/domains`, create the returned DKIM/SPF/MX records in Cloudflare via API (`CLOUDFLARE_API_TOKEN` in `~/.config/fish/secrets.fish`), verify, then rewrite `api/_lib/mail.js` to Resend keeping the `sendMail({to,subject,text,html})` signature so register.js/password-reset.js stay untouched. Swap `nodemailer` for `resend` in package.json.
+- [x] **Code half DONE 2026-08-15.** `api/_lib/mail.js` rewritten from nodemailer/SMTP to Resend, `sendMail({to,subject,text,html})` signature preserved so `register.js`/`password-reset.js` are untouched. `nodemailer` → `resend@^6.9.4` in package.json. New `api/_lib/mail.selfcheck.js` (repo's selfcheck convention, no network) covers the regression that matters: unconfigured no-ops instead of throwing, configured sends once with text+html intact, provider errors throw instead of reporting success. `npm test` 35 passed / 6 skipped.
+- [ ] **Credentialed half NOT done — blocked, see `## Stashed 2026-08-15`.** Resend domain registration + env vars could not be run: no `RESEND_API_KEY` exists anywhere on this machine (epiphany's `.env.local` has it as an empty string; not in Keychain or `secrets.fish`), and the Vercel CLI token at `~/Library/Application Support/com.vercel.cli/auth.json` is expired (`invalidToken`). Until `RESEND_API_KEY` is set, `sendMail` no-ops exactly as before — **no behaviour change is live yet.**
 - [ ] Also set `APP_URL=https://sparkjar.heyitsmejosh.com` — verify/reset links are built from `baseUrl()`.
 - Note: `epiphany.heyitsmejosh.com` is verified in Resend; root `heyitsmejosh.com` and `sparkjar.heyitsmejosh.com` are NOT.
 - Full plan: `~/.claude/plans/tldr-shorter-and-bang-snazzy-cray.md`
@@ -380,3 +381,36 @@ Known local blockers still to clear (from `036cc3a`): pass `-derivedDataPath /tm
 ### From Notes (2026-08-14)
 - [ ] **Landing page UI bump.** Functional but sparse — needs a product screenshot (or similar) to
   fill the dead space. Same pass as the inkpress landing page.
+
+## Stashed 2026-08-15
+
+- [ ] **Finish the Resend migration — 3 credentialed steps left.** The code is merged and
+  tested; only the account/env side remains. Nothing sends until these are done.
+  1. **Get a Resend API key.** It is not on this machine — epiphany's `.env.local` has
+     `RESEND_API_KEY=""` (empty), and it is absent from Keychain and `~/.config/fish/secrets.fish`.
+     It lives only in epiphany's *Vercel* env. Either pull it from the Vercel dashboard or mint a
+     new one at resend.com. Note the Vercel CLI token
+     (`~/Library/Application Support/com.vercel.cli/auth.json`) is **expired** — the API returns
+     `{"error":{"code":"forbidden","invalidToken":true}}` — so `vercel env` / the REST API can't
+     read or write env vars until a `vercel login` re-auth.
+  2. **Register the sending domain.** `POST https://api.resend.com/domains` with
+     `{"name":"sparkjar.heyitsmejosh.com"}`, then create the returned DKIM/SPF/MX records on the
+     `heyitsmejosh.com` zone via the Cloudflare API (`CLOUDFLARE_DNS_TOKEN` in
+     `~/.config/fish/secrets.fish` — note it is *not* `CLOUDFLARE_API_TOKEN`), then poll
+     `POST /domains/{id}/verify`. Only `epiphany.heyitsmejosh.com` is verified today.
+     **Interim shortcut:** `mail.js` reads a `MAIL_FROM` env override, so setting
+     `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"` makes mail work immediately off the
+     already-verified domain, without waiting on DNS.
+  3. **Set the env vars** on sparkjar's Vercel project (it is on **Vercel**, not Cloudflare Pages —
+     per `~/Documents/Code/CLAUDE.md`, sparkjar is one of the 5 not yet migrated):
+     `RESEND_API_KEY`, `APP_URL=https://sparkjar.heyitsmejosh.com`, optionally `MAIL_FROM`.
+     Then verify end-to-end: register with a real address and confirm the mail arrives.
+     Adds no new serverless functions, so the Hobby 12-function cap (8–10/12 used) is untouched.
+
+- [ ] **Correction: the roadmap's own "Email transport is dead" section is misleading about the
+  rejection.** The later `## ROOT CAUSE FOUND 2026-08-10` section supersedes it — the iOS 1.0
+  2.1(a) rejection was a dead `spark.heyitsmejosh.com` baseURL in the 07-19 binary, not the mail
+  sender (`sendMail` degraded silently and never threw, so it could not produce the reviewer's
+  error). `~/Documents/Code/CLAUDE.md` confirms this independently and records the rebuild on
+  2026-08-12. The Resend work is real and worth doing — password reset and email verification
+  genuinely never sent — but it is **not** the resubmission blocker. Do not re-link the two.
