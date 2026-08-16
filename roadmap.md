@@ -565,3 +565,27 @@ Unknown paths now 404. Pages also 308-redirects `/app.html` → `/app`
   `npx wrangler pages secret put RESEND_API_KEY --project-name sparkjar`. Re-verify with the
   same `GET /domains` call before trusting it, then confirm `MAIL_FROM`'s domain shows `verified`.
   Epiphany uses the same key, so epiphany's mail is likely broken too — check it.
+
+## 2026-08-16 — ALL local secret copies are stale post-rotation
+
+Attempted the Stripe provisioning tonight; it is blocked by the same root cause as Resend.
+Verified, not inferred:
+- `RESEND_API_KEY` (only copy, from `curvely/.env.local`) → `GET api.resend.com/domains` = **400 invalid**
+- `STRIPE_SECRET_KEY` (only copy, `epiphany/.env.tui.local`, `sk_live_…`) → `GET api.stripe.com/v1/balance` = **401**
+- No Stripe key in the login keychain, none in `secrets.fish`, none in any other repo `.env*`
+
+**Root cause:** the 2026-05-02 rotation (see `~/Documents/Code/CLAUDE.md` Security Rotation Log:
+"Stripe sk + pk, Resend, Supabase anon + service role") invalidated every on-disk copy. The
+working values live only in Vercel's env store — whose CLI token is expired — and in the Resend
+and Stripe dashboards.
+
+**Implication beyond sparkjar:** epiphany is LIVE with real users and shares both keys. Its
+production values come from Vercel env so it is probably fine in production, but any local run,
+script, or migration that reads `epiphany/.env.tui.local` is using dead credentials. Verify
+epiphany's live Stripe + mail before assuming they work.
+
+- [ ] Regenerate the Resend key (resend.com/api-keys) — Chrome approved for this specific task
+- [ ] Regenerate/retrieve the Stripe secret key (dashboard.stripe.com/apikeys) — NOT yet approved
+      for Chrome; ask first. Needed before Spark Pro can be provisioned at all.
+- [ ] Then resume the approved plan: product + $1 price + webhook endpoint, three secrets to
+      Cloudflare Pages, verify checkout returns a real session URL.
