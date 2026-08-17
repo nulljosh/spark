@@ -35,6 +35,10 @@ targets:
       CODE_SIGN_STYLE: Automatic
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+      # iOS sets this in ios/Info.plist; macOS generates its plist, so without
+      # this key every Mac build uploads with encryption state unset, which is a
+      # blocking submission error. App is HTTPS-only, so it's exempt.
+      INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
       # Guideline 5.2.5: the target is named SparkMac, and without these the
       # generated Info.plist falls back to the product name — so the app showed
       # on device as "SparkMac". "Mac" in a display name is an Apple trademark
