@@ -11,10 +11,17 @@ pages_build_output_dir = "dist"
 [vars]
 ALLOWED_ORIGIN = "https://sparkjar.heyitsmejosh.com"
 APP_URL = "https://sparkjar.heyitsmejosh.com"
+# Not a secret: native Sign in with Apple sets the token `aud` to the BUNDLE ID,
+# and iOS + macOS both ship com.heyitsmejosh.spark. Without it api/_lib/auth/apple.js
+# 500s with "Apple Sign In is misconfigured" — which is exactly the error App Review
+# hit at step 3 of the 2.1(a) rejection. Keep it in vars so it survives redeploys.
+APPLE_CLIENT_ID = "com.heyitsmejosh.spark"
 
 # Secrets are NOT set here. Set them with:
 #   npx wrangler pages secret put <NAME> --project-name sparkjar
 # Required: JWT_SECRET, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 # Optional: RESEND_API_KEY, MAIL_FROM, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 #           STRIPE_PRICE_ID, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-#           APPLE_CLIENT_ID, GEMMA_KEY, SPARK_DAEMON_SECRET
+#           GEMMA_KEY, SPARK_DAEMON_SECRET
+# APPLE_CLIENT_ID is NOT optional while the apps ship a Sign in with Apple button;
+# it lives in [vars] above.

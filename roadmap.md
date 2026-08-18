@@ -1,5 +1,49 @@
 # Sparkjar Roadmap
 
+## Two live auth breaks found + fixed 2026-08-18 (`/work start`)
+
+Probed production directly (post-Cloudflare-Pages migration) instead of trusting the notes
+below. Two defects were live on `sparkjar.heyitsmejosh.com` and both would have caused an
+immediate repeat of the 2.1(a) rejection:
+
+1. **`POST /api/auth/apple` returned 500 `"Apple Sign In is misconfigured"`.**
+   `APPLE_CLIENT_ID` was never set on Cloudflare Pages — the migration notes in
+   `wrangler.toml` listed it as *optional*, which it is not while the apps ship a Sign in
+   with Apple button. This is exactly Apple's step 3-4 ("Tap Sign in with Apple -> the app
+   returns an error"). The value is a bundle ID, not a secret, so it now lives in
+   `[vars]` in `wrangler.toml` where it survives redeploys: `com.heyitsmejosh.spark`
+   (iOS and macOS share it). **The "verified backend Sign in with Apple (7/7)" claim below
+   was a *local* selfcheck — it never touched production. Don't trust it again.**
+
+2. **Password reset was a permanent 400 in production.** `functions/api/[[route]].js`
+   injected `{ action: '<route>' }` into `req.query`, and `_adapter.js` merges that *over*
+   the real search params — so `/api/auth/password-reset?action=forgot` arrived at
+   `password-reset.js` with `action === 'password-reset'` and always fell through to
+   `"Unknown action"`. Fixed by having `api/auth.js` recover the route from `req.url` and
+   removing the injection. Regression test added in `tests/auth.test.mjs` (46 pass).
+
+**Verified live on the custom domain after deploying:** login 200, register(dup) 409,
+apple 400 `identityToken is required` (i.e. past the config gate), password-reset
+`?action=forgot` 200, `/api/posts` 200.
+
+**`RESEND_API_KEY` is set on Cloudflare Pages** (`wrangler pages secret list`), and
+`api/_lib/mail.js` is already on the Resend REST API, not SMTP. So the
+"password reset has never worked / no RESEND_API_KEY anywhere / SMTP_HOST missing on
+Vercel" section further down is **stale** — it describes the Vercel deployment that no
+longer exists. What is still unproven is *delivery*: the endpoint now returns 200, but
+nobody has confirmed an email actually arrives.
+
+- [ ] Confirm a password-reset email is actually delivered (send one to a mailbox Joshua
+      can read and check it lands). The key is present and the endpoint returns 200; the
+      only untested link is Resend accepting the key and the domain being verified for
+      sending. Per standing memory, every on-disk Stripe/Resend key is dead after the
+      2026-05-02 rotation — this one is stored in Cloudflare, not on disk, so it may well
+      be fine, but it has not been exercised.
+- [ ] Rebuild + re-upload iOS and macOS before resubmitting. The VALID builds
+      (202608121456 / 202608121459) predate today's server-side fixes — the fixes are
+      backend-only so the existing binaries would work, but confirm the build's
+      `baseURL` and bundle ID match `com.heyitsmejosh.spark` before submitting.
+
 ## Account deletion + avatar upload were 500ing — FIXED 2026-08-13 (`dfabe6e`)
 
 Found while re-verifying the 2.1(a) rejection against production. The `users` table has

@@ -46,7 +46,9 @@ function resolve(segments) {
   const [head, ...rest] = segments;
 
   if (head === 'auth' && rest.length) {
-    return { handler: handlers.auth, query: { action: rest[0] } };
+    // Deliberately inject nothing: auth.js recovers the route from req.url, which
+    // leaves the caller's own ?action= intact for sub-handlers like password-reset.
+    return { handler: handlers.auth, query: {} };
   }
 
   if (head === 'posts' && rest.length) {

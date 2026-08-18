@@ -174,3 +174,23 @@ describe('users table queries filter by the correct id column', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+// /api/auth/password-reset?action=forgot carries TWO actions: the route
+// ("password-reset") and the sub-action password-reset.js reads ("forgot").
+// The Pages route used to inject { action: 'password-reset' } into req.query,
+// clobbering the caller's ?action= and making password reset a permanent
+// "Unknown action" 400 in production.
+describe('auth route dispatch does not clobber ?action=', () => {
+  it('auth.js reads the route from the URL path, not req.query.action', () => {
+    const src = fs.readFileSync('api/auth.js', 'utf8');
+    const line = src.split('\n').find((l) => l.includes('const action ='));
+    expect(line).toBeTruthy();
+    // path regex must come before the req.query fallback
+    expect(line.indexOf('req.url')).toBeLessThan(line.indexOf('req.query'));
+  });
+
+  it('the Pages auth route injects no query params', () => {
+    const src = fs.readFileSync('functions/api/[[route]].js', 'utf8');
+    expect(src).not.toMatch(/handlers\.auth,\s*query:\s*\{\s*action:/);
+  });
+});

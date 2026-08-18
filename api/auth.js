@@ -11,7 +11,12 @@ const handlers = {
 };
 
 module.exports = async function handler(req, res) {
-  const action = (req.query || {}).action || (req.url.match(/^\/api\/auth\/([\w-]+)/) || [])[1];
+  // Path segment wins over ?action=. /api/auth/password-reset?action=forgot has TWO
+  // actions in it: the route ("password-reset") and the sub-action the handler reads
+  // ("forgot"). Reading query.action first picked "forgot" here and 404'd, so the
+  // Pages route must not inject action into req.query either — see functions/api/[[route]].js.
+  // /api/auth?action=login (no path segment) still resolves via the fallback.
+  const action = (req.url.match(/^\/api\/auth\/([\w-]+)/) || [])[1] || (req.query || {}).action;
   const fn = handlers[action];
   if (!fn) return res.status(404).json({ error: 'Not found' });
   return fn(req, res);
