@@ -605,3 +605,23 @@ epiphany's live Stripe + mail before assuming they work.
 
 ## Ingested 2026-08-18
 - [ ] Landing page needs a screenshot (or similar) to fill the white space.
+
+## App Privacy corrected + published — 2026-08-18
+
+The declaration said `DATA_NOT_COLLECTED`, which was false: Sparkjar has accounts and stores
+emails, usernames, uploaded avatars (`spark-avatars` bucket) and posts. A misdeclaration is its own
+rejection ground, on an app Apple has already rejected once.
+
+Now published as, all `DATA_LINKED_TO_YOU` / `APP_FUNCTIONALITY`:
+`EMAIL_ADDRESS`, `USER_ID`, `PHOTOS_OR_VIDEOS` (avatars), `OTHER_USER_CONTENT` (posts).
+
+Sequence (note `--allow-deletes --confirm` is required to drop the old DATA_NOT_COLLECTED tuple):
+`asc web privacy plan/apply --allow-deletes --confirm/publish --confirm`.
+
+- [ ] **`asc xcode version edit` is unsafe in this repo** — it writes the build number only into
+      `Spark.xcodeproj/project.pbxproj`, but this is an xcodegen project, so the next
+      `xcodegen generate` reverts it to `CURRENT_PROJECT_VERSION: "3"`. Build numbers must go in
+      `project.yml`. **`.asc/workflow.json`'s `bump` step uses exactly that command** and therefore
+      produces archives with the wrong build number — fix the workflow before relying on it.
+- [ ] macOS export needs `xcodebuild -exportArchive` directly; `asc xcode export` demands an `.ipa`
+      path and then errors on a Mac archive's `.pkg` (after the export itself succeeded).
