@@ -596,3 +596,6 @@ epiphany's live Stripe + mail before assuming they work.
       for Chrome; ask first. Needed before Spark Pro can be provisioned at all.
 - [ ] Then resume the approved plan: product + $1 price + webhook endpoint, three secrets to
       Cloudflare Pages, verify checkout returns a real session URL.
+
+## Ingested 2026-08-18
+- [ ] Landing page needs a screenshot (or similar) to fill the white space.
