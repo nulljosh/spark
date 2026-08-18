@@ -1,5 +1,21 @@
 # Sparkjar Roadmap
 
+## Staged for submission 2026-08-18 — builds uploaded, NOT submitted
+
+Both platforms now carry a build newer than the 2026-08-18 auth fixes and validate clean:
+`asc validate` returns **0 errors / 0 blocking** on iOS and macOS (1 warning, 1 info each).
+App Privacy is published. Nothing is queued for review.
+
+- [ ] **App Privacy is declared `DATA_NOT_COLLECTED`, which looks wrong for this app.**
+      Verified published 2026-08-18 via `asc web privacy pull --app 6785162492`. But Sparkjar
+      has accounts, stores email addresses, user posts and avatars — that is collected data
+      linked to the user. A misdeclaration is its own rejection risk (and Apple has already
+      rejected this app once). Expected shape is closer to: email + user content, linked to
+      user, not used for tracking. Decide the correct declaration, then re-apply with
+      `asc web privacy plan/apply/publish` (apply BEFORE publish, or publish 409s).
+- [ ] Subtitle is empty for en-US on both platforms (`metadata.required.subtitle`,
+      non-blocking warning). Needs real copy, not a placeholder.
+
 ## Two live auth breaks found + fixed 2026-08-18 (`/work start`)
 
 Probed production directly (post-Cloudflare-Pages migration) instead of trusting the notes
@@ -39,10 +55,15 @@ nobody has confirmed an email actually arrives.
       sending. Per standing memory, every on-disk Stripe/Resend key is dead after the
       2026-05-02 rotation — this one is stored in Cloudflare, not on disk, so it may well
       be fine, but it has not been exercised.
-- [ ] Rebuild + re-upload iOS and macOS before resubmitting. The VALID builds
-      (202608121456 / 202608121459) predate today's server-side fixes — the fixes are
-      backend-only so the existing binaries would work, but confirm the build's
-      `baseURL` and bundle ID match `com.heyitsmejosh.spark` before submitting.
+- [x] Rebuild + re-upload iOS and macOS — DONE 2026-08-18. iOS build `202608181252`
+      (upload `18cc8b02-2943-468d-80de-57a44f6c3d5b`) and macOS build `202608181253`
+      (upload `8609a65f-c76e-4b94-a708-11386d497a0f`), both verified `COMPLETE` then
+      `VALID` via `asc builds uploads list` / `asc builds list`, and both attached to the
+      1.0 version records. Versions deliberately left in `PREPARE_FOR_SUBMISSION` — not
+      submitted, per the one-app-at-a-time rule while Curvely/Wiretext/Wordroot are in
+      review. Pre-flight confirmed before building: all Swift `baseURL`s are
+      `sparkjar.heyitsmejosh.com` and both platforms' bundle ID is
+      `com.heyitsmejosh.spark`, matching `APPLE_CLIENT_ID` in `wrangler.toml`.
 
 ## Account deletion + avatar upload were 500ing — FIXED 2026-08-13 (`dfabe6e`)
 
