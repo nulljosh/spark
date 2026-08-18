@@ -189,7 +189,6 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 ## Email transport is dead (found 2026-08-09)
 
 - [ ] **Password reset has never worked.** `vercel env ls production` has no `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`, so `_lib/mail.js` `sendMail()` no-ops with a console.warn. `password-reset.js` still returns "If an account exists with that info, a reset link has been sent" — users are told a link went out and nothing is delivered. The same dead path now also swallows the new sign-up verification email.
-- [x] **Code half DONE 2026-08-15.** `api/_lib/mail.js` rewritten from nodemailer/SMTP to Resend, `sendMail({to,subject,text,html})` signature preserved so `register.js`/`password-reset.js` are untouched. `nodemailer` → `resend@^6.9.4` in package.json. New `api/_lib/mail.selfcheck.js` (repo's selfcheck convention, no network) covers the regression that matters: unconfigured no-ops instead of throwing, configured sends once with text+html intact, provider errors throw instead of reporting success. `npm test` 35 passed / 6 skipped.
 - [ ] **Credentialed half NOT done — blocked, see `## Stashed 2026-08-15`.** Resend domain registration + env vars could not be run: no `RESEND_API_KEY` exists anywhere on this machine (epiphany's `.env.local` has it as an empty string; not in Keychain or `secrets.fish`), and the Vercel CLI token at `~/Library/Application Support/com.vercel.cli/auth.json` is expired (`invalidToken`). Until `RESEND_API_KEY` is set, `sendMail` no-ops exactly as before — **no behaviour change is live yet.**
 - [ ] Also set `APP_URL=https://sparkjar.heyitsmejosh.com` — verify/reset links are built from `baseUrl()`.
 - Note: `epiphany.heyitsmejosh.com` is verified in Resend; root `heyitsmejosh.com` and `sparkjar.heyitsmejosh.com` are NOT.
@@ -206,11 +205,9 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 - [ ] **The rejection was a dead API host in the reviewed binary. No server bug, no mail bug.** Build `202607191845` (07-19) hardcoded `baseURL = "https://spark.heyitsmejosh.com"`, which no longer resolves (curl: could not resolve host). Commit `a458002` repointed every client to `sparkjar.heyitsmejosh.com` on **2026-08-03** — the same day Apple reviewed, too late for that binary. A dead host explains all three reported symptoms at once: Sign in with Apple errors, sign-up errors, and "other sections show a server error". They were all network failures.
 - [ ] **Production is verified healthy as of 2026-08-10.** `POST /api/auth/register` against sparkjar.heyitsmejosh.com returns **201 with a session token**, both with and without an `email` field. `POST /api/auth/apple` with a bogus token returns a clean `401 Invalid Apple credentials` — i.e. `APPLE_CLIENT_ID` is configured and the verifier is reachable. The iOS client's payload contract (`ios/API/SparkAPI.swift:148`) matches `api/_lib/auth/register.js` exactly.
 - [ ] **Correction — the SMTP/Resend item is NOT the rejection fix.** `mail.js` `getTransport()` returns null and `sendMail` returns `false` when SMTP env is absent; it degrades silently and never throws, and `register.js` deliberately does not fail signup on a send failure. It cannot produce the reviewer's error. Keep the Resend migration as real work (verification/reset mail genuinely never sends) but do not block the resubmission on it.
-- [x] **Remaining work is a rebuild, not a code change.** DONE — the rebuild already happened 2026-08-12 and this line was just never checked off. Verified 2026-08-17 via `asc builds uploads list`: iOS build `202608121456` (upload `a4804d19-c597-4429-a4a9-86dc11990ea4`) and macOS build `202608121459` (upload `2cccd363-28bb-44db-9f7d-8c7d8645ce47`), both state `COMPLETE`, both `processingState: VALID`, both `cfBundleShortVersionString: 1.0` matching the two ASC version rows. Both were cut after `a458002` (08-03), and `ios/API/SparkAPI.swift:50` + `macos/API/SparkAPI.swift:45` both read `sparkjar.heyitsmejosh.com` — the dead host is gone from the shipped binaries.
 
 ## Aug 18 readiness — VERIFIED 2026-08-17
 Both version rows are `1.0 PREPARE_FOR_SUBMISSION` (iOS `14770136-f866-42b4-850b-eef60edc51e7`, macOS `9a2a36d5-5358-425d-a659-015c3f3bc840`) with the 08-12 builds attached. `asc validate` now returns **0 errors / 0 blocking on both platforms**.
-- [x] **macOS was blocked by `build.encryption.missing`** — build `2cccd363` uploaded with encryption state unset, a blocking submission error. Fixed 2026-08-17 two ways: set on the existing build via `asc builds update --build-id 2cccd363-… --uses-non-exempt-encryption=false` (unblocks Aug 18 without a rebuild), and root-caused in `macos/project.yml` by adding `INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO`. macOS generates its Info.plist (`GENERATE_INFOPLIST_FILE: YES`, no `INFOPLIST_FILE`), so unlike iOS — which has the key in `ios/Info.plist:21` — every Mac build shipped with it unset. `xcodegen generate` re-verified clean.
 - [ ] Subtitle is empty (`appInfoLocalization:ab98bc13-46ae-4169-bc11-2de1b46a697b`, en-US) — non-blocking warning on both platforms, but it is store-facing ASO copy. Needs Joshua's wording.
 - [ ] App Privacy publish state is not verifiable via the public API (info-level on both platforms). Confirm published at appstoreconnect.apple.com/apps/6785162492/appPrivacy before submitting — needs `asc-login` / dashboard.
 - [ ] **On/after 2026-08-18, submission is one command per platform** — nothing else is outstanding. Do NOT run `asc workflow run ship-ios`/`ship-mac` for this: both workflows' `publish` step carries `--submit`, and they would also cut a pointless new build. The staged 08-12 builds are the ones to ship.
@@ -255,7 +252,6 @@ toolchain problems block a clean build, though, and both need fixing before the 
 Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the archive path used by
 `asc workflow run ship-ios` should not hit blocker 1 — but verify rather than assume on Aug 18.
 - [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator. **Needs Joshua (sudo).** No longer an Aug 18 blocker — the builds that will ship on Aug 18 were archived 08-12 and are already uploaded and VALID, so no new archive is required. This only matters the next time a build actually has to be cut.
-- [x] Then rebuild from main and confirm a clean archive before the Aug 18 resubmit. — Moot: the 08-12 builds are staged and validate clean (see "Aug 18 readiness" above). No rebuild needed.
 
 ## From Apple Notes (imported 2026-08-11)
 - [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze until 2026-08-18)
@@ -466,40 +462,6 @@ interactive login and is a dead end in a non-interactive shell. Note
 **epiphany** project's (`rlyqnnzanktwfeevfiij`) and 401s against spark — there are
 exactly two projects on the free tier and it is easy to grab the wrong one.
 
-- [x] **Production secrets set** on the `sparkjar` Pages project (production env):
-      `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
-      `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`,
-      `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"`. All values also
-      written to `~/.config/fish/secrets.fish` as the source of truth
-      (`SPARKJAR_JWT_SECRET`, `SPARK_SUPABASE_*`, `RESEND_API_KEY`).
-      **`JWT_SECRET` is freshly generated, NOT Vercel's** — the old
-      "must match Vercel" constraint only existed for a dual-platform cutover and
-      is void now that Vercel is dropped. Consequence: every session issued by the
-      Vercel deployment is invalid, so existing users are logged out once.
-      `RESEND_API_KEY` came from `curvely/.env.local`; only
-      `epiphany.heyitsmejosh.com` is a verified Resend sender, hence the `MAIL_FROM`
-      override rather than new DKIM/SPF records.
-- [x] **`spark-avatars` bucket created**, public, on the shared spark project.
-- [x] **Sign-up / sign-in verified end-to-end on the live domain**, not just
-      preview: register 201 → login 200 → 216-char JWT → authed
-      `GET /api/user?username=` 200 → wrong password 401. Rows confirmed landing in
-      Supabase `users`, so the ephemeral `/tmp` store that App Review saw as
-      "all accounts vanished" is genuinely gone. Probe accounts deleted after.
-- [x] **DNS cut.** `sparkjar.heyitsmejosh.com` CNAME `cname.vercel-dns.com` →
-      `sparkjar.pages.dev`, proxied. Custom domain attached to the Pages project
-      first via `POST /accounts/<acct>/pages/projects/sparkjar/domains` using
-      wrangler's OAuth token (it carries `pages:write`; the
-      `CLOUDFLARE_DNS_TOKEN` in `secrets.fish` is DNS-only and cannot do this).
-      **Order matters** — the domain must be attached before the CNAME flip or the
-      site 522s. It 522'd for ~6 minutes here while the cert issued; that is the
-      expected cutover window, not a fault. Vercel project and `vercel.json` left
-      in place as rollback, DNS-cut only.
-- [x] **Verified live**: `server: cloudflare` and no `x-vercel-*` headers; all six
-      security headers intact; CORS matches the old vercel.json values; `/`, `/app`,
-      `/tos`, `/reset`, `/support` all 200 with distinct correct titles;
-      `/api/posts?limit=2` returns exactly 2 real Supabase rows;
-      `/api/auth/bogus` 404; `/api/posts/seed-1/vote` 401 unauthenticated.
-
 ### Still open after the cutover
 - [ ] **Stripe is not configured at all**, so the webhook repoint is moot until it
       is. No `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID`
@@ -527,27 +489,6 @@ Unknown paths now 404. Pages also 308-redirects `/app.html` → `/app`
 (extension-stripping); that is normal Pages behaviour, same as litigate.
 
 ## Stashed 2026-08-15
-
-- [x] **Resend migration — code done, credentials still outstanding.** Superseded
-  in part by the migration above: `api/_lib/mail.js` no longer uses the `resend`
-  SDK (plain `fetch` now, workerd-compatible). The account/env side is unchanged
-  and still blocks any mail actually sending:
-  1. **Get a Resend API key.** Not on this machine — epiphany's `.env.local` has
-     `RESEND_API_KEY=""` (empty), and it is absent from Keychain and
-     `~/.config/fish/secrets.fish`. It lives only in epiphany's *Vercel* env, and
-     the Vercel CLI token is expired, so `vercel env` can't read it until a
-     `vercel login`. Either re-auth and pull it, or mint a new one at resend.com.
-  2. **Sending domain.** Only `epiphany.heyitsmejosh.com` is verified in Resend.
-     **Interim shortcut:** set `MAIL_FROM="Spark <noreply@epiphany.heyitsmejosh.com>"`
-     and mail works immediately off that verified domain, no DNS needed. Doing
-     `sparkjar.heyitsmejosh.com` properly means `POST https://api.resend.com/domains`,
-     creating the returned DKIM/SPF/MX records on the `heyitsmejosh.com` zone via
-     the Cloudflare API (`CLOUDFLARE_DNS_TOKEN`), then polling
-     `POST /domains/{id}/verify`.
-  3. **Set the env vars** — now on **Cloudflare Pages**, not Vercel:
-     `npx wrangler pages secret put RESEND_API_KEY --project-name sparkjar`
-     (plus optional `MAIL_FROM`). `APP_URL` is already set in `wrangler.toml`.
-     Then verify end-to-end by registering with a real address.
 
 - [ ] **Correction: the roadmap's own "Email transport is dead" section is misleading about the
   rejection.** The later `## ROOT CAUSE FOUND 2026-08-10` section supersedes it — the iOS 1.0
