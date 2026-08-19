@@ -49,7 +49,10 @@
   .header-cta { background: var(--text); color: #111; font-size: 0.875rem; font-weight: 500; padding: 0.55rem 1.25rem; border-radius: var(--radius-pill); text-decoration: none; transition: opacity 0.2s var(--ease); }
   .header-cta:hover { opacity: 0.85; }
 
-  .hero { max-width: 1080px; margin: 0 auto; padding: 5rem 1.5rem 4rem; }
+  .hero { max-width: 1080px; margin: 0 auto; padding: 5rem 1.5rem 4rem; display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 900px) { .hero { grid-template-columns: 1fr 0.85fr; } }
+  .hero-shot { justify-self: center; }
+  .hero-shot img { max-width: min(100%, 300px); border-radius: 16px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); border: 1px solid var(--border); animation: fadeUp 0.9s var(--ease) both; }
   .hero-copy { animation: fadeUp 0.8s var(--ease) both; max-width: 560px; }
   .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); margin: 0 0 2rem; }
@@ -57,9 +60,6 @@
   .status-pill { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; border-radius: var(--radius-pill); background: rgba(255,255,255,0.04); border: 1px solid var(--border); font-size: 0.8125rem; color: var(--text2); }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #30d158; flex-shrink: 0; }
 
-  .screenshot-section { padding: 4rem 1.5rem; }
-  .screenshot-container { max-width: 1080px; margin: 0 auto; text-align: center; }
-  .screenshot-container img { max-width: min(100%, 300px); border-radius: 16px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); border: 1px solid var(--border); animation: fadeUp 0.9s var(--ease) both; }
 
   section { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
   .section-head { max-width: 480px; margin: 0 auto 3rem; text-align: center; }
@@ -115,6 +115,9 @@
     </div>
     <div class="status-pill"><span class="status-dot"></span> New ideas generated daily</div>
   </div>
+  <div class="hero-shot">
+    <img src="/screenshots/spark-feed.png" alt="Sparkjar idea feed" onerror="this.closest('.hero-shot').style.display='none'">
+  </div>
 </div>
 
 <section id="features">
@@ -145,12 +148,6 @@
     </div>
   </div>
 </section>
-
-<div class="screenshot-section">
-  <div class="screenshot-container">
-    <img src="/screenshots/spark-feed.png" alt="Sparkjar idea feed" onerror="this.style.display='none'">
-  </div>
-</div>
 
 <section id="how">
   <div class="how-inner">
