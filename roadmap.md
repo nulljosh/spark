@@ -1,5 +1,15 @@
 # Sparkjar Roadmap
 
+
+## Done 2026-08-18 — submit-ready
+`asc validate` clean on iOS 1.0 (`14770136-f866-42b4-850b-eef60edc51e7`) and macOS 1.0
+(`9a2a36d5-5358-425d-a659-015c3f3bc840`): 0 errors, 0 warnings, 0 blocking.
+
+Fixed today: the app-info subtitle was empty (the only warning on both rows). Set to
+"Share ideas, vote the best up" on `ab98bc13-46ae-4169-bc11-2de1b46a697b` (en-US).
+
+Still open and unrelated to submission: Stripe / OAuth / email remain unconfigured.
+
 ## Staged for submission 2026-08-18 — builds uploaded, NOT submitted
 
 Both platforms now carry a build newer than the 2026-08-18 auth fixes and validate clean:
@@ -88,7 +98,7 @@ rejects, so the request 500'd.
 **Re-verified the 2.1(a) fix holds** (same session, against production): login 200,
 register 201, `/api/posts` 200, stats/profile/notifications all 200. All Swift `baseURL`s
 across ios/macos/watchos/widgets point at `sparkjar.heyitsmejosh.com`. Still not submitted —
-freeze until 2026-08-18.
+freeze, which lifted 2026-08-18.
 
 ## App Review rejection reason — READ FROM RESOLUTION CENTER 2026-08-12
 
@@ -112,7 +122,7 @@ passed).  **Not the same root cause as healstack or lexly** — Sparkjar doesn't
 
 Source: `asc web review show --app 6785162492 --apple-id trommatic@icloud.com` (needs `asc-login`;
 the public API only returns a generic "unresolved issues" wrapper). Submissions frozen
-until 2026-08-18 regardless — fix and stage, do not submit.
+The freeze lifted 2026-08-18; submission is now gated only on the four in-flight review verdicts.
 
 ## ASC state verified 2026-08-10 — BOTH PLATFORMS ARE REJECTED, not "waiting for review"
 
@@ -280,8 +290,12 @@ Both version rows are `1.0 PREPARE_FOR_SUBMISSION` (iOS `14770136-f866-42b4-850b
 ## Someday / Explore
 - [ ] No web/Services-ID Sign in with Apple redirect exists — the browser app has no Apple path, native only. Not a rejection issue; note for feature parity.
 
-## App Store submission freeze — until 2026-08-18
-- [ ] **BLOCKED: no App Store submission on any app until 2026-08-18.** Account is under a Guideline 5.6 Developer Code of Conduct review suspension (Curvely, Transcriptly, Wiretext, NYC Survive). Apple warns that continued similar submissions may result in removal from the Apple Developer Program. Full detail: wiki `ship-plan.md` § "Guideline 5.6 suspension (2026-08-10)". TestFlight builds, pushes and web deploys are still fine.
+## App Store submission freeze — LIFTED 2026-08-18
+Freeze lifted 2026-08-18 (Guideline 5.6 suspension expired). Submitted that day and now
+WAITING_FOR_REVIEW: Curvely iOS 1.2.0, Wiretext iOS 1.1.0, Wordroot iOS 1.0, Healstack iOS 2.3.4.
+**Held pending those four verdicts — never a batch:** Sparkjar iOS+Mac, BCGD iOS+Mac, Wordroot Mac,
+Lexly Mac. All six are `asc validate` clean (0 errors, 0 blocking) with a VALID build attached, so
+each is one `asc review submit` away. Do not submit until the in-flight verdicts land.
 - [ ] Sparkjar 1.0 REJECTED 2.1(a) (build 202607191845): Sign in with Apple returns an error, sign-up returns an error, and other sections show a server error. Production auth is broken end-to-end. Fix and verify against the live backend before any resubmit.
 
 ## Auth investigation 2026-08-10 — production API is HEALTHY
@@ -319,7 +333,7 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 - [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator. **Needs Joshua (sudo).** No longer an Aug 18 blocker — the builds that will ship on Aug 18 were archived 08-12 and are already uploaded and VALID, so no new archive is required. This only matters the next time a build actually has to be cut.
 
 ## From Apple Notes (imported 2026-08-11)
-- [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze until 2026-08-18)
+- [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze, lifted 2026-08-18 — iOS 1.0 validates clean and is held only for the in-flight verdicts)
 
 ## Sign-in rejection — ROOT CAUSE FOUND 2026-08-12
 
@@ -360,7 +374,7 @@ Everything below in this file about needing a rebuild is now DONE. Fresh binarie
 
 Verified with `asc builds list --app 6785162492`, not with the upload command's own exit code.
 **Neither is submitted** — `SUBMIT:false` throughout, and the standalone publish/upload calls
-omitted `--submit`. Freeze holds until 2026-08-18.
+omitted `--submit`. Freeze lifted 2026-08-18; submit held for the in-flight verdicts.
 
 Four blockers were real and are fixed in `41ef562`:
 
