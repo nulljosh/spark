@@ -112,3 +112,7 @@ MIT 2026 Joshua Trommel
 
 ## From Spark.pdf (imported 2026-06-28)
 - [x] Renamed ASC app from "Spark - spark" → "Spark: Ideas" (2026-06-28)
+
+## Whitepaper
+
+[Technical whitepaper](WHITEPAPER.md)
