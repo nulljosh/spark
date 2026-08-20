@@ -649,3 +649,6 @@ Sequence (note `--allow-deletes --confirm` is required to drop the old DATA_NOT_
       produces archives with the wrong build number — fix the workflow before relying on it.
 - [ ] macOS export needs `xcodebuild -exportArchive` directly; `asc xcode export` demands an `.ipa`
       path and then errors on a Mac archive's `.pkg` (after the export itself succeeded).
+
+## Braindump 2026-08-19
+- [ ] iOS app has been through the ringer and still isn't available on the App Store — find and clear the actual hold-up (check ASC status, PLA, availability bootstrap).
