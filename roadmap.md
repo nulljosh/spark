@@ -1,5 +1,25 @@
 # Sparkjar Roadmap
 
+## Done 2026-08-19 — macOS 1.0 resubmitted, 2.1(a) root cause found
+The 2026-08-03 rejection (Guideline 2.1(a), submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`)
+was **a missing `APPLE_CLIENT_ID` on the Pages project**, not app code. Native Sign in with
+Apple sets the token `aud` to the bundle ID, so `api/_lib/auth/apple.js` 500'd with
+"Apple Sign In is misconfigured" — exactly what review hit. Fixed server-side in
+`wrangler.toml` `[vars]`; **no rebuild, no version bump.**
+
+Production verified before resubmitting: `/api/auth/login` 400, `/api/auth/apple` 401,
+`/api/auth/register` 400 — clean rejections, no 500s. All 4 required Pages secrets set.
+
+Cleared the stale `UNRESOLVED_ISSUES` submission with
+`asc review items update --id <item> --resolved true`, which flipped the version to
+`READY_FOR_REVIEW`; the **same** submission `0dac7261-a62e-4865-b9ea-d20b36cc0cef` then
+accepted a direct submit. Creating a new submission was unnecessary. macOS 1.0 is
+`WAITING_FOR_REVIEW`.
+
+- [ ] **iOS 1.0 (`14770136-f866-42b4-850b-eef60edc51e7`) is still staged and NOT submitted.**
+      Same server-side fix covers it. Submit once macOS gets a verdict.
+- [ ] Did not reply to the rejection thread — needs a fresh `asc web` 2FA code. Optional.
+
 ## Done 2026-08-18 — submit-ready
 `asc validate` clean on iOS 1.0 (`14770136-f866-42b4-850b-eef60edc51e7`) and macOS 1.0
 (`9a2a36d5-5358-425d-a659-015c3f3bc840`): 0 errors, 0 warnings, 0 blocking.
