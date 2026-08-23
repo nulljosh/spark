@@ -680,3 +680,12 @@ migration (08-17) and that APPLE_CLIENT_ID fix — which explains the rejection.
 202608222227 is uploaded and VALID, and `asc validate` on iOS 1.0 returns 0 errors / 0 blocking.
 - [ ] Verdict: iOS 1.0 is submittable. Held only for 5.6 volume caution, not for a defect.
 - [ ] Still unverified end to end: a real Sign in with Apple round trip needs a device token.
+
+### 2026-08-23 — iOS 1.0 SUBMITTED
+Submission 834bd05e -> WAITING_FOR_REVIEW 10:20 UTC, build 202608181252.
+The blocker was not the app: the old rejected submission 13b90678 sat in UNRESOLVED_ISSUES and
+`asc review submit` refused with "conflict ... could not be safely reused". Cleared it with
+`asc submit cancel --id 13b90678... --confirm`, waited for CANCELING to finish, then resubmitted.
+Careful with build IDs here: `asc builds list` reports platform as null, and 202608222227 is the
+**macOS** build. Always pass `--platform IOS` when picking an iOS build for this app.
+macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC today).
