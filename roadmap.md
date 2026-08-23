@@ -652,3 +652,7 @@ Sequence (note `--allow-deletes --confirm` is required to drop the old DATA_NOT_
 
 ## Braindump 2026-08-19
 - [ ] iOS app has been through the ringer and still isn't available on the App Store — find and clear the actual hold-up (check ASC status, PLA, availability bootstrap).
+
+## Ingested 2026-08-22
+- [ ] **App Store rejection — Guideline 2.1(a) App Completeness, macOS** (submission 0dac7261-a62e-4865-b9ea-d20b36cc0cef, reviewed 2026-08-21, MacBook Pro 14" M4 / macOS 26.6.1, v1.0 build 202608181253). "Your application **still** displayed an error message when we attempted to access the app." Second time flagged — same bug was called out on the 2026-08-03 review (macOS 26.5.2). Reviewer has an active internet connection, so this is not a network-outage excuse. Reproduce on a clean macOS install (no prior version, `tccutil` reset for any permission prompts) before resubmitting.
+- [ ] (2026-08-03 review, may already be fixed) Guideline 5.2.5 IP — "Terms for Mac in the app name that displays on the device." Confirm the on-device app name no longer contains "Mac" before resubmit.
