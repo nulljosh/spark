@@ -1,5 +1,7 @@
-const CACHE = 'spark-v1';
-const ASSETS = ['/', '/index.html', '/icon-192.svg', '/icon-512.svg'];
+// Bumped to v2 with the shared theme: the cache is read-first, so returning
+// visitors would otherwise keep the old single-theme index.html indefinitely.
+const CACHE = 'spark-v2';
+const ASSETS = ['/', '/index.html', '/theme.js', '/icon-192.svg', '/icon-512.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));

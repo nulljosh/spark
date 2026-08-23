@@ -53,9 +53,26 @@ node daemon/spark-daemon.js --once   # test daemon manually
 
 Feed uses CSS grid (`repeat(auto-fill, minmax(320px, 1fr))`), 3-line content clamp. No box-shadows anywhere.
 
+## Theme
+
+One preference for the whole site: `spark_theme` in localStorage, `dark` by
+default. `theme.js` loads synchronously in every page's `<head>`, stamps
+`data-theme` on `<html>` before first paint, wires any `[data-theme-toggle]`
+button, and swaps any `[data-shot-dark][data-shot-light]` image. Pages declare
+both palettes under `:root[data-theme="dark"]` and `:root[data-theme="light"]`
+-- a token defined in only one block silently drops the declaration that uses
+it, so keep the two blocks symmetric.
+
+Hero screenshots are captured per theme:
+
+```bash
+npm i --no-save playwright && node scripts/screenshots.mjs
+```
+
 ## Key Files
 
-- index.html (all frontend: HTML + CSS + JS)
+- index.html (marketing landing page: HTML + CSS + JS)
+- theme.js (shared light/dark control for every page -- see Theme below)
 - api/posts.js (GET/POST posts, seed data fallback)
 - api/enrich.js (POST=user requests enrichment, GET=daemon poll, PATCH=daemon writes)
 - api/idea-base.js (POST=create ideabase, GET=list, PATCH=daemon updates post_ids)

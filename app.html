@@ -6,14 +6,20 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#111" media="(prefers-color-scheme: dark)">
+    <!-- Single unscoped tag: the media-scoped pair followed the OS setting, so
+         the status bar could sit light while the app was in dark mode. theme.js
+         keeps this in step with the chosen theme instead. -->
+    <meta name="theme-color" content="#111">
+    <script src="/theme.js"></script>
     <link rel="apple-touch-icon" href="/icon-192.svg">
     <title>Sparkjar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="tokens.css">
     <style>
+        /* Every token below must exist in BOTH blocks: an undefined var() is
+           not inherited, it drops the declaration, which is how the light
+           theme used to lose the fill on .btn and the avatar circle. */
         :root[data-theme="dark"] {
             --bg: #111111;
             --text: #e8e8f0;
@@ -22,22 +28,27 @@
             --surface3: #2e2e2e;
             --text2: rgba(232,232,240,0.5);
             --text3: rgba(232,232,240,0.30);
+            --text-secondary: rgba(232,232,240,0.5);
             --border: rgba(232,232,240,0.09);
+            --accent: #3B82F6;
             --modal-bg: rgba(0,0,0,0.85);
         }
         :root[data-theme="light"] {
             --bg: #ffffff;
+            --text: #1a1a1a;
             --surface: #f5f5f5;
             --surface2: #ececec;
             --surface3: #e2e2e2;
             --text2: rgba(26,26,26,0.5);
             --text3: rgba(26,26,26,0.3);
+            --text-secondary: rgba(26,26,26,0.5);
             --border: rgba(26,26,26,0.09);
+            --accent: #2563EB;
             --modal-bg: rgba(0,0,0,0.5);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { overflow-x: hidden; }
-        body { font-family: var(--font-body, var(--font)); font-weight: 400; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
+        body { font-family: var(--font-body, var(--font, -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif)); font-weight: 400; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
         main { flex: 1; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-left h1 { font-size: 48px; }
@@ -52,7 +63,13 @@
         @media (max-width: 680px) {
             #feed { grid-template-columns: 1fr; }
             body { padding: 12px; }
-            .header-left h1 { font-size: 32px; }
+            /* At 390px the 48px wordmark collided with the theme button and
+               pushed "Sign In" onto two lines -- visible in the hero shot. */
+            .header { gap: 10px; }
+            .header-left h1 { font-size: 28px; }
+            .header-right { gap: 6px; flex-shrink: 0; }
+            .auth-btn { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+            .theme-btn, .bell-btn { width: 32px; height: 32px; }
             .filters { flex-direction: column; align-items: stretch; gap: 10px; }
             .filter-group {
                 display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -206,13 +223,13 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--surface);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: var(--text1);
+            border: 1px solid var(--border);
+            color: var(--text);
         }
         .filter-btn:hover, .sort-btn:hover {
-            background: var(--bg3);
+            background: var(--surface2);
             border-color: var(--accent);
         }
         .filter-btn.active, .sort-btn.active {
@@ -221,27 +238,15 @@
             border-color: rgba(59, 130, 246, 0.6);
             color: white;
         }
-        body.dark .filter-btn, body.dark .sort-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
         /* Apple Liquid Glass -- post cards */
         .post {
-            background: rgba(255, 255, 255, 0.7);
+            background: var(--surface);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border);
         }
         .post:hover {
-            background: rgba(255, 255, 255, 0.8);
-            border-color: rgba(255, 255, 255, 0.7);
-        }
-        body.dark .post {
-            background: rgba(31, 41, 55, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        body.dark .post:hover {
-            background: rgba(31, 41, 55, 0.85);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--surface2);
+            border-color: var(--text3);
         }</style>
 </head>
 <body>
@@ -264,7 +269,7 @@
                         <div id="notifList"><div class="notif-empty">No notifications</div></div>
                     </div>
                 </div>
-                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark/light mode">&#9790;</button>
+                <button class="theme-btn" id="themeBtn" data-theme-toggle type="button" title="Switch to light mode" aria-label="Switch to light mode">&#9790;</button>
                 <div id="authUI"></div>
             </div>
         </div>
@@ -413,21 +418,7 @@
     <script>
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3030' : '';
 
-        // Theme
-        function toggleTheme() {
-            const html = document.documentElement;
-            const isDark = html.getAttribute('data-theme') === 'dark';
-            const next = isDark ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('spark_theme', next);
-            document.getElementById('themeBtn').innerHTML = isDark ? '&#9728;' : '&#9790;';
-        }
-
-        (function initTheme() {
-            const saved = localStorage.getItem('spark_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', saved);
-            document.getElementById('themeBtn').innerHTML = saved === 'dark' ? '&#9790;' : '&#9728;';
-        })();
+        // Theme lives in /theme.js -- shared with the landing page and every other page.
 
         // Auth state management
         function getToken() { return localStorage.getItem('spark_token'); }
