@@ -656,3 +656,27 @@ Sequence (note `--allow-deletes --confirm` is required to drop the old DATA_NOT_
 ## Ingested 2026-08-22
 - [ ] **App Store rejection — Guideline 2.1(a) App Completeness, macOS** (submission 0dac7261-a62e-4865-b9ea-d20b36cc0cef, reviewed 2026-08-21, MacBook Pro 14" M4 / macOS 26.6.1, v1.0 build 202608181253). "Your application **still** displayed an error message when we attempted to access the app." Second time flagged — same bug was called out on the 2026-08-03 review (macOS 26.5.2). Reviewer has an active internet connection, so this is not a network-outage excuse. Reproduce on a clean macOS install (no prior version, `tccutil` reset for any permission prompts) before resubmitting.
 - [ ] (2026-08-03 review, may already be fixed) Guideline 5.2.5 IP — "Terms for Mac in the app name that displays on the device." Confirm the on-device app name no longer contains "Mac" before resubmit.
+
+## 2026-08-23 — 2.1(a) rejection is an auth failure, verbatim
+Submission 13b90678, reviewed 2026-08-03 on iPhone 17 Pro Max / iPad Air 11-inch (M3), iOS 26.6.
+Guideline 2.1(a) Performance: App Completeness. Reviewer steps: launch, tap Sign in with Apple ->
+error; try to create an account -> error; other sections -> server error. Three reviewer
+screenshots are in .asc/web-review/6785162492/13b90678-12c4-47ae-b2a2-7df0cdcda784/.
+iOS 1.0 is Prepare for Submission, macOS 1.0.1 is Waiting for Review.
+- [ ] Fix Sign in with Apple end to end on a clean install.
+- [ ] Fix email sign-up and the server errors behind the other sections.
+- [ ] Reproduce on a device with no prior install before resubmitting iOS.
+
+### 2026-08-23 probe — the 2.1(a) cause looks already fixed
+Probed production directly rather than trusting notes:
+- `POST /api/auth/register` -> 201 with a token; `POST /api/auth/login` -> 200 with a token.
+  (The earlier 400s were my own fault: the API takes `username`, not `email`.)
+- `POST /api/auth/apple` with a bogus token -> clean 401 "Invalid Apple credentials", NOT the
+  500 "Apple Sign In is misconfigured" that App Review hit. `APPLE_CLIENT_ID` in wrangler.toml
+  vars is what fixed that.
+- `GET /api/posts` -> 200 with real feed data, so the "server error in other sections" is gone.
+The reviewed build was 202607191845 (2026-07-19), which predates both the Cloudflare Pages
+migration (08-17) and that APPLE_CLIENT_ID fix — which explains the rejection. A newer build
+202608222227 is uploaded and VALID, and `asc validate` on iOS 1.0 returns 0 errors / 0 blocking.
+- [ ] Verdict: iOS 1.0 is submittable. Held only for 5.6 volume caution, not for a defect.
+- [ ] Still unverified end to end: a real Sign in with Apple round trip needs a device token.
