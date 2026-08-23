@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+- feat: one theme across the whole site. New shared `theme.js` owns the
+  `spark_theme` preference, stamps `data-theme` on `<html>` before first paint,
+  and keeps every page, tab, and the browser chrome in step.
+- feat: the landing page has a light theme and a theme toggle -- it was
+  hardcoded dark, so its "dark mode" could not follow the app.
+- feat: the hero phone shot follows the theme (`spark-feed-dark.png` /
+  `spark-feed-light.png`), replacing the single light-mode capture that sat on
+  a dark page. `scripts/screenshots.mjs` regenerates both.
+- fix: `user.html` had its own `theme` key and `body.dark` class, so it could
+  sit light while the rest of the site was dark; the old key is migrated on
+  first load.
+- fix: app.html dark-mode regressions -- filter/sort pills rendered near-white
+  with light text (a `body.dark` selector that never matched), and light mode
+  had no `--text`, `--accent` or `--text-secondary`, which dropped the fill on
+  primary buttons and the avatar circle.
+- fix: the status-bar colour followed the OS instead of the chosen theme.
+- fix: mobile header at 390px no longer collides the wordmark with the theme
+  button.
+
 ## [v2.0.2] — 2026-06-11
 
 - security: close auth bypass (unsigned Base64 token fallback removed, JWT-only)

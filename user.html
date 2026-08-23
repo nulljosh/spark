@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">User Profile — Spark</title>
+    <script src="/theme.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +12,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; }
 
-        :root {
+        /* Was a light :root plus a body.dark override keyed off its own
+           `theme` localStorage entry, so this page could sit in light mode
+           while the rest of Sparkjar was dark. Now it reads the same
+           data-theme attribute theme.js sets everywhere else. */
+        :root[data-theme="light"] {
             --bg1: #ffffff;
             --bg2: #f4f4f5;
             --bg3: #e4e4e7;
@@ -22,7 +27,7 @@
             --accent: #3B82F6;
         }
 
-        body.dark {
+        :root[data-theme="dark"] {
             --bg1: #09090b;
             --bg2: #18181b;
             --bg3: #27272a;
@@ -198,7 +203,7 @@
         <div class="header">
             <h1>Spark</h1>
             <div style="display: flex; gap: 15px;">
-                <button class="theme-btn" onclick="toggleTheme()">&#9790;</button>
+                <button class="theme-btn" data-theme-toggle type="button" title="Switch to light mode" aria-label="Switch to light mode">&#9790;</button>
                 <a href="/">← Back to Feed</a>
             </div>
         </div>
@@ -215,11 +220,6 @@
             return div.innerHTML;
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-        }
-        
         function getUsername() {
             const path = window.location.pathname;
             return decodeURIComponent(path.replace('/user/', ''));
@@ -366,11 +366,6 @@
             }
 
             document.getElementById('content').innerHTML = html;
-        }
-        
-        // Load theme preference
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
         }
         
         load();
