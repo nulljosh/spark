@@ -22,8 +22,8 @@
       "steps": [
         { "name": "bump_mac", "run": "cd macos && asc xcode version edit --version \"$VERSION\" --build-number \"$(date +%Y%m%d%H%M)\"" },
         { "name": "archive_mac", "run": "cd macos && asc xcode archive --project SparkMac.xcodeproj --scheme SparkMac --archive-path ../.asc/artifacts/SparkMac.xcarchive --overwrite --output json" },
-        { "name": "export_mac", "run": "cd macos && asc xcode export --archive-path ../.asc/artifacts/SparkMac.xcarchive --export-options ExportOptions.plist --overwrite --ipa-path ../.asc/artifacts/SparkMac.ipa --output json" },
-        { "name": "publish_mac", "if": "SUBMIT", "run": "asc publish appstore --app $MAC_APP_ID --ipa .asc/artifacts/SparkMac.ipa --version $VERSION --wait --submit --confirm --output json" }
+        { "name": "export_mac", "run": "rm -rf .asc/artifacts/mac-export && xcodebuild -exportArchive -archivePath .asc/artifacts/SparkMac.xcarchive -exportOptionsPlist macos/ExportOptions.plist -exportPath .asc/artifacts/mac-export" },
+        { "name": "publish_mac", "if": "SUBMIT", "run": "asc publish appstore --app $MAC_APP_ID --ipa .asc/artifacts/mac-export/Sparkjar.pkg --version $VERSION --build-number \"$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' .asc/artifacts/SparkMac.xcarchive/Products/Applications/Sparkjar.app/Contents/Info.plist)\" --platform MAC_OS --wait --submit --confirm --output json" }
       ]
     }
   }
