@@ -44,7 +44,7 @@ struct FeedView: View {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return true }
         return post.title.localizedCaseInsensitiveContains(query) ||
-            post.content.localizedCaseInsensitiveContains(query) ||
+            post.content?.localizedCaseInsensitiveContains(query) == true ||
             post.category.localizedCaseInsensitiveContains(query) ||
             (post.author?.username.localizedCaseInsensitiveContains(query) ?? false)
     }
@@ -206,7 +206,7 @@ struct PostRow: View {
                 .font(.headline)
                 .lineLimit(2)
 
-            Text(currentPost.content)
+            Text(currentPost.content ?? "")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)

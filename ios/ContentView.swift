@@ -117,7 +117,7 @@ struct FeedView: View {
         guard !query.isEmpty else { return true }
 
         return post.title.localizedCaseInsensitiveContains(query) ||
-        post.content.localizedCaseInsensitiveContains(query) ||
+        post.content?.localizedCaseInsensitiveContains(query) == true ||
         post.category.localizedCaseInsensitiveContains(query) ||
         (post.author?.username.localizedCaseInsensitiveContains(query) ?? false)
     }
@@ -233,7 +233,7 @@ struct PostCard: View {
                 .foregroundStyle(.primary)
                 .lineLimit(2)
 
-            Text(post.content)
+            Text(post.content ?? "")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)

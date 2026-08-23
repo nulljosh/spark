@@ -54,7 +54,7 @@ struct PostDetailView: View {
 
                 Divider()
 
-                Text(currentPost.content)
+                Text(currentPost.content ?? "")
                     .font(.body)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -116,7 +116,7 @@ struct PostDetailView: View {
                         Image(systemName: "wand.and.stars")
                     }
                 }
-                ShareLink(item: "\(currentPost.title)\n\n\(currentPost.content)") {
+                ShareLink(item: "\(currentPost.title)\n\n\(currentPost.content ?? "")") {
                     Image(systemName: "square.and.arrow.up")
                 }
             }

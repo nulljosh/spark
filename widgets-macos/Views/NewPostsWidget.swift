@@ -193,7 +193,7 @@ struct NewPostsWidgetView: View {
                             Text(post.title)
                                 .font(.subheadline.weight(.semibold))
                                 .lineLimit(1)
-                            Text(post.content)
+                            Text(post.content ?? "")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)

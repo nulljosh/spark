@@ -51,7 +51,7 @@ struct PostDetailView: View {
 
                 Divider()
 
-                Text(currentPost.content)
+                Text(currentPost.content ?? "")
                     .font(.body)
                     .textSelection(.enabled)
 
@@ -128,7 +128,7 @@ struct PostDetailView: View {
                         .help("Delete post")
                     }
 
-                    ShareLink(item: "\(currentPost.title)\n\n\(currentPost.content)") {
+                    ShareLink(item: "\(currentPost.title)\n\n\(currentPost.content ?? "")") {
                         Image(systemName: "square.and.arrow.up")
                     }
                 }

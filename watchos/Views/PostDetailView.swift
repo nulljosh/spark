@@ -49,7 +49,7 @@ struct PostDetailView: View {
                 Divider()
 
                 // Content
-                Text(post.content)
+                Text(post.content ?? "")
                     .font(.caption)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
