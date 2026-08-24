@@ -706,3 +706,33 @@ macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC toda
 Resend key is VALID and stored. MAIL_FROM set to noreply@epiphany.heyitsmejosh.com (verified domain). Delivery still UNVERIFIED.
 
 Key: Supabase shows ONLY account in shared spark project is `appreview` (demo, created 2026-08-04). Joshua has no Sparkjar account under jatrommel@gmail.com or trommatic@icloud.com — password-reset test was silent no-op (`password-reset.js` bails before sendMail when no user exists). "No email arrived" proves nothing about mail health. Correct test: register new account on sparkjar.heyitsmejosh.com with real inbox (exercises signup path). Joshua doing this.
+
+## macOS 1.0.1 rejection — root cause found and fixed 2026-08-24
+
+**Apple's reason (Resolution Center, submission `3d9c5b37`, reviewed 2026-08-24 on a MacBook
+Pro 14" running macOS 26.6.1, build 202608222227):** Guideline 2.1(a) Performance — App
+Completeness. One line: *"the layout of the main window is not sized fitted."* Their screenshot
+shows the sidebar clipped to "eed / reate / lea Bases / rofile", the post-detail column running
+off the right edge, and the "Sort" picker label wrapping.
+
+**Root cause:** `macos/Views/FeedView.swift` opened a second `NavigationSplitView` *inside*
+`ContentView`'s split detail column. Two nested split views each claim their own ideal column
+widths; the sum exceeds the window, so AppKit squeezes the outer sidebar and pushes the inner
+detail past the right edge. `SparkApp.swift`'s `minWidth: 700` was also below what the three
+panes actually need, so the window could be dragged narrower than the layout supports.
+
+**Fix:** FeedView now uses `HSplitView` (the native macOS list/detail splitter, which sizes to
+the space it is given instead of competing for it), the segmented Sort picker got
+`.labelsHidden()`, and the window floor moved to 820x520 (sidebar 160 + feed 280 + detail 320).
+Build verified. Build `202608240854` uploaded 2026-08-24.
+
+- [ ] Attach build `202608240854` to macOS 1.0.1 and resubmit once it finishes processing.
+- [ ] `whatsNew` for macOS 1.0.1 could not be written yet — the API returns "Attribute 'whatsNew'
+      cannot be edited at this time" while the version sits in its rejected state. The text is
+      staged in `metadata/version/1.0.1/en-US.json`; re-run `asc metadata push` after the new
+      build is attached.
+- [ ] **Local `metadata/app-info/en-US.json` was stale and briefly pushed the app name to
+      "Spark Mac" and a different subtitle/description/keywords over the live values.** Reverted
+      the same session (verified by `asc metadata pull`: name "Sparkjar", subtitle "Share ideas,
+      vote the best up"). The description/keywords/supportUrl in that file are still the local
+      versions and now live — review whether those were the intended copy before the next push.

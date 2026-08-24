@@ -50,7 +50,12 @@ struct FeedView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        // ponytail: HSplitView, not a second NavigationSplitView -- this whole view sits
+        // inside ContentView's split detail column, and nesting two of them makes each
+        // claim its own ideal column widths. Their sum exceeds the window, so AppKit
+        // squeezes the outer sidebar and pushes the detail past the right edge (the
+        // "layout of the main window is not sized fitted" 2.1(a) rejection, 2026-08-24).
+        HSplitView {
             VStack(spacing: 0) {
                 // Toolbar bar
                 HStack(spacing: 8) {
@@ -59,6 +64,7 @@ struct FeedView: View {
                             Text(mode.rawValue).tag(mode)
                         }
                     }
+                    .labelsHidden()
                     .pickerStyle(.segmented)
                     .frame(width: 120)
 
@@ -134,17 +140,19 @@ struct FeedView: View {
                     .listStyle(.inset(alternatesRowBackgrounds: true))
                 }
             }
-            .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 500)
+            .frame(minWidth: 280, idealWidth: 340, maxWidth: 500)
             .searchable(text: $searchText, prompt: "Search posts")
-        } detail: {
-            if let post = selectedPost {
-                PostDetailView(post: post)
-            } else {
-                Text("Select a post")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            Group {
+                if let post = selectedPost {
+                    PostDetailView(post: post)
+                } else {
+                    Text("Select a post")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
             }
+            .frame(minWidth: 320, maxWidth: .infinity, maxHeight: .infinity)
         }
         .navigationTitle("Spark")
         .toolbar {

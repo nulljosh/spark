@@ -8,7 +8,10 @@ struct SparkApp: App {
         WindowGroup {
             ContentView()
                 .environment(appState)
-                .frame(minWidth: 700, minHeight: 500)
+                // ponytail: 820 is the real floor -- sidebar 160 + feed list 280 +
+                // post detail 320. The old 700 let the window shrink below what the
+                // panes need, which is how content ended up clipped off both edges.
+                .frame(minWidth: 820, minHeight: 520)
         }
         .windowStyle(.titleBar)
         .defaultSize(width: 900, height: 650)
