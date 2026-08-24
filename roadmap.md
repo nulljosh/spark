@@ -684,7 +684,10 @@ macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC toda
 
 ## From /work start (imported 2026-08-24)
 
-- [ ] **BLOCKER — the Resend API key stored in Cloudflare Pages is invalid. This is the only thing between Sparkjar and working email.** Everything else in the mail path is correct and live.
+- [x] **RESOLVED 2026-08-24 — valid Resend key stored.** `scripts/set-resend-key.sh` validated it against Resend (shape + live API call) before upload, then set `RESEND_API_KEY` on the sparkjar Pages project. Resend confirmed the key and reported `epiphany.heyitsmejosh.com verified`. Paired with `MAIL_FROM=noreply@epiphany.heyitsmejosh.com`, both original faults are now closed.
+- [ ] **Confirm actual inbox delivery.** A live reset (`POST /api/auth/password-reset?action=forgot` for `appreview`) returned the generic 200; log tail could not be captured (`timeout` is not on macOS -- use `gtimeout` or a background `wrangler pages deployment tail c35470d0-e832-43ae-a15c-d4b680c8f0b6 --project-name sparkjar`). Absence of the old `Error: API key is invalid` line is expected but unproven. Just check `appreview@heyitsmejosh.com` for the mail.
+- [ ] Add a `/api/health/mail` endpoint that calls Resend's API and reports key validity without sending. Root cause of the months-long silence: `password-reset.js` swallows send errors for anti-enumeration, so breakage is invisible outside Pages logs.
+- [ ] ~~BLOCKER — the Resend API key stored in Cloudflare Pages is invalid. This is the only thing between Sparkjar and working email.** Everything else in the mail path is correct and live.
       - **Evidence (measured, not inferred):** tailed the production deployment (`npx wrangler pages deployment tail c35470d0-e832-43ae-a15c-d4b680c8f0b6 --project-name sparkjar --format pretty`) while POSTing a real reset for an existing user:
         `curl -X POST 'https://sparkjar.heyitsmejosh.com/api/auth/password-reset?action=forgot' -H 'Content-Type: application/json' -d '{"username":"appreview"}'`
         The log line is **`(error) [password-reset] Error: API key is invalid`** — Resend's own rejection, returned by `restClient` in `api/_lib/mail.js`. Note this is NOT the `[mail] RESEND_API_KEY not configured — skipping email send` warning, which is what a missing key would produce. The key is present; Resend refuses it.
