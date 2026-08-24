@@ -857,7 +857,7 @@ private struct SparkFloatingTabBar: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 10)
         .frame(maxWidth: 320)
-        .background(.regularMaterial, in: Capsule())
+        .liquidGlass(in: Capsule(), interactive: true)
         .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 1))
         .shadow(color: .black.opacity(0.1), radius: 12, y: 4)
     }
