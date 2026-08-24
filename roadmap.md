@@ -684,7 +684,6 @@ macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC toda
 
 ## From /work start (imported 2026-08-24)
 
-- [x] **RESOLVED 2026-08-24 — valid Resend key stored.** `scripts/set-resend-key.sh` validated it against Resend (shape + live API call) before upload, then set `RESEND_API_KEY` on the sparkjar Pages project. Resend confirmed the key and reported `epiphany.heyitsmejosh.com verified`. Paired with `MAIL_FROM=noreply@epiphany.heyitsmejosh.com`, both original faults are now closed.
 - [ ] **Confirm actual inbox delivery.** A live reset (`POST /api/auth/password-reset?action=forgot` for `appreview`) returned the generic 200; log tail could not be captured (`timeout` is not on macOS -- use `gtimeout` or a background `wrangler pages deployment tail c35470d0-e832-43ae-a15c-d4b680c8f0b6 --project-name sparkjar`). Absence of the old `Error: API key is invalid` line is expected but unproven. Just check `appreview@heyitsmejosh.com` for the mail.
 - [ ] Add a `/api/health/mail` endpoint that calls Resend's API and reports key validity without sending. Root cause of the months-long silence: `password-reset.js` swallows send errors for anti-enumeration, so breakage is invisible outside Pages logs.
 - [ ] ~~BLOCKER — the Resend API key stored in Cloudflare Pages is invalid. This is the only thing between Sparkjar and working email.** Everything else in the mail path is correct and live.
@@ -699,7 +698,6 @@ macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC toda
       - Do not chase SMTP env vars (`SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`) — that transport was replaced by the Resend REST call and no longer exists in the code.
 - [ ] **Dashboard-verified 2026-08-24 — "the key keeps expiring" is FALSE.** resend.com shows the account (`trommatic@icloud.com`, free plan, no suspension) holding **exactly one** API key ever: `epiphany`, full access, created ~2026-06, **Last used: "No activity"**. Nothing was revoked or deleted, and Resend keys have no TTL. The key has simply never authenticated once: the value on disk (`~/.config/fish/secrets.fish`) shares its visible prefix but is rejected by every endpoint, so the body is corrupt — right prefix, right length (36), wrong content. That is why re-pasting the same key three times changed nothing. **Fix is one good copy-paste of a NEW key, nothing more.** Retire the secrets.fish copy too (it is dead and was echoed into a session transcript).
 - [ ] Correctness note, deliberately left alone: an invalid key is indistinguishable from success to the end user. `password-reset.js` catches the throw and still returns the generic "If an account exists with that info, a reset link has been sent." That is intentional anti-enumeration behaviour, not a bug — but it means email breakage is silent and only visible in the Pages logs. Worth a delivery healthcheck later if email keeps rotting unnoticed.
-
 
 ## Email verification blockers resolved
 
@@ -726,7 +724,6 @@ the space it is given instead of competing for it), the segmented Sort picker go
 `.labelsHidden()`, and the window floor moved to 820x520 (sidebar 160 + feed 280 + detail 320).
 Build verified. Build `202608240854` uploaded 2026-08-24.
 
-- [x] Build `202608240854` attached and **macOS 1.0.1 resubmitted 2026-08-24, now WAITING_FOR_REVIEW** (submission `384e2c27`). The stale rejected submission `3d9c5b37` had to be cancelled first — `asc review submit` refuses to reuse one in `UNRESOLVED_ISSUES`. It then reported "does not contain target version", the known false negative; `asc review submissions-submit --id` went through.
 - [ ] `whatsNew` for macOS 1.0.1 still cannot be written — the API answers "Attribute 'whatsNew'
       cannot be edited at this time" both before and after the build was attached. Likely because
       1.0 never shipped, so there is no prior release for release notes to describe. Non-blocking
