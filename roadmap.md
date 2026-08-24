@@ -17,7 +17,7 @@ accepted a direct submit. Creating a new submission was unnecessary. macOS 1.0 i
 `WAITING_FOR_REVIEW`.
 
 - [ ] **iOS 1.0 (`14770136-f866-42b4-850b-eef60edc51e7`) is still staged and NOT submitted.**
-      Same server-side fix covers it. Submit once macOS gets a verdict.
+      Same server-side fix covers it. Submit once macOS gets a verdict. — STALE: iOS 1.0 + macOS 1.0.1 both WAITING_FOR_REVIEW as of 2026-08-24.
 - [ ] Did not reply to the rejection thread — needs a fresh `asc web` 2FA code. Optional.
 
 ## Done 2026-08-18 — submit-ready
