@@ -273,9 +273,9 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 
 ## Email transport is dead (found 2026-08-09)
 
-- [ ] **Password reset has never worked.** `vercel env ls production` has no `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`, so `_lib/mail.js` `sendMail()` no-ops with a console.warn. `password-reset.js` still returns "If an account exists with that info, a reset link has been sent" — users are told a link went out and nothing is delivered. The same dead path now also swallows the new sign-up verification email.
-- [ ] **Credentialed half NOT done — blocked, see `## Stashed 2026-08-15`.** Resend domain registration + env vars could not be run: no `RESEND_API_KEY` exists anywhere on this machine (epiphany's `.env.local` has it as an empty string; not in Keychain or `secrets.fish`), and the Vercel CLI token at `~/Library/Application Support/com.vercel.cli/auth.json` is expired (`invalidToken`). Until `RESEND_API_KEY` is set, `sendMail` no-ops exactly as before — **no behaviour change is live yet.**
-- [ ] Also set `APP_URL=https://sparkjar.heyitsmejosh.com` — verify/reset links are built from `baseUrl()`.
+- [x] **Password reset has never worked.** RE-DIAGNOSED 2026-08-24 against the live Cloudflare Pages deploy — the Vercel/SMTP framing below was stale. The transport is fully wired and reached: `functions/_adapter.js` `syncEnv()` copies Pages bindings into `process.env`, `RESEND_API_KEY` and `MAIL_FROM` are both set as Pages secrets, and `sendMail()` does fire. It is no longer a no-op. See the single remaining blocker below.
+- [x] **"No `RESEND_API_KEY` exists anywhere" — STALE, corrected 2026-08-24.** That was true of the Vercel deploy and of local disk (`reference_local_secrets_stale`). Sparkjar moved to Cloudflare Pages 2026-08-17; `npx wrangler pages secret list --project-name sparkjar` shows `RESEND_API_KEY`, `MAIL_FROM`, `JWT_SECRET`, `SPARK_DAEMON_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` all present in Production. Probe the deploy platform, not the disk.
+- [x] `APP_URL=https://sparkjar.heyitsmejosh.com` is already set — it is in `[vars]` in `wrangler.toml`, not a secret. Verified the link target resolves: `GET /reset-password` returns 200 (Pages clean-URL serves `reset.html`).
 - Note: `epiphany.heyitsmejosh.com` is verified in Resend; root `heyitsmejosh.com` and `sparkjar.heyitsmejosh.com` are NOT.
 - Full plan: `~/.claude/plans/tldr-shorter-and-bang-snazzy-cray.md`
 
@@ -689,3 +689,17 @@ The blocker was not the app: the old rejected submission 13b90678 sat in UNRESOL
 Careful with build IDs here: `asc builds list` reports platform as null, and 202608222227 is the
 **macOS** build. Always pass `--platform IOS` when picking an iOS build for this app.
 macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC today).
+
+## From /work start (imported 2026-08-24)
+
+- [ ] **BLOCKER — the Resend API key stored in Cloudflare Pages is invalid. This is the only thing between Sparkjar and working email.** Everything else in the mail path is correct and live.
+      - **Evidence (measured, not inferred):** tailed the production deployment (`npx wrangler pages deployment tail c35470d0-e832-43ae-a15c-d4b680c8f0b6 --project-name sparkjar --format pretty`) while POSTing a real reset for an existing user:
+        `curl -X POST 'https://sparkjar.heyitsmejosh.com/api/auth/password-reset?action=forgot' -H 'Content-Type: application/json' -d '{"username":"appreview"}'`
+        The log line is **`(error) [password-reset] Error: API key is invalid`** — Resend's own rejection, returned by `restClient` in `api/_lib/mail.js`. Note this is NOT the `[mail] RESEND_API_KEY not configured — skipping email send` warning, which is what a missing key would produce. The key is present; Resend refuses it.
+      - **Fix (needs Joshua — a live Resend dashboard login, no CLI path):** issue a fresh key at resend.com → API Keys, then
+        `npx wrangler pages secret put RESEND_API_KEY --project-name sparkjar`
+        No redeploy needed; Pages secrets take effect on the next isolate.
+      - **Also confirm while in that dashboard:** `MAIL_FROM` defaults to `Spark <noreply@sparkjar.heyitsmejosh.com>`, and per the note above **`sparkjar.heyitsmejosh.com` is NOT a verified Resend domain** (only `epiphany.heyitsmejosh.com` is). Even with a valid key, sends from an unverified domain will be rejected. Either verify `sparkjar.heyitsmejosh.com` in Resend, or set `MAIL_FROM` to an address on an already-verified domain.
+      - **Re-test after fixing** with the exact tail + curl above. Success = no error line and a mail in `appreview@heyitsmejosh.com`.
+      - Do not chase SMTP env vars (`SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`) — that transport was replaced by the Resend REST call and no longer exists in the code.
+- [ ] Correctness note, deliberately left alone: an invalid key is indistinguishable from success to the end user. `password-reset.js` catches the throw and still returns the generic "If an account exists with that info, a reset link has been sent." That is intentional anti-enumeration behaviour, not a bug — but it means email breakage is silent and only visible in the Pages logs. Worth a delivery healthcheck later if email keeps rotting unnoticed.
