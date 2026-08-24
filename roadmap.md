@@ -726,11 +726,12 @@ the space it is given instead of competing for it), the segmented Sort picker go
 `.labelsHidden()`, and the window floor moved to 820x520 (sidebar 160 + feed 280 + detail 320).
 Build verified. Build `202608240854` uploaded 2026-08-24.
 
-- [ ] Attach build `202608240854` to macOS 1.0.1 and resubmit once it finishes processing.
-- [ ] `whatsNew` for macOS 1.0.1 could not be written yet — the API returns "Attribute 'whatsNew'
-      cannot be edited at this time" while the version sits in its rejected state. The text is
-      staged in `metadata/version/1.0.1/en-US.json`; re-run `asc metadata push` after the new
-      build is attached.
+- [x] Build `202608240854` attached and **macOS 1.0.1 resubmitted 2026-08-24, now WAITING_FOR_REVIEW** (submission `384e2c27`). The stale rejected submission `3d9c5b37` had to be cancelled first — `asc review submit` refuses to reuse one in `UNRESOLVED_ISSUES`. It then reported "does not contain target version", the known false negative; `asc review submissions-submit --id` went through.
+- [ ] `whatsNew` for macOS 1.0.1 still cannot be written — the API answers "Attribute 'whatsNew'
+      cannot be edited at this time" both before and after the build was attached. Likely because
+      1.0 never shipped, so there is no prior release for release notes to describe. Non-blocking
+      (`asc validate` calls it a warning, 0 blocking). Text is staged in
+      `metadata/version/1.0.1/en-US.json` for whenever the field unlocks.
 - [ ] **Local `metadata/app-info/en-US.json` was stale and briefly pushed the app name to
       "Spark Mac" and a different subtitle/description/keywords over the live values.** Reverted
       the same session (verified by `asc metadata pull`: name "Sparkjar", subtitle "Share ideas,
