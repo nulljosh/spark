@@ -28,6 +28,7 @@
 		4EFC1638CAD5D0389BB4B23D /* SparkWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252262F74DC4F74094B9E99F /* SparkWidgets.swift */; };
 		5007BDF70ECAB68A25A52AA9 /* RFSEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250A1A3E452EAFE4CFA20022 /* RFSEntry.swift */; };
 		54E0B9930C9FD58228F4CDB9 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669DF90C12CC52B9665EF8A4 /* Comment.swift */; };
+		58319A1C995F727E36A9935A /* View+Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00AC133C41489BFF2B27166 /* View+Glass.swift */; };
 		5BB9DD6838440BC8EADDA9B3 /* WhatsNewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6198C2205B519C65D90BAA74 /* WhatsNewSheet.swift */; };
 		5CD2F5C284CF86DFA30CE546 /* SparkWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FCC6BAE9EE29681504AD6344 /* SparkWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		65886B3F202242BC42C24F3E /* StatsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58021A007F206C0665C9B3B0 /* StatsProvider.swift */; };
@@ -131,6 +132,7 @@
 		C36144F6E413872BCE8C0CF6 /* WidgetAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetAPI.swift; sourceTree = "<group>"; };
 		C7196DDDC55BB4DD4A0CA7B9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C7EE52D75E263CF3751C0C35 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D00AC133C41489BFF2B27166 /* View+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Glass.swift"; sourceTree = "<group>"; };
 		D097456B9B4019A62DAFD19A /* MockSparkAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSparkAPI.swift; sourceTree = "<group>"; };
 		D7377E7C3D073081F7F4E862 /* StatsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsWidget.swift; sourceTree = "<group>"; };
 		D9BF0680CE0AA4A14B68BFE5 /* PreviewScreenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewScreenshot.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				C7196DDDC55BB4DD4A0CA7B9 /* PrivacyInfo.xcprivacy */,
 				E188B5AB14AB56062C850BD7 /* Spark.entitlements */,
 				A95B026567C272F91FC1DB10 /* SparkApp.swift */,
+				D00AC133C41489BFF2B27166 /* View+Glass.swift */,
 				6198C2205B519C65D90BAA74 /* WhatsNewSheet.swift */,
 				37A7F3C1514EFD03DEFEE1BA /* API */,
 				87226969E9F919EE002A3916 /* Models */,
@@ -485,6 +488,7 @@
 				FE88C42776901721A0504CC8 /* SparkApp.swift in Sources */,
 				0E2765A7FD73D38A2AF87709 /* User.swift in Sources */,
 				13956E653D003D1210154E9E /* UserProfile.swift in Sources */,
+				58319A1C995F727E36A9935A /* View+Glass.swift in Sources */,
 				5BB9DD6838440BC8EADDA9B3 /* WhatsNewSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
