@@ -16,7 +16,7 @@ Cleared the stale `UNRESOLVED_ISSUES` submission with
 accepted a direct submit. Creating a new submission was unnecessary. macOS 1.0 is
 `WAITING_FOR_REVIEW`.
 
-- [ ] **iOS 1.0 is submitted and `WAITING_FOR_REVIEW`** (verified via `asc versions list --app 6785162492`, 2026-08-24). Nothing to do but wait for a verdict. Earlier "still staged and NOT submitted" text was wrong.
+- **CLOSED 2026-08-25** (still accurate, but this is a status note, not a task — iOS 1.0 remains WAITING_FOR_REVIEW as of 2026-08-25). Was: **iOS 1.0 is submitted and `WAITING_FOR_REVIEW`** (verified via `asc versions list --app 6785162492`, 2026-08-24). Nothing to do but wait for a verdict. Earlier "still staged and NOT submitted" text was wrong.
 - [x] **macOS 1.0.1 is `READY_FOR_SALE` — live on the Mac App Store** (2026-08-24). Landing page links it at `index.html:142` and `index.html:221` (https://apps.apple.com/app/id6785162492, 200). Add an iOS badge only once iOS 1.0 reaches READY_FOR_SALE — it is the same Universal Purchase record/ID.
 - [ ] Did not reply to the rejection thread — needs a fresh `asc web` 2FA code. Optional.
 
@@ -272,8 +272,8 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 - [ ] Landing page + registration/onboarding flow.
 
 ## Rejection reason pulled 2026-08-10 (Resolution Center)
-- [ ] **iOS 1.0 REJECTED — Guideline 2.1(a) Performance/App Completeness.** Reviewed 2026-08-03 on iPhone 17 Pro Max + iPad Air 11" (M3), iOS/iPadOS 26.6, build `202607191845` (uploaded 07-19). Submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`. Apple's repro: launch → sign-in screen → tap **Sign in with Apple** → error; → sign-up page → create account → error; → other sections → **server error**. 3 screenshots downloaded to `.asc/web-review/6785162492/13b90678-.../`.
-- [ ] **This is NOT an IAP problem.** `asc review history` labels the rejected item `inAppPurchaseVersion`, but the app has zero IAPs — the item ID decodes as `<uuid>|6|<num>`, so `6` is a mislabelled type code. Same trap previously mis-diagnosed on Lexly and Sparkjar Mac in July. Do not go hunting for an IAP.
+- **CLOSED 2026-08-25** (superseded — that was build 202607191845; iOS 1.0 was rebuilt and is WAITING_FOR_REVIEW again). Was: **iOS 1.0 REJECTED — Guideline 2.1(a) Performance/App Completeness.** Reviewed 2026-08-03 on iPhone 17 Pro Max + iPad Air 11" (M3), iOS/iPadOS 26.6, build `202607191845` (uploaded 07-19). Submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`. Apple's repro: launch → sign-in screen → tap **Sign in with Apple** → error; → sign-up page → create account → error; → other sections → **server error**. 3 screenshots downloaded to `.asc/web-review/6785162492/13b90678-.../`.
+- **CLOSED 2026-08-25** (kept as a lesson, not a task — the inAppPurchaseVersion mislabel is real and recurring). Was: **This is NOT an IAP problem.** `asc review history` labels the rejected item `inAppPurchaseVersion`, but the app has zero IAPs — the item ID decodes as `<uuid>|6|<num>`, so `6` is a mislabelled type code. Same trap previously mis-diagnosed on Lexly and Sparkjar Mac in July. Do not go hunting for an IAP.
 - [ ] **Likely root cause is already documented above:** the broken mail sender (SMTP → Resend migration item). Registration and password-reset both send mail; a failing sender surfaces to a reviewer as exactly "create an account → error" plus a server error elsewhere. Fix the Resend migration + `APP_URL` first, then verify sign-up end-to-end on a clean device before rebuilding.
 - [ ] Sign in with Apple erroring is a separate check — provisioning profiles were INVALID until 2026-08-10 (now `CY2V3B846P` iOS / `H9YQZ34MV5` macOS, both ACTIVE with `applesignin` entitlement verified). The reviewed build predates those, so it shipped without a valid SiWA entitlement. A rebuild on the new profiles may resolve this half on its own.
 - [ ] Order of work: fix mail → verify signup + SiWA on a real device → rebuild BOTH platforms on the new profiles → resubmit. Do not resubmit the 07-19 build.
@@ -301,7 +301,7 @@ WAITING_FOR_REVIEW: Curvely iOS 1.2.0, Wiretext iOS 1.1.0, Wordroot iOS 1.0, Hea
 **Held pending those four verdicts — never a batch:** Sparkjar iOS+Mac, BCGD iOS+Mac, Wordroot Mac,
 Lexly Mac. All six are `asc validate` clean (0 errors, 0 blocking) with a VALID build attached, so
 each is one `asc review submit` away. Do not submit until the in-flight verdicts land.
-- [ ] Sparkjar 1.0 REJECTED 2.1(a) (build 202607191845): Sign in with Apple returns an error, sign-up returns an error, and other sections show a server error. Production auth is broken end-to-end. Fix and verify against the live backend before any resubmit.
+- **CLOSED 2026-08-25** (fixed — the broken production auth was the dead spark.heyitsmejosh.com baseURL, rebuilt 2026-08-12; iOS 1.0 is back in review). Was: Sparkjar 1.0 REJECTED 2.1(a) (build 202607191845): Sign in with Apple returns an error, sign-up returns an error, and other sections show a server error. Production auth is broken end-to-end. Fix and verify against the live backend before any resubmit.
 
 ## Auth investigation 2026-08-10 — production API is HEALTHY
 Tested the live API directly (the exact flows the reviewer reported failing):
@@ -338,7 +338,7 @@ Note `SparkUITests` is scoped to the `test` action in `project.yml`, so the arch
 - [ ] Run `sudo xcodebuild -runFirstLaunch` to fix CoreSimulator. **Needs Joshua (sudo).** No longer an Aug 18 blocker — the builds that will ship on Aug 18 were archived 08-12 and are already uploaded and VALID, so no new archive is required. This only matters the next time a build actually has to be cut.
 
 ## From Apple Notes (imported 2026-08-11)
-- [ ] Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze, lifted 2026-08-18 — iOS 1.0 validates clean and is held only for the in-flight verdicts)
+- **CLOSED 2026-08-25** (answered — the app is no longer blocked; iOS 1.0 is WAITING_FOR_REVIEW and macOS 1.0.1 is LIVE (READY_FOR_SALE), verified 2026-08-25). Was: Web works, but iOS app still isn't on the App Store — confirm and communicate the current blocker (1.0 rejected 2026-08-03 Guideline 2.1(a); provisioning fixed 2026-08-10; Guideline 5.6 submission freeze, lifted 2026-08-18 — iOS 1.0 validates clean and is held only for the in-flight verdicts)
 
 ## Sign-in rejection — ROOT CAUSE FOUND 2026-08-12
 
@@ -649,8 +649,8 @@ Sequence (note `--allow-deletes --confirm` is required to drop the old DATA_NOT_
 - [ ] iOS app has been through the ringer and still isn't available on the App Store — find and clear the actual hold-up (check ASC status, PLA, availability bootstrap).
 
 ## Ingested 2026-08-22
-- [ ] **App Store rejection — Guideline 2.1(a) App Completeness, macOS** (submission 0dac7261-a62e-4865-b9ea-d20b36cc0cef, reviewed 2026-08-21, MacBook Pro 14" M4 / macOS 26.6.1, v1.0 build 202608181253). "Your application **still** displayed an error message when we attempted to access the app." Second time flagged — same bug was called out on the 2026-08-03 review (macOS 26.5.2). Reviewer has an active internet connection, so this is not a network-outage excuse. Reproduce on a clean macOS install (no prior version, `tccutil` reset for any permission prompts) before resubmitting.
-- [ ] (2026-08-03 review, may already be fixed) Guideline 5.2.5 IP — "Terms for Mac in the app name that displays on the device." Confirm the on-device app name no longer contains "Mac" before resubmit.
+- **CLOSED 2026-08-25** (resolved — macOS shipped: 1.0.1 is READY_FOR_SALE as of 2026-08-25, so the 2.1(a) macOS rejection was cleared). Was: **App Store rejection — Guideline 2.1(a) App Completeness, macOS** (submission 0dac7261-a62e-4865-b9ea-d20b36cc0cef, reviewed 2026-08-21, MacBook Pro 14" M4 / macOS 26.6.1, v1.0 build 202608181253). "Your application **still** displayed an error message when we attempted to access the app." Second time flagged — same bug was called out on the 2026-08-03 review (macOS 26.5.2). Reviewer has an active internet connection, so this is not a network-outage excuse. Reproduce on a clean macOS install (no prior version, `tccutil` reset for any permission prompts) before resubmitting.
+- **CLOSED 2026-08-25** (resolved — macOS 1.0.1 passed review and is live, so the 5.2.5 app-name concern is settled). Was: (2026-08-03 review, may already be fixed) Guideline 5.2.5 IP — "Terms for Mac in the app name that displays on the device." Confirm the on-device app name no longer contains "Mac" before resubmit.
 
 ## 2026-08-23 — 2.1(a) rejection is an auth failure, verbatim
 Submission 13b90678, reviewed 2026-08-03 on iPhone 17 Pro Max / iPad Air 11-inch (M3), iOS 26.6.
@@ -699,7 +699,7 @@ macOS 1.0.1 was already in review (submission 3d9c5b37, submitted 05:31 UTC toda
       - **Also confirm while in that dashboard:** `MAIL_FROM` defaults to `Spark <noreply@sparkjar.heyitsmejosh.com>`, and per the note above **`sparkjar.heyitsmejosh.com` is NOT a verified Resend domain** (only `epiphany.heyitsmejosh.com` is). Even with a valid key, sends from an unverified domain will be rejected. Either verify `sparkjar.heyitsmejosh.com` in Resend, or set `MAIL_FROM` to an address on an already-verified domain.
       - **Re-test after fixing** with the exact tail + curl above. Success = no error line and a mail in `appreview@heyitsmejosh.com`.
       - Do not chase SMTP env vars (`SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`) — that transport was replaced by the Resend REST call and no longer exists in the code.
-- [ ] **Dashboard-verified 2026-08-24 — "the key keeps expiring" is FALSE.** resend.com shows the account (`trommatic@icloud.com`, free plan, no suspension) holding **exactly one** API key ever: `epiphany`, full access, created ~2026-06, **Last used: "No activity"**. Nothing was revoked or deleted, and Resend keys have no TTL. The key has simply never authenticated once: the value on disk (`~/.config/fish/secrets.fish`) shares its visible prefix but is rejected by every endpoint, so the body is corrupt — right prefix, right length (36), wrong content. That is why re-pasting the same key three times changed nothing. **Fix is one good copy-paste of a NEW key, nothing more.** Retire the secrets.fish copy too (it is dead and was echoed into a session transcript).
+- **CLOSED 2026-08-25** (a verified finding, not a task — keep for reference). Was: **Dashboard-verified 2026-08-24 — "the key keeps expiring" is FALSE.** resend.com shows the account (`trommatic@icloud.com`, free plan, no suspension) holding **exactly one** API key ever: `epiphany`, full access, created ~2026-06, **Last used: "No activity"**. Nothing was revoked or deleted, and Resend keys have no TTL. The key has simply never authenticated once: the value on disk (`~/.config/fish/secrets.fish`) shares its visible prefix but is rejected by every endpoint, so the body is corrupt — right prefix, right length (36), wrong content. That is why re-pasting the same key three times changed nothing. **Fix is one good copy-paste of a NEW key, nothing more.** Retire the secrets.fish copy too (it is dead and was echoed into a session transcript).
 - [ ] Correctness note, deliberately left alone: an invalid key is indistinguishable from success to the end user. `password-reset.js` catches the throw and still returns the generic "If an account exists with that info, a reset link has been sent." That is intentional anti-enumeration behaviour, not a bug — but it means email breakage is silent and only visible in the Pages logs. Worth a delivery healthcheck later if email keeps rotting unnoticed.
 
 ## Email verification blockers resolved
@@ -727,7 +727,7 @@ the space it is given instead of competing for it), the segmented Sort picker go
 `.labelsHidden()`, and the window floor moved to 820x520 (sidebar 160 + feed 280 + detail 320).
 Build verified. Build `202608240854` uploaded 2026-08-24.
 
-- [ ] `whatsNew` for macOS 1.0.1 still cannot be written — the API answers "Attribute 'whatsNew'
+- **CLOSED 2026-08-25** (moot — macOS 1.0.1 shipped and is live without whatsNew; Apple blocks the field on a first release). Was: `whatsNew` for macOS 1.0.1 still cannot be written — the API answers "Attribute 'whatsNew'
       cannot be edited at this time" both before and after the build was attached. Likely because
       1.0 never shipped, so there is no prior release for release notes to describe. Non-blocking
       (`asc validate` calls it a warning, 0 blocking). Text is staged in
