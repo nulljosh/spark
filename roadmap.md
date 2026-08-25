@@ -16,8 +16,8 @@ Cleared the stale `UNRESOLVED_ISSUES` submission with
 accepted a direct submit. Creating a new submission was unnecessary. macOS 1.0 is
 `WAITING_FOR_REVIEW`.
 
-- [ ] **iOS 1.0 (`14770136-f866-42b4-850b-eef60edc51e7`) is still staged and NOT submitted.**
-      Same server-side fix covers it. Submit once macOS gets a verdict. — STALE: iOS 1.0 + macOS 1.0.1 both WAITING_FOR_REVIEW as of 2026-08-24.
+- [ ] **iOS 1.0 is submitted and `WAITING_FOR_REVIEW`** (verified via `asc versions list --app 6785162492`, 2026-08-24). Nothing to do but wait for a verdict. Earlier "still staged and NOT submitted" text was wrong.
+- [x] **macOS 1.0.1 is `READY_FOR_SALE` — live on the Mac App Store** (2026-08-24). Landing page links it at `index.html:142` and `index.html:221` (https://apps.apple.com/app/id6785162492, 200). Add an iOS badge only once iOS 1.0 reaches READY_FOR_SALE — it is the same Universal Purchase record/ID.
 - [ ] Did not reply to the rejection thread — needs a fresh `asc web` 2FA code. Optional.
 
 ## Done 2026-08-18 — submit-ready

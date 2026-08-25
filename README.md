@@ -13,8 +13,8 @@ Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Nati
 | Platform | Version | Status |
 |---|---|---|
 | Web (PWA) | v2.2.0 | Live |
-| iOS | v2.2.0 | App Store submission in progress |
-| macOS | v1.0.0 | App Store submission in progress |
+| iOS | 1.0 | Submitted — waiting for review |
+| macOS | 1.0.1 | [Live on the Mac App Store](https://apps.apple.com/app/id6785162492) |
 | watchOS | v1.0.0 | Bundled with iOS |
 
 <img src="screenshots/ios/01-feed.jpg" width="280">
