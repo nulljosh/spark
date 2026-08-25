@@ -289,6 +289,9 @@ Both version rows are `1.0 PREPARE_FOR_SUBMISSION` (iOS `14770136-f866-42b4-850b
 - [ ] App Privacy publish state is not verifiable via the public API (info-level on both platforms). Confirm published at appstoreconnect.apple.com/apps/6785162492/appPrivacy before submitting — needs `asc-login` / dashboard.
 - [ ] **On/after 2026-08-18, submission is one command per platform** — nothing else is outstanding. Do NOT run `asc workflow run ship-ios`/`ship-mac` for this: both workflows' `publish` step carries `--submit`, and they would also cut a pointless new build. The staged 08-12 builds are the ones to ship.
 
+## OAuth rollout (2026-08-24)
+- [ ] Add GitHub/Google sign-in alongside existing Sign in with Apple on both iOS and web. Also add forgot-password flow to iOS (web has none, is email-only signup). Web pattern proven in litigate/web/auth.js; iOS needs native SDK flows. Google credentials already in Cloudflare secrets.
+
 ## Someday / Explore
 - [ ] No web/Services-ID Sign in with Apple redirect exists — the browser app has no Apple path, native only. Not a rejection issue; note for feature parity.
 
