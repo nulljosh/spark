@@ -737,9 +737,3 @@ Build verified. Build `202608240854` uploaded 2026-08-24.
       the same session (verified by `asc metadata pull`: name "Sparkjar", subtitle "Share ideas,
       vote the best up"). The description/keywords/supportUrl in that file are still the local
       versions and now live — review whether those were the intended copy before the next push.
-
-## Ingested 2026-08-24
-
-- [x] **Mac App Store link on the landing page.** DONE 2026-08-24 — Sparkjar Mac 1.0.1 is
-      READY_FOR_SALE but the landing page had no way to get it. Added to the hero actions and the
-      footer (`apps.apple.com/app/id6785162492`), deployed to Cloudflare Pages, verified live.
