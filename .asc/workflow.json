@@ -3,7 +3,7 @@
   "env": {
     "IOS_APP_ID": "6785162492",
     "MAC_APP_ID": "6785162492",
-    "VERSION": "",
+    "VERSION": "1.0",
     "SUBMIT": "true"
   },
   "before_all": "asc auth status",

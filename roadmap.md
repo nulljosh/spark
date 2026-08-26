@@ -741,3 +741,15 @@ Build verified. Build `202608240854` uploaded 2026-08-24.
 ## From Apple Notes (imported 2026-08-25)
 
 - [ ] Landing page screenshots have a weird font — fix to match the rest of the codebase.
+
+## 2026-08-26 — iOS 1.0 rejection (2.1a) root cause
+Apple reviewed build 202608181252 (Aug 18); the `content` keyNotFound fix
+landed Aug 22 in 1a965e1. Stale binary, not a live bug. Rebuilt as
+202608252231, publish in flight — verify with `asc builds uploads list`.
+
+Two side findings:
+- `.asc/workflow.json` had `VERSION: ""`, so ship-ios's publish step passed
+  `--wait` as the version value and died. Defaulted to "1.0".
+- `/api/comment-counts` 404s: `getCommentCounts` exists in api/comments.js but
+  no route maps to it in functions/api/[[route]].js. Client swallows the error,
+  so comment counts silently never render. Cosmetic, unfixed.
