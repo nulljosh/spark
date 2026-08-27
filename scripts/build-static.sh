@@ -14,7 +14,7 @@ mkdir -p dist
 # Static pages and assets.
 cp -- *.html dist/
 cp -- *.svg dist/
-cp manifest.json sw.js tokens.css theme.js dist/
+cp manifest.json sw.js tokens.css theme.js webmcp.js dist/
 
 # Pages control files. No _redirects: vercel.json's `/(.*) -> /app.html` catch-all
 # was a Vercel routing artifact, not a feature — app.html has no client-side
