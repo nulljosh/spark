@@ -43,6 +43,11 @@ App Privacy is published. Nothing is queued for review.
       user, not used for tracking. Decide the correct declaration, then re-apply with
       `asc web privacy plan/apply/publish` (apply BEFORE publish, or publish 409s).
 - [ ] Subtitle is empty for en-US on both platforms (`metadata.required.subtitle`,
+      Triaged 2026-08-27: subtitle lives on the **app-info** localization, and the editable
+      app info is `2a819c45-9f49-434c-ad0b-bdc0710b590d` (WAITING_FOR_REVIEW); `a722740e-…` is the
+      live one and is read-only. There is no one-shot `asc` flag for it — it goes through the
+      canonical cycle: `asc metadata pull` -> edit the file -> `plan` -> `approve` -> `push`.
+      Not a quick fix; budget a short dedicated session.
       non-blocking warning). Needs real copy, not a placeholder.
 
 ## Two live auth breaks found + fixed 2026-08-18 (`/work start`)
