@@ -753,3 +753,13 @@ Two side findings:
 - `/api/comment-counts` 404s: `getCommentCounts` exists in api/comments.js but
   no route maps to it in functions/api/[[route]].js. Client swallows the error,
   so comment counts silently never render. Cosmetic, unfixed.
+
+## From Apple Notes (imported 2026-08-27)
+- [x] Sparkjar iOS submission issue (submission 834bd05e, Aug 23) — already resolved, no action needed.
+  Duplicate of the "2026-08-26 — iOS 1.0 rejection (2.1a)" section above: Apple reviewed
+  stale build 202608181252, the `content` keyNotFound fix had landed Aug 22 in 1a965e1.
+  Verified 2026-08-27: 834bd05e is COMPLETE; fresh build 202608252231 (VALID, uploaded
+  Aug 25) went out as submission 7cbff86f and is WAITING_FOR_REVIEW since Aug 26.
+  `asc validate` reports only "version is in non-editable state WAITING_FOR_REVIEW",
+  i.e. correctly queued. iOS baseURL is sparkjar.heyitsmejosh.com and prod /api/posts
+  returns 200, so the dead-domain and decode causes are both closed.
