@@ -1,8 +1,8 @@
-# Spark Technical Whitepaper
+# Sparkjar Technical Whitepaper
 
-**v2.2.0** | July 2026
+**v2.2.0 web / 1.0 iOS / 1.0 macOS** | August 2026
 
-Spark is an idea-sharing platform: post an idea, vote it up, argue in the
+Sparkjar is an idea-sharing platform: post an idea, vote it up, argue in the
 comments, and let an LLM turn the good ones into build plans. Live at
 [sparkjar.heyitsmejosh.com](https://sparkjar.heyitsmejosh.com), with native iOS,
 macOS, and watchOS companions.
@@ -28,9 +28,10 @@ ideas, and the frontend falls back to seed data if Supabase is unreachable.
 - **Frontend**: one `index.html` — all HTML, CSS, and JS, no build step.
   Responsive CSS grid feed (auto-fill, 320px min columns), PWA with offline
   support, dark/light toggle.
-- **API**: Vercel serverless functions. The Hobby plan caps a project at 12
-  functions, so auth is consolidated into shared handlers — 10/12 used, and
-  new endpoints must fit that budget.
+- **API**: Cloudflare Pages Functions. The site moved off Vercel on
+  2026-08-17, which retired the old 12-function Hobby-plan cap that had forced
+  auth into consolidated shared handlers; the consolidation stayed because it
+  is simpler, but new endpoints are no longer budgeted against a limit.
 - **Auth**: JWT with sign up/login, GitHub OAuth, ToS gate on register, and
   Face ID / Touch ID on iOS.
 - **Database**: Supabase PostgreSQL with RLS enabled. This project is the
@@ -43,13 +44,15 @@ ideas, and the frontend falls back to seed data if Supabase is unreachable.
 
 | Platform | Version | Status |
 |---|---|---|
-| Web (PWA) | v2.2.0 | Live |
-| iOS | v2.2.0 | App Store submission in progress |
-| macOS | v1.0.0 | Uploaded to ASC, processing |
-| watchOS | v1.0.0 | Bundled with iOS |
+| Web (PWA) | v2.2.0 | Live on Cloudflare Pages |
+| iOS | v1.0 | Live on the App Store |
+| macOS | v1.0 | Live on the App Store |
+| watchOS | v1.0 | Bundled with iOS |
 
 ## Security
 
 - RLS on every table; JWT secret rotated 2026-05-09.
 - Known debt: an old `.env` lives in three historical commits (no longer
   tracked) — purge via `git filter-repo` is on the roadmap.
+- Transactional email is wired to Resend but not yet sending: the domain is
+  unverified, so signup/reset mail is the open blocker on the hosted flows.
