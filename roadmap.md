@@ -757,3 +757,18 @@ Two side findings:
   no route maps to it in functions/api/[[route]].js. Client swallows the error,
   so comment counts silently never render. Cosmetic, unfixed.
 - [ ] iOS rejected 4.3(a) Spam 2026-08-26. Appeal draft: notes/appeal-4-3-spam.md (Resolution Center, web only).
+
+## From Notes (imported 2026-08-27)
+- [ ] App Review flagged **Sparkjar 1.0 for iOS** (submitted Aug 25 2026 10:37 PM PDT, submission `7cbff86f-994d-40c3-b414-0047e0b138f8`). Get the reason via `asc web review show`, fix, resubmit.
+- [ ] Landing-page screenshot font matches neither the landing page nor the actual app. Repeated CSS patches have not fixed it — regenerate the screenshot from the real app instead of restyling the page.
+sparkjar/roadmap.md
+
+### 4.3(a) status — verified 2026-08-27
+  - Sparkjar iOS 1.0 REJECTED under **Guideline 4.3(a) Design: Spam**, same account-level wave.
+  - **Sparkjar has never shipped on iOS** — one iOS version record (1.0), never READY_FOR_SALE. Only macOS 1.0.1 is live. Any note claiming "iOS + macOS 1.0 LIVE" is wrong.
+  - The appeal draft says to **hold Sparkjar** rather than reply first — Talli, Curvely and Doorstock go first.
+  - Repo `project.yml` is at 1.0.1 while the iOS record is still 1.0; create the 1.0.1 iOS version whenever the appeal clears.
+  - **This is not a per-app content problem — do not fix code and do not resubmit.** Apple's letter is byte-identical boilerplate across all five with no named comparison app. Resubmitting the same build will fail again and adds to the pattern.
+  - **The appeal draft is at `~/Documents/Code/notes/appeal-4-3-spam.md` (repo root, 113 lines) — NOT at `<repo>/notes/appeal-4-3-spam.md`.** Several roadmap lines point at the per-repo path; that file does not exist in any of the five repos. Fix the pointer, do not write a second draft.
+  - **Status: DRAFTED, NOT FILED.** Filing is Resolution Center, which is browser-only (`asc web review` is read-only). Blocked on Joshua. Reply order in the draft is Talli, Curvely, Doorstock; hold Sparkjar and NYC Survive.
+  - Verified via API 2026-08-27: submission is UNRESOLVED_ISSUES with a single appStoreVersion item REJECTED — no phantom-IAP item, so the "mislabeled inAppPurchaseVersion" trap does not apply. `asc validate` and `asc review doctor` are otherwise clean, confirming this is a guideline call and not a readiness gap.
