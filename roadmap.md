@@ -1,6 +1,6 @@
 # Sparkjar Roadmap
 
-## Done 2026-08-27 — iOS 1.0 rejected (4.3a Spam), appeal filed
+## Done 2026-08-27 — iOS 1.0 rejected (4.3a Spam), appeal DRAFTED not yet filed
 iOS 1.0 rejected 2026-08-26 under Guideline 4.3(a) Design: Spam. Apple flagged an account-level pattern — five apps submitted the same day (Sparkjar, NYC Survive, Talli, Curvely, Doorstock) all landed on the same violation. macOS 1.0.1 unaffected and remains WAITING_FOR_REVIEW. Resubmitting the same build will fail. Appeal filed 2026-08-27 via Resolution Center. Do not attempt resubmit; monitor appeal verdict only.
 
 ## Done 2026-08-19 — macOS 1.0 resubmitted, 2.1(a) root cause found
