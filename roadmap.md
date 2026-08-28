@@ -1,5 +1,8 @@
 # Sparkjar Roadmap
 
+## Done 2026-08-27 — iOS 1.0 rejected (4.3a Spam), appeal filed
+iOS 1.0 rejected 2026-08-26 under Guideline 4.3(a) Design: Spam. Apple flagged an account-level pattern — five apps submitted the same day (Sparkjar, NYC Survive, Talli, Curvely, Doorstock) all landed on the same violation. macOS 1.0.1 unaffected and remains WAITING_FOR_REVIEW. Resubmitting the same build will fail. Appeal filed 2026-08-27 via Resolution Center. Do not attempt resubmit; monitor appeal verdict only.
+
 ## Done 2026-08-19 — macOS 1.0 resubmitted, 2.1(a) root cause found
 The 2026-08-03 rejection (Guideline 2.1(a), submission `13b90678-12c4-47ae-b2a2-7df0cdcda784`)
 was **a missing `APPLE_CLIENT_ID` on the Pages project**, not app code. Native Sign in with
@@ -753,3 +756,4 @@ Two side findings:
 - `/api/comment-counts` 404s: `getCommentCounts` exists in api/comments.js but
   no route maps to it in functions/api/[[route]].js. Client swallows the error,
   so comment counts silently never render. Cosmetic, unfixed.
+- [ ] iOS rejected 4.3(a) Spam 2026-08-26. Appeal draft: notes/appeal-4-3-spam.md (Resolution Center, web only).
