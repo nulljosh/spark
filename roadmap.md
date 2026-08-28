@@ -17,7 +17,6 @@ accepted a direct submit. Creating a new submission was unnecessary. macOS 1.0 i
 `WAITING_FOR_REVIEW`.
 
 - **CLOSED 2026-08-25** (still accurate, but this is a status note, not a task — iOS 1.0 remains WAITING_FOR_REVIEW as of 2026-08-25). Was: **iOS 1.0 is submitted and `WAITING_FOR_REVIEW`** (verified via `asc versions list --app 6785162492`, 2026-08-24). Nothing to do but wait for a verdict. Earlier "still staged and NOT submitted" text was wrong.
-- [x] **macOS 1.0.1 is `READY_FOR_SALE` — live on the Mac App Store** (2026-08-24). Landing page links it at `index.html:142` and `index.html:221` (https://apps.apple.com/app/id6785162492, 200). Add an iOS badge only once iOS 1.0 reaches READY_FOR_SALE — it is the same Universal Purchase record/ID.
 - [ ] Did not reply to the rejection thread — needs a fresh `asc web` 2FA code. Optional.
 
 ## Done 2026-08-18 — submit-ready
@@ -743,10 +742,6 @@ Build verified. Build `202608240854` uploaded 2026-08-24.
       vote the best up"). The description/keywords/supportUrl in that file are still the local
       versions and now live — review whether those were the intended copy before the next push.
 
-## From Apple Notes (imported 2026-08-25)
-
-- [ ] Landing page screenshots have a weird font — fix to match the rest of the codebase.
-
 ## 2026-08-26 — iOS 1.0 rejection (2.1a) root cause
 Apple reviewed build 202608181252 (Aug 18); the `content` keyNotFound fix
 landed Aug 22 in 1a965e1. Stale binary, not a live bug. Rebuilt as
@@ -758,13 +753,3 @@ Two side findings:
 - `/api/comment-counts` 404s: `getCommentCounts` exists in api/comments.js but
   no route maps to it in functions/api/[[route]].js. Client swallows the error,
   so comment counts silently never render. Cosmetic, unfixed.
-
-## From Apple Notes (imported 2026-08-27)
-- [x] Sparkjar iOS submission issue (submission 834bd05e, Aug 23) — already resolved, no action needed.
-  Duplicate of the "2026-08-26 — iOS 1.0 rejection (2.1a)" section above: Apple reviewed
-  stale build 202608181252, the `content` keyNotFound fix had landed Aug 22 in 1a965e1.
-  Verified 2026-08-27: 834bd05e is COMPLETE; fresh build 202608252231 (VALID, uploaded
-  Aug 25) went out as submission 7cbff86f and is WAITING_FOR_REVIEW since Aug 26.
-  `asc validate` reports only "version is in non-editable state WAITING_FOR_REVIEW",
-  i.e. correctly queued. iOS baseURL is sparkjar.heyitsmejosh.com and prod /api/posts
-  returns 200, so the dead-domain and decode causes are both closed.
