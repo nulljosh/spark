@@ -1,7 +1,7 @@
 .vercel
 
 .DS_Store
-node_modules/.vite/
+node_modules/
 .asc/artifacts/
 .asc/release/
 .asc/runs/
