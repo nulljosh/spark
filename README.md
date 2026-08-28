@@ -123,3 +123,7 @@ MIT 2026 Joshua Trommel
 the WebMCP tools this app registers on `document.modelContext`, so an in-browser
 agent can drive it. Tools are split into read-only, reversible writes, and the
 few that require human confirmation.
+
+## Architecture
+
+<img src="architecture.svg" width="600">
