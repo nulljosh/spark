@@ -4,7 +4,7 @@
   "description": "Idea-sharing platform with filters, voting, auth",
   "main": "index.html",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "build": "bash scripts/build-static.sh",
     "dev": "npm run build && npx wrangler pages dev dist",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name sparkjar"
