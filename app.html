@@ -54,7 +54,9 @@
         body { font-family: var(--font-body, var(--font, -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif)); font-weight: 400; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
         main { flex: 1; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header-left h1 { font-size: 48px; }
+        .header-left h1 { font-size: 48px; display: flex; align-items: center; gap: 12px; }
+        /* Sized off the heading so the mark tracks the h1 at every breakpoint. */
+        .logo-mark { width: 0.9em; height: 0.9em; border-radius: 0.18em; display: block; }
         .header-right { display: flex; gap: 10px; align-items: center; }
         .subtitle { color: var(--text3); margin-bottom: 40px; }
         .auth-btn { background: var(--surface2); color: var(--text); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
@@ -70,7 +72,7 @@
             /* At 390px the 48px wordmark collided with the theme button and
                pushed "Sign In" onto two lines -- visible in the hero shot. */
             .header { gap: 10px; }
-            .header-left h1 { font-size: 28px; }
+            .header-left h1 { font-size: 28px; gap: 8px; }
             .header-right { gap: 6px; flex-shrink: 0; }
             .auth-btn { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
             .theme-btn, .bell-btn { width: 32px; height: 32px; }
@@ -257,7 +259,7 @@
     <main>
         <div class="header">
             <div class="header-left">
-                <h1>Sparkjar</h1>
+                <h1><img src="/icon.svg" alt="" class="logo-mark">Sparkjar</h1>
             </div>
             <div class="header-right">
                 <div class="bell-wrap" id="bellWrap" style="display:none">
@@ -402,7 +404,7 @@
         <div class="modal-box">
             <span class="close" onclick="document.getElementById('ideaBaseModal').classList.remove('show')">&times;</span>
             <h2 style="margin-bottom:20px">Generate Ideas</h2>
-            <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Enter a topic and the AI daemon will generate 8 ideas and seed them into Sparkjar.</p>
+            <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Enter a topic and Sparkjar will generate 8 ideas and seed them into the feed.</p>
             <div id="ideaBaseError" class="error"></div>
             <input type="text" id="ideaBaseTopic" placeholder="Topic (e.g. sustainable cities, health tech)" maxlength="200">
             <textarea id="ideaBaseDesc" placeholder="Additional context (optional)" maxlength="500" style="margin-top:10px;height:80px"></textarea>
@@ -828,7 +830,7 @@
                 document.getElementById('ideaBaseTopic').value = '';
                 document.getElementById('ideaBaseDesc').value = '';
                 document.getElementById('ideaBaseModal').classList.remove('show');
-                alert('Ideas queued. The AI daemon will generate and post them in the next 5 minutes.');
+                alert('Ideas queued. They will be generated and posted shortly.');
             } catch (e) { errorEl.textContent = 'Network error: ' + e.message; }
         }
 

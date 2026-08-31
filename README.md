@@ -24,6 +24,7 @@ Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Nati
 - Vanilla JS -- single `index.html`, no build step
 - JWT auth with sign up, login, biometric (Face ID / Touch ID on iOS)
 - Category filters and Hot/New sorting
+- Single-column feed, one idea at a time, with infinite scroll
 - Upvoting and trending with optimistic UI
 - A new idea every morning, generated server-side on Cloudflare Workers AI
 - Every idea enriched into a build spec and a step-by-step plan
