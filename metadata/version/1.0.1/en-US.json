@@ -1,1 +1,7 @@
-{"description":"Sparkjar is a fast, minimal idea forum. Post an idea, vote on the ones you like, and discuss. Browse a clean feed of community ideas, share your own, and watch the best ones rise to the top.","keywords":"ideas,forum,brainstorm,notes,community,vote,discussion,creativity,startup,think","marketingUrl":"https://sparkjar.heyitsmejosh.com","supportUrl":"https://sparkjar.heyitsmejosh.com/support.html"}
+{
+  "description": "Sparkjar is a fast, minimal idea forum. Post an idea, vote on the ones you like, and discuss. Browse a clean feed of community ideas, share your own, and watch the best ones rise to the top.",
+  "keywords": "ideas,forum,brainstorm,notes,community,vote,discussion,creativity,startup,think",
+  "marketingUrl": "https://sparkjar.heyitsmejosh.com",
+  "supportUrl": "https://sparkjar.heyitsmejosh.com/support.html",
+  "promotionalText": "Post an idea, vote on the good ones, argue about the rest. A fast feed where the best ideas rise on their own."
+}
