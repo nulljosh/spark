@@ -32,7 +32,11 @@ prefers a `globalThis.__env.EMAIL` binding over Resend when one exists. It canno
    Worker+assets (epiphany, numen, sidewise, talli) could take the binding with no migration
    — epiphany is the one to start with, since it is the only other Resend user.
 
-## Open 2026-08-31 — feed self-sustaining, Resend dead, App Privacy staged for 2FA
+## Done 2026-08-31 — feed UI polish and copy cleanup
+
+After the feed revival, added product polish: feed now displays one idea at a time in a single flex column (680px max reading width) instead of an auto-fill grid, paired with the existing infinite-scroll implementation (20 posts per batch via IntersectionObserver). Added logo mark (`/icon.svg`, sized in em) next to the wordmark in the app header to match the landing page. Cleared two stale daemon-policy strings from app.html that promised "ideas within five minutes" — there is no daemon, only a 09:00 cron Worker. README updated. Tests 66 passing, deployed to Cloudflare Pages.
+
+## Open 2026-08-31 — feed self-sustaining, email waiting on Resend, App Privacy published
 
 **Status snapshot:** macOS 1.0.1 READY_FOR_SALE (live); iOS 1.0 REJECTED 4.3(a) (can only appeal, never resubmit). **Ship blockers remaining:**
 
