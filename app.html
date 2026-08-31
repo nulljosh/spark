@@ -62,9 +62,10 @@
         .theme-btn { background: var(--surface2); color: var(--text); border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .theme-btn:hover { background: var(--surface3); }
         .user-info { color: var(--text2); font-weight: 500; }
-        #feed { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        /* One idea at a time: a single reading column, not a grid of tiles. The
+           cap is reading width, not screen width -- a full-bleed card is unreadable. */
+        #feed { display: flex; flex-direction: column; gap: 16px; max-width: 680px; margin: 0 auto; }
         @media (max-width: 680px) {
-            #feed { grid-template-columns: 1fr; }
             body { padding: 12px; }
             /* At 390px the 48px wordmark collided with the theme button and
                pushed "Sign In" onto two lines -- visible in the hero shot. */

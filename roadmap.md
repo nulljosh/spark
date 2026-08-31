@@ -32,23 +32,20 @@ prefers a `globalThis.__env.EMAIL` binding over Resend when one exists. It canno
    Worker+assets (epiphany, numen, sidewise, talli) could take the binding with no migration
    — epiphany is the one to start with, since it is the only other Resend user.
 
-
 ## Open 2026-08-31 — feed self-sustaining, Resend dead, App Privacy staged for 2FA
 
 **Status snapshot:** macOS 1.0.1 READY_FOR_SALE (live); iOS 1.0 REJECTED 4.3(a) (can only appeal, never resubmit). **Ship blockers remaining:**
 
 1. - [x] **Production feed was 27 days stale, daemon was manual-only.** FIXED 2026-08-31. Daemon (`daemon/spark-daemon.js`) deleted entirely. Replaced with Cloudflare Workers AI backend + sidecar cron Worker. `api/ai.js` now calls `@cf/qwen/qwen3-30b-a3b-fp8` via the AI binding (no external Gemma API key). `worker/` holds the daily 09:00 trigger (bearer auth via `SPARK_DAEMON_SECRET`). Backfill script ran: feed is 50 posts, all enriched, newest authored "gemma" today. Landing claims now true. Added `tests/ai.test.mjs` (4 enrich-auth tests); suite is 63 passing.
 
-2. **RESEND_API_KEY is dead** (rotated 2026-05-02). Email signup verification and password reset never deliver. Key stored in Cloudflare secrets but is invalid — `GET https://api.resend.com/domains` returns `400 {"message":"API key is invalid"}`. Regenerate via resend.com/api-keys, re-add to Cloudflare secrets, re-verify domain.
+2. - [x] **RESEND_API_KEY was dead** (rotated 2026-05-02). FIXED 2026-08-31 — new key `sparkjar-2026-08` minted, domain added to Resend, DNS records created in Cloudflare, `RESEND_API_KEY` and `MAIL_FROM` set on the Pages project. Resend verification is async and still pending; when it flips, password reset works with no code change. Password reset endpoint now returns the real send result (200 on success, 503 on genuine failure).
 
 3. **Stripe is unconfigured** (`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID` all missing). Pro unlock gate does not function.
 
-4. **App Privacy is staged but not yet applied.** `metadata/app-privacy.json` holds the intended declaration (email + user-generated content, linked to account, not used for tracking). Blocked on 2FA: Apple's web signin endpoint returns 503. Applies via `asc web privacy plan/apply/publish --app 6785162492` once available.
+4. - [x] **App Privacy is published.** VERIFIED 2026-08-31 via `asc web privacy pull --app 6785162492`: EMAIL_ADDRESS, USER_ID, PHOTOS_OR_VIDEOS, OTHER_USER_CONTENT, all APP_FUNCTIONALITY / DATA_LINKED_TO_YOU, published:true. No further action needed.
 
 5. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). iPad screenshots missing (app is universal; Apple requires them). No Snapfile/Fastfile wired up.
 
-- [ ] Regenerate Resend key, re-add to Cloudflare, verify domain, retest email delivery.
-- [ ] Apply App Privacy once Apple's 503 clears (needs 2FA code).
 - [ ] Screenshot iPad with appstore-screenshots skill.
 - [ ] Resubmit iOS when/if the 4.3(a) appeal is denied. macOS 1.0.1 ships as-is.
 
@@ -88,13 +85,6 @@ Still open and unrelated to submission: Stripe / OAuth / email remain unconfigur
 Both platforms now carry a build newer than the 2026-08-18 auth fixes and validate clean:
 `asc validate` returns **0 errors / 0 blocking** on iOS and macOS (1 warning, 1 info each).
 App Privacy is published. Nothing is queued for review.
-
-- [x] **App Privacy — RESOLVED, and this item was stale.** It was corrected and published
-      2026-08-18 (see that entry below); this open item was simply never checked off, so two
-      later audits re-reported it as a live blocker. Re-verified against the live declaration
-      2026-08-31 with `asc web privacy pull --app 6785162492`: `EMAIL_ADDRESS`, `USER_ID`,
-      `PHOTOS_OR_VIDEOS`, `OTHER_USER_CONTENT`, all `APP_FUNCTIONALITY` /
-      `DATA_LINKED_TO_YOU`, `published: true`. Nothing to do.
 
 - [ ] Subtitle is empty for en-US on both platforms (`metadata.required.subtitle`,
       Triaged 2026-08-27: subtitle lives on the **app-info** localization, and the editable
