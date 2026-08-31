@@ -88,6 +88,34 @@
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #30d158; flex-shrink: 0; }
 
 
+  /* a slow-drifting wall of idea titles — the feed itself as wallpaper */
+  .hero { position: relative; isolation: isolate; overflow: hidden; }
+  .hero-copy, .hero-shot { position: relative; z-index: 2; }
+  .hero-wall {
+    position: absolute; top: -8%; bottom: -8%; left: 50%; width: 100vw; transform: translateX(-50%); z-index: 0;
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px;
+    opacity: 0.5; pointer-events: none; user-select: none;
+  }
+  .wall-col { display: flex; min-width: 0; flex-direction: column; gap: 10px; }
+  .wall-col span {
+    display: block; padding: 0.55rem 0.75rem; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.85rem; color: var(--text2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .wall-col.up   { animation: wall-up   var(--dur) linear infinite; }
+  .wall-col.down { animation: wall-down var(--dur) linear infinite; }
+  @keyframes wall-up   { from { transform: translateY(0); }    to { transform: translateY(-50%); } }
+  @keyframes wall-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .wall-col { animation: none; } }
+  /* scrim: keeps the headline readable over the wall, in either theme */
+  .hero::after {
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      radial-gradient(ellipse 65% 70% at 40% 45%, var(--bg) 25%, transparent 80%),
+      linear-gradient(var(--bg), transparent 25%, transparent 70%, var(--bg) 98%),
+      color-mix(in srgb, var(--bg) 45%, transparent);
+  }
+
   section { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
   .section-head { max-width: 480px; margin: 0 auto 3rem; text-align: center; }
   .section-head h2 { font-size: 2rem; }
@@ -135,6 +163,7 @@
 </header>
 
 <div class="hero">
+  <div class="hero-wall" id="heroWall" aria-hidden="true"></div>
   <div class="hero-copy">
     <div class="eyebrow">Idea forum</div>
     <h1>Where ideas become reality</h1>
@@ -280,5 +309,47 @@
     </div>
   </div>
 </footer>
+<script>
+// Wallpaper of sample idea titles, drifting like the feed is still filling up.
+(function () {
+  var lines = [
+    'A grocery app that only shows what is on sale', 'Rent your tools to your street',
+    'Podcast player that skips the ad reads', 'Split a taxi with whoever is going your way',
+    'Notebook that files itself', 'A map of every public piano',
+    'Price history on every listing', 'Compost pickup as a subscription',
+    'Library card that works in every city', 'Reminders that read your inbox',
+    'Ferry timetables that actually update', 'A bank account for a two-person business',
+    'Trade shifts without asking a manager', 'Find a doctor taking new patients',
+    'A gym that bills by the minute', 'Translate a lease into plain English',
+    'Second-hand furniture, delivered', 'A wiki for your apartment building',
+    'Track a bill through parliament', 'Meal plan from what is already in the fridge',
+    'Repair guides for the thing you own', 'A quiet-hours map of the city',
+    'Rate a landlord before you sign', 'Pool a car between four neighbours',
+    'A receipt scanner for a whole household', 'Learn a language from the news',
+    'Bike routes ranked by how safe they feel', 'A price alert for rent',
+    'Sell a domain the day it expires', 'One inbox for every delivery'
+  ];
+  for (var i = lines.length - 1; i > 0; i--) {  // shuffle so the wall differs each visit
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = lines[i]; lines[i] = lines[j]; lines[j] = t;
+  }
+  var wall = document.getElementById('heroWall');
+  if (!wall) return;
+  var cols = Math.max(3, Math.min(7, Math.ceil(window.innerWidth / 220)));
+  var per = Math.max(4, Math.floor(lines.length / cols));
+  for (var c = 0; c < cols; c++) {
+    var col = document.createElement('div');
+    col.className = 'wall-col ' + (c % 2 ? 'down' : 'up');
+    col.style.setProperty('--dur', (70 + c * 11) + 's');
+    var slice = lines.slice(c * per, (c + 1) * per);
+    slice.concat(slice).forEach(function (text) {  // doubled, so the loop is seamless
+      var el = document.createElement('span');
+      el.textContent = text;
+      col.appendChild(el);
+    });
+    wall.appendChild(col);
+  }
+})();
+</script>
 </body>
 </html>
