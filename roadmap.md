@@ -1,5 +1,20 @@
 # Sparkjar Roadmap
 
+## macOS detail pane renders no body text — found 2026-08-31
+
+Visible in `screenshots/macos/01-feed.png`: selecting an idea shows its category,
+the AI Enhanced badge, title, author, then a divider and the vote/Export row with
+**nothing in between**. The post body and the spec/plan the badge is advertising
+never render. The web app shows all of it for the same post, so the data is there
+and this is a `Views/PostDetailView.swift` problem, not an API one. Likely the
+detail fetch or the enrichment section, not the row layout.
+
+- [ ] Fix, then retake the screenshot — it is currently on the landing page and in
+      the README showing an empty pane.
+- [ ] Also: `osascript` cannot resize the window (a 1400x900 set silently no-ops),
+      so the capture is portrait 932x1050. Worth a landscape retake once resizable.
+
+
 ## Email — wired end to end 2026-08-31, waiting on Resend's verification
 
 Root cause of "email has never worked" was not only the dead key: the sending domain
