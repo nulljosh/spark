@@ -1,5 +1,38 @@
 # Sparkjar Roadmap
 
+## Email — wired end to end 2026-08-31, waiting on Resend's verification
+
+Root cause of "email has never worked" was not only the dead key: the sending domain
+`sparkjar.heyitsmejosh.com` had **never been added to Resend at all**. Only
+`epiphany.heyitsmejosh.com` was. A new key alone would still have 403'd.
+
+Done today: new key `sparkjar-2026-08` minted (the old `sparkjar` key returns
+`API key is invalid`), domain added, and all three DNS records created in Cloudflare via
+the API — DKIM TXT `resend._domainkey.sparkjar`, SPF MX and TXT on `send.sparkjar`. All
+three resolve publicly (`dig @1.1.1.1`). `RESEND_API_KEY` and `MAIL_FROM` are set on the
+Pages project.
+
+- [ ] **Waiting only on Resend to finish verifying.** Status is still `pending` and a test
+      send 403s with "domain is not verified". Nothing is misconfigured; their check is
+      async. When it flips, password reset works with no code change. Re-check:
+      `curl -s https://api.resend.com/domains/2bb5ba50-a35c-4539-89a4-01b2f9d88d01 -H "Authorization: Bearer $RESEND_API_KEY"`
+      then send a test to confirm.
+
+## Cloudflare Email Sending is NOT available on this account — checked 2026-08-31
+
+Do not re-litigate this. The all-Cloudflare instinct is right and `api/_lib/mail.js` already
+prefers a `globalThis.__env.EMAIL` binding over Resend when one exists. It cannot be used yet:
+
+1. `wrangler email sending list` returns **2036 Unauthorized even with `email_sending:write`
+   in the OAuth scopes** (re-checked after a fresh `wrangler login`). It is gated beta and
+   this account is not enabled for it. The destination does not exist.
+2. Separately, a **Pages config rejects a `[[send_email]]` binding** at deploy validation,
+   so even once the account is enabled, the Pages projects (sparkjar, curvely, charwork,
+   healstack) each need moving to a Worker with `[assets]` first. Projects already on
+   Worker+assets (epiphany, numen, sidewise, talli) could take the binding with no migration
+   — epiphany is the one to start with, since it is the only other Resend user.
+
+
 ## Open 2026-08-31 — feed self-sustaining, Resend dead, App Privacy staged for 2FA
 
 **Status snapshot:** macOS 1.0.1 READY_FOR_SALE (live); iOS 1.0 REJECTED 4.3(a) (can only appeal, never resubmit). **Ship blockers remaining:**
