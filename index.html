@@ -76,21 +76,20 @@
   .theme-btn { background: var(--subtle); color: var(--text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: var(--radius-pill); cursor: pointer; font-size: 0.9375rem; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: var(--font); transition: opacity 0.2s var(--ease); }
   .theme-btn:hover { opacity: 0.7; }
 
-  .hero { max-width: 1080px; margin: 0 auto; padding: 5rem 1.5rem 4rem; display: grid; gap: 3rem; align-items: center; }
-  @media (min-width: 900px) { .hero { grid-template-columns: 1fr 0.85fr; } }
-  .hero-shot { justify-self: center; }
-  .hero-shot img { max-width: min(100%, 300px); height: auto; border-radius: 16px; border: 1px solid var(--border); animation: fadeUp 0.9s var(--ease) both; }
-  .hero-copy { animation: fadeUp 0.8s var(--ease) both; max-width: 560px; }
+  .hero { max-width: 1080px; margin: 0 auto; padding: 6rem 1.5rem 5rem; text-align: center; }
+  .hero-copy { animation: fadeUp 0.8s var(--ease) both; max-width: 640px; margin: 0 auto; }
+  .hero-actions { justify-content: center; }
+  /* the shot now sits in its own section further down, at its natural size */
+  .shot-section { text-align: center; }
+  .shot-section img { max-width: min(100%, 300px); height: auto; margin: 0 auto; border-radius: 16px; border: 1px solid var(--border); }
   .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); margin: 0 0 2rem; }
-  .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
-  .status-pill { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; border-radius: var(--radius-pill); background: var(--subtle); border: 1px solid var(--border); font-size: 0.8125rem; color: var(--text2); }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #30d158; flex-shrink: 0; }
+  .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
 
   /* a slow-drifting wall of idea titles — the feed itself as wallpaper */
   .hero { position: relative; isolation: isolate; overflow: hidden; }
-  .hero-copy, .hero-shot { position: relative; z-index: 2; }
+  .hero-copy { position: relative; z-index: 2; }
   .hero-wall {
     position: absolute; top: -8%; bottom: -8%; left: 50%; width: 100vw; transform: translateX(-50%); z-index: 0;
     display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px;
@@ -173,17 +172,6 @@
       <a href="/app.html" class="btn btn-secondary">Sign up free</a>
       <a href="https://apps.apple.com/app/id6785162492" class="btn btn-secondary" target="_blank" rel="noopener">Mac App Store</a>
     </div>
-    <div class="status-pill"><span class="status-dot"></span> A new idea every morning at 9</div>
-  </div>
-  <div class="hero-shot">
-    <!-- src is the dark shot because dark is the default theme; theme.js swaps
-         it to the light capture the moment the toggle flips, so the phone in
-         the hero is never showing the theme the page isn't in. -->
-    <img src="/screenshots/spark-feed-dark.png"
-         data-shot-dark="/screenshots/spark-feed-dark.png"
-         data-shot-light="/screenshots/spark-feed-light.png"
-         alt="The Sparkjar idea feed" width="390" height="844"
-         onerror="this.closest('.hero-shot').style.display='none'">
   </div>
 </div>
 
@@ -214,6 +202,21 @@
       <div class="card-desc">Tech, design, business, or random — sort by new, top, or trending.</div>
     </div>
   </div>
+</section>
+
+<section class="shot-section">
+  <div class="section-head">
+    <div class="eyebrow">On your phone</div>
+    <h2>The whole feed in your pocket</h2>
+  </div>
+  <!-- src is the dark shot because dark is the default theme; theme.js swaps
+       it to the light capture the moment the toggle flips, so the phone is
+       never showing the theme the page isn't in. -->
+  <img src="/screenshots/spark-feed-dark.png"
+       data-shot-dark="/screenshots/spark-feed-dark.png"
+       data-shot-light="/screenshots/spark-feed-light.png"
+       alt="The Sparkjar idea feed" width="390" height="844" loading="lazy"
+       onerror="this.closest('.shot-section').style.display='none'">
 </section>
 
 <section id="how">
