@@ -50,6 +50,10 @@ struct ContentView: View {
                 }
             }
             .animation(.spring(duration: 0.3), value: appState.errorBanner != nil)
+            // The detail column had no minimum, so it was the pane that gave way
+            // when space ran short -- the sidebar kept its 160 and the content
+            // disappeared entirely.
+            .frame(minWidth: 640, minHeight: 480)
         }
         .sheet(isPresented: $appState.showAuth) {
             AuthSheet()

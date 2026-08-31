@@ -138,6 +138,16 @@ struct FeedView: View {
                             .tag(post)
                     }
                     .listStyle(.inset(alternatesRowBackgrounds: true))
+                    // Open on the top idea rather than an empty pane. Every Mac
+                    // split-view app does this, and a third of the window reading
+                    // "Select a post" is a poor first impression. Only fills an
+                    // empty selection, so it never fights the user's own choice.
+                    .onChange(of: filteredPosts) { _, posts in
+                        if selectedPost == nil { selectedPost = posts.first }
+                    }
+                    .onAppear {
+                        if selectedPost == nil { selectedPost = filteredPosts.first }
+                    }
                 }
             }
             .frame(minWidth: 280, idealWidth: 340, maxWidth: 500)
@@ -154,7 +164,7 @@ struct FeedView: View {
             }
             .frame(minWidth: 320, maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationTitle("Spark")
+        .navigationTitle("Sparkjar")
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button {

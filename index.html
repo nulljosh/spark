@@ -81,7 +81,10 @@
   .hero-actions { justify-content: center; }
   /* the shot now sits in its own section further down, at its natural size */
   .shot-section { text-align: center; }
-  .shot-section img { max-width: min(100%, 300px); height: auto; margin: 0 auto; border-radius: 16px; border: 1px solid var(--border); }
+  .shot-section img { height: auto; border-radius: 16px; border: 1px solid var(--border); }
+  .shot-grid { display: flex; gap: 2rem; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+  .shot-grid img { max-width: min(100%, 260px); }
+  .shot-grid .shot-mac { max-width: min(100%, 460px); }
   .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); margin: 0 0 2rem; }
   .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
@@ -206,9 +209,10 @@
 
 <section class="shot-section">
   <div class="section-head">
-    <div class="eyebrow">On your phone</div>
-    <h2>The whole feed in your pocket</h2>
+    <div class="eyebrow">Native apps</div>
+    <h2>On your Mac and in your pocket</h2>
   </div>
+  <div class="shot-grid">
   <!-- src is the dark shot because dark is the default theme; theme.js swaps
        it to the light capture the moment the toggle flips, so the phone is
        never showing the theme the page isn't in. -->
@@ -216,7 +220,12 @@
        data-shot-dark="/screenshots/spark-feed-dark.png"
        data-shot-light="/screenshots/spark-feed-light.png"
        alt="The Sparkjar idea feed" width="390" height="844" loading="lazy"
-       onerror="this.closest('.shot-section').style.display='none'">
+       onerror="this.style.display='none'">
+  <img src="/screenshots/macos/01-feed.png"
+       alt="Sparkjar on macOS: the idea feed with a selected idea and its AI-written spec"
+       width="932" height="1050" loading="lazy" class="shot-mac"
+       onerror="this.style.display='none'">
+  </div>
 </section>
 
 <section id="how">

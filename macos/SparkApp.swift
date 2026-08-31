@@ -15,6 +15,11 @@ struct SparkApp: App {
         }
         .windowStyle(.titleBar)
         .defaultSize(width: 900, height: 650)
+        // Without this the window ignores the content's minWidth entirely and can be
+        // dragged (or restored from saved state) narrower than the split view needs,
+        // at which point the detail pane collapses and the app opens as a bare
+        // sidebar. .frame(minWidth:) alone does not constrain an AppKit window.
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .newItem) {
                 Button("New Post") {

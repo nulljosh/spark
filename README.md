@@ -17,7 +17,8 @@ Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Nati
 | macOS | 1.0.1 | [Live on the Mac App Store](https://apps.apple.com/app/id6785162492) |
 | watchOS | v1.0.0 | Bundled with iOS |
 
-<img src="screenshots/ios/01-feed.jpg" width="280">
+<img src="screenshots/ios/01-feed.jpg" width="240">
+<img src="screenshots/macos/01-feed.png" width="420">
 
 ## Features
 
