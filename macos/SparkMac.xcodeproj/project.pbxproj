@@ -21,7 +21,6 @@
 		86553DE58DA1C923CA046484 /* IdeaBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7607D9C6B83DA99FB98BAF1F /* IdeaBaseView.swift */; };
 		86B6CBE189273AADF0799B75 /* SparkWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817F152BF8E3CCFFF20B488D /* SparkWidgets.swift */; };
 		93CFC2CA5A48F73AC163DE1F /* SparkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B03AAD58279D1840F5F6B /* SparkApp.swift */; };
-		9AA0B57A182DCB5D85941ADC /* spark-mac-1.png in Resources */ = {isa = PBXBuildFile; fileRef = 7A330D8D0F0E72E73FD73D9D /* spark-mac-1.png */; };
 		AC9EF4E1D5ABBC6EA9E00F44 /* StatsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F253D2425067A1CB6EA57BB /* StatsWidget.swift */; };
 		B2653A3427DFA660B989EDAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416DA034C28B85A111885B06 /* ContentView.swift */; };
 		BA4A94E242691791828F32D1 /* NewPostsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B9A75B8AC3EAC68A41357A /* NewPostsProvider.swift */; };
@@ -72,7 +71,6 @@
 		5BBFA647BDAE933A94716A26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		5E36A7401B40D022F780B2BA /* SparkMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SparkMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7607D9C6B83DA99FB98BAF1F /* IdeaBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdeaBaseView.swift; sourceTree = "<group>"; };
-		7A330D8D0F0E72E73FD73D9D /* spark-mac-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "spark-mac-1.png"; sourceTree = "<group>"; };
 		7A3E3C9B418549FE7881B8C4 /* PostDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailView.swift; sourceTree = "<group>"; };
 		817F152BF8E3CCFFF20B488D /* SparkWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkWidgets.swift; sourceTree = "<group>"; };
 		87E81CD2105DD2FB9C65A370 /* AuthSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSheet.swift; sourceTree = "<group>"; };
@@ -121,19 +119,10 @@
 				D50811BE7CEB69E2F5A27385 /* API */,
 				9F1C402D1E7F418779325D5A /* macos */,
 				B01504BA707FBD0ECB844144 /* Models */,
-				4134AA9BD1C0031178C9B0E4 /* screenshots */,
 				616835C07406D803A5749B78 /* Views */,
 				00B5FC30055E605FF3C83C4C /* widgets-macos */,
 				91B929E12F76D18CEC4261EA /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		4134AA9BD1C0031178C9B0E4 /* screenshots */ = {
-			isa = PBXGroup;
-			children = (
-				7A330D8D0F0E72E73FD73D9D /* spark-mac-1.png */,
-			);
-			path = screenshots;
 			sourceTree = "<group>";
 		};
 		4B416628A6A4A0EA909FA2EA /* Models */ = {
@@ -177,7 +166,6 @@
 				8C6C3EC0391FB0ABA3C19D8E /* SparkWidgets.entitlements */,
 				D50811BE7CEB69E2F5A27385 /* API */,
 				B01504BA707FBD0ECB844144 /* Models */,
-				4134AA9BD1C0031178C9B0E4 /* screenshots */,
 				616835C07406D803A5749B78 /* Views */,
 			);
 			name = macos;
@@ -298,7 +286,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				53CC98910CFEEFE2DCBC89D0 /* Assets.xcassets in Resources */,
-				9AA0B57A182DCB5D85941ADC /* spark-mac-1.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

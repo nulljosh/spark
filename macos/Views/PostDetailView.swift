@@ -4,8 +4,15 @@ struct PostDetailView: View {
     @Environment(AppState.self) private var appState
     let post: Post
 
+    /// Filled by `loadFull`. The feed list carries no content or enrichment, so
+    /// until this arrives the view can only show what the row already had.
+    @State private var fullPost: Post?
+
     private var currentPost: Post {
-        appState.posts.first(where: { $0.id == post.id }) ?? post
+        // Prefer the fully-loaded copy; the appState entry is a list row and
+        // would otherwise mask the body with its own empty fields.
+        if let full = fullPost, full.id == post.id { return full }
+        return appState.posts.first(where: { $0.id == post.id }) ?? post
     }
 
     var body: some View {
@@ -134,6 +141,12 @@ struct PostDetailView: View {
                 }
             }
             .padding(24)
+        }
+        // Keyed on the id so selecting a different idea reloads rather than
+        // leaving the previous post's body on screen.
+        .task(id: post.id) {
+            fullPost = nil
+            fullPost = try? await appState.api.fetchPost(id: post.id)
         }
     }
 

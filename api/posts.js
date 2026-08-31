@@ -192,6 +192,22 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // Single post. The feed list deliberately omits content and the enrichment
+  // columns to keep it small, so without this every client that opens a post
+  // has nowhere to read its body from -- which is exactly how the macOS detail
+  // pane ended up rendering a title and nothing else.
+  if (id && req.method === 'GET') {
+    try {
+      const rows = await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}&select=*`);
+      const row = Array.isArray(rows) ? rows[0] : null;
+      if (!row) return res.status(404).json({ error: 'Post not found' });
+      return res.status(200).json({ post: rowToPost(row) });
+    } catch (err) {
+      console.error('[POSTS] Fetch one failed:', err.message);
+      return res.status(500).json({ error: 'Failed to fetch post' });
+    }
+  }
+
   if (req.method === 'GET') {
     try {
       const limit = Number.parseInt(req.query && req.query.limit, 10);

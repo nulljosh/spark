@@ -25,6 +25,7 @@ protocol SparkAPIProtocol: Sendable {
     func register(username: String, email: String?, password: String) async throws -> AuthResponse
     func deleteAccount() async throws
     func fetchPosts() async throws -> [Post]
+    func fetchPost(id: String) async throws -> Post
     func createPost(title: String, content: String, category: String, linkedRepo: String?) async throws -> Post
     func vote(postId: String, type: String) async throws
     func deletePost(id: String) async throws
@@ -162,6 +163,15 @@ final class SparkAPI: SparkAPIProtocol, Sendable {
         let req = try request("/api/posts")
         let result: PostsResponse = try await perform(req)
         return result.posts
+    }
+
+    /// The feed list omits content and the enrichment columns to stay small, so a
+    /// post opened from it has no body until this fills it in.
+    func fetchPost(id: String) async throws -> Post {
+        let req = try request("/api/posts/\(id)")
+        struct Resp: Decodable { let post: Post }
+        let result: Resp = try await perform(req)
+        return result.post
     }
 
     func createPost(title: String, content: String, category: String, linkedRepo: String? = nil) async throws -> Post {
