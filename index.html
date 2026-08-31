@@ -148,7 +148,15 @@
     .steps { grid-template-columns: 1fr; }
   }
 </style>
-</head>
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Sparkjar">
+    <meta property="og:title" content="Sparkjar — Where ideas become reality">
+    <meta property="og:description" content="A feed of AI-generated startup and project ideas, voted and enriched by the crowd. Vote, comment, and turn the best ones into something real.">
+    <meta property="og:url" content="https://sparkjar.heyitsmejosh.com/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sparkjar — Where ideas become reality">
+    <meta name="twitter:description" content="A feed of AI-generated startup and project ideas, voted and enriched by the crowd. Vote, comment, and turn the best ones into something real.">
+  </head>
 <body>
 <header>
   <div class="header-inner">
@@ -361,6 +369,27 @@
     });
     wall.appendChild(col);
   }
+})();
+</script>
+
+<!-- share -->
+<style>
+#share-btn{position:fixed;right:16px;bottom:16px;z-index:9999;border:1px solid rgba(128,128,128,.35);
+background:Canvas;color:CanvasText;font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;
+cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#share-btn:hover{border-color:rgba(128,128,128,.6)}
+@media print{#share-btn{display:none}}
+</style>
+<button id="share-btn" type="button">Share</button>
+<script>
+(function(){
+  var b=document.getElementById('share-btn');
+  b.addEventListener('click',function(){
+    var d={title:document.title,text:(document.querySelector('meta[name=description]')||{}).content||'',url:location.href};
+    if(navigator.share)navigator.share(d).catch(function(){});
+    else if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(function(){
+      b.textContent='Link copied';setTimeout(function(){b.textContent='Share'},1600);});
+  });
 })();
 </script>
 </body>
