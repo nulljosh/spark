@@ -25,6 +25,7 @@
             --text3: #a1a1aa;
             --border: #d4d4d8;
             --accent: #3B82F6;
+  --link: #316ccc;
         }
 
         :root[data-theme="dark"] {
@@ -56,7 +57,7 @@
         }
         
         .header h1 { font-size: 28px; }
-        .header a { color: var(--accent); text-decoration: none; font-size: 14px; }
+        .header a { color: var(--link, var(--accent)); text-decoration: none; font-size: 14px; }
         .header a:hover { text-decoration: underline; }
         
         .profile {
@@ -129,7 +130,7 @@
             flex-direction: column;
         }
         
-        .stat-value { font-size: 24px; font-weight: 600; color: var(--accent); }
+        .stat-value { font-size: 24px; font-weight: 600; color: var(--link, var(--accent)); }
         .stat-label { font-size: 12px; color: var(--text3); text-transform: uppercase; }
         
         .posts-title {
@@ -151,7 +152,7 @@
         
         .post:hover {
             background: var(--bg3);
-            border-color: var(--accent);
+            border-color: var(--link, var(--accent));
         }
         
         .post-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text1); }
@@ -177,7 +178,7 @@
         
         .post-score {
             font-weight: 600;
-            color: var(--accent);
+            color: var(--link, var(--accent));
         }
         
         .empty { text-align: center; color: var(--text3); padding: 40px 20px; }

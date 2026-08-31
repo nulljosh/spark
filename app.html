@@ -23,6 +23,7 @@
            theme used to lose the fill on .btn and the avatar circle. */
         :root[data-theme="dark"] {
             --bg: #111111;
+    --link: #3B82F6;
             --text: #e8e8f0;
             --surface: #1a1a1a;
             --surface2: #242424;
@@ -231,7 +232,7 @@
         }
         .filter-btn:hover, .sort-btn:hover {
             background: var(--surface2);
-            border-color: var(--accent);
+            border-color: var(--link, var(--accent));
         }
         .filter-btn.active, .sort-btn.active {
             background: rgba(59, 130, 246, 0.8);
@@ -362,7 +363,7 @@
             <h2 style="margin-bottom:20px">New Idea</h2>
             <div id="proBanner" style="display:none;font-size:13px;color:var(--text-secondary);margin-bottom:14px;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
                 Free posts are rate-limited and don't get priority visibility.
-                <a href="#" onclick="unlockPro();return false" style="color:var(--accent)">Unlock Pro &mdash; $1</a> for unlimited posts + 24h pinned visibility.
+                <a href="#" onclick="unlockPro();return false" style="color: var(--link, var(--accent))">Unlock Pro &mdash; $1</a> for unlimited posts + 24h pinned visibility.
             </div>
             <div id="ideaError" class="error"></div>
             <input type="text" id="title" placeholder="Title">
@@ -450,7 +451,7 @@
                     navDiv.style.cssText = 'display:flex;gap:10px;align-items:center';
                     const profileLink = document.createElement('a');
                     profileLink.href = `/user/${user.username}`;
-                    profileLink.style.cssText = 'display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);font-size:14px';
+                    profileLink.style.cssText = 'display:flex;align-items:center;gap:6px;text-decoration:none;color: var(--link, var(--accent));font-size:14px';
                     if (user.avatarUrl) {
                         const img = document.createElement('img');
                         img.src = user.avatarUrl;
