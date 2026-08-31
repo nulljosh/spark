@@ -47,9 +47,13 @@ prefers a `globalThis.__env.EMAIL` binding over Resend when one exists. It canno
    Worker+assets (epiphany, numen, sidewise, talli) could take the binding with no migration
    — epiphany is the one to start with, since it is the only other Resend user.
 
-## Done 2026-08-31 — feed UI polish and copy cleanup
+## Done 2026-08-31 — feed UI polish, landing restructure, macOS window fixes
 
-After the feed revival, added product polish: feed now displays one idea at a time in a single flex column (680px max reading width) instead of an auto-fill grid, paired with the existing infinite-scroll implementation (20 posts per batch via IntersectionObserver). Added logo mark (`/icon.svg`, sized in em) next to the wordmark in the app header to match the landing page. Cleared two stale daemon-policy strings from app.html that promised "ideas within five minutes" — there is no daemon, only a 09:00 cron Worker. README updated. Tests 66 passing, deployed to Cloudflare Pages.
+After the feed revival, added product polish across web and native. Web feed now displays one idea at a time in a single flex column (680px max reading width) instead of an auto-fill grid, paired with the existing infinite-scroll implementation (20 posts per batch via IntersectionObserver). Added logo mark (`/icon.svg`, sized in em) next to the wordmark in the app header to match the landing page. Cleared two stale daemon-policy strings from app.html that promised "ideas within five minutes" — there is no daemon, only a 09:00 cron Worker.
+
+Landing page restructured: hero is now copy and buttons over the drifting idea wall in a centred single column (removed the "A new idea every morning at 9" badge, which read as filler). Phone screenshot moved from hero into its own dedicated section between features and how-it-works. Fresh macOS screenshot captured showing the running app with live feed and AI Enhanced badge, replacing a five-month-stale one; now displayed on landing page and README alongside the iPhone shot.
+
+macOS app: fixed three window layout bugs — added `.windowResizability(.contentMinSize)` so window won't restore narrower than content needs, gave detail column its own minimum width so it doesn't vanish when space runs short, and auto-selects the top idea on open instead of showing an empty "Select a post" pane. Navigation title changed from "Spark" to "Sparkjar" everywhere. One new bug found: detail pane renders no body text (PostDetailView.swift issue). Tests 66 passing, deployed to Cloudflare Pages and macOS.
 
 ## Open 2026-08-31 — feed self-sustaining, email waiting on Resend, App Privacy published
 
@@ -65,7 +69,10 @@ After the feed revival, added product polish: feed now displays one idea at a ti
 
 5. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). iPad screenshots missing (app is universal; Apple requires them). No Snapfile/Fastfile wired up.
 
+6. **macOS detail pane renders no body text** — selecting an idea shows category, AI Enhanced badge, title, author, then a divider and the vote/Export row with the entire body missing between them. Web app shows the full body and spec for the same post, so the bug is in `Views/PostDetailView.swift`, not the API. Matters because the screenshot now on the landing page and README shows this empty pane. The other four window bugs (contentMinSize, navigation title rename to "Sparkjar", auto-select top idea on open) are fixed.
+
 - [ ] Screenshot iPad with appstore-screenshots skill.
+- [ ] Fix PostDetailView.swift to display body text on macOS.
 - [ ] Resubmit iOS when/if the 4.3(a) appeal is denied. macOS 1.0.1 ships as-is.
 
 ## Done 2026-08-27 — iOS 1.0 rejected (4.3a Spam), appeal DRAFTED not yet filed
