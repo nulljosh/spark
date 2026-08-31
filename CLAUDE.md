@@ -46,7 +46,7 @@ Local checkout and GitHub repo both went missing before this date (cause unconfi
 ```bash
 npx serve .
 npm test
-node daemon/spark-daemon.js --once   # test daemon manually
+npx wrangler deploy --config worker/wrangler.jsonc   # deploy the cron worker
 ```
 
 ## Layout
@@ -74,38 +74,32 @@ npm i --no-save playwright && node scripts/screenshots.mjs
 - index.html (marketing landing page: HTML + CSS + JS)
 - theme.js (shared light/dark control for every page -- see Theme below)
 - api/posts.js (GET/POST posts, seed data fallback)
-- api/enrich.js (POST=user requests enrichment, GET=daemon poll, PATCH=daemon writes)
-- api/idea-base.js (POST=create ideabase, GET=list, PATCH=daemon updates post_ids)
-- api/notes.js (GET=export post as markdown download)
+- api/ai.js (?type=generate|enrich|idea-base|notes|rfs -- all the AI paths, server-side)
 - api/_lib/supabase.js (Supabase REST wrapper)
-- daemon/spark-daemon.js (local Mac daemon: polls, runs CLAUDECODE="" claude --print, patches back)
-- daemon/prompts.js (Claude prompt templates for enrichment + ideabase)
-- daemon/notes.js (markdown export/import helpers)
+- worker/worker.js (cron trigger only -- calls the API above, holds no logic)
 - sw.js
 
-## Daemon
+## Content engine
 
-- Runs every 5 min via LaunchAgent: `~/Library/LaunchAgents/com.spark.daemon.plist`
-- Invokes: `CLAUDECODE="" claude --print "..."` (no API key -- uses Claude Max)
-- Secret: `SPARK_DAEMON_SECRET` env var (set in Vercel + `~/.spark/daemon.env`)
-- Logs: `~/.spark/daemon.log`
-- Symlink: `~/.local/bin/spark-daemon -> daemon/spark-daemon.js`
+The feed generates and enriches itself server-side. There is no local daemon and no
+API key -- `callGemma` in `api/ai.js` runs Cloudflare Workers AI through the `AI`
+binding, the same way nimble does.
 
-## Load LaunchAgent
+- `POST /api/ai?type=generate` writes one idea to Supabase as author `gemma`.
+- `POST /api/ai?type=enrich` with `{id}` fills its spec + build plan.
+- Both accept `Authorization: Bearer $SPARK_DAEMON_SECRET`; enrich also accepts a
+  signed-in user token.
 
-```bash
-launchctl load ~/Library/LaunchAgents/com.spark.daemon.plist
-launchctl list | grep spark
-tail -f ~/.spark/daemon.log
-```
+Cloudflare Pages cannot hold a cron trigger, so the daily 09:00 schedule lives in a
+sidecar Worker (`worker/`) that does nothing but call those two endpoints. Deploy it
+with `npx wrangler deploy --config worker/wrangler.jsonc`, and set its secret with
+`npx wrangler secret put SPARK_DAEMON_SECRET --config worker/wrangler.jsonc` -- the
+value must match the one on the Pages project.
 
-## Set Vercel Env
+To fire it by hand, POST `/` on the worker with the same bearer.
 
-```bash
-vercel env add SPARK_DAEMON_SECRET
-# value: generate with `openssl rand -hex 32` -- never commit it.
-# Must match the value in ~/.spark/daemon.env (used by the local daemon).
-```
+Backlog: `SPARK_DAEMON_SECRET=... bash scripts/backfill-enrich.sh` enriches every
+post that has no spec yet. One-off, not scheduled.
 
 ## Native Companions
 

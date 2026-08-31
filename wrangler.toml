@@ -25,3 +25,6 @@ APPLE_CLIENT_ID = "com.heyitsmejosh.spark"
 #           GEMMA_KEY, SPARK_DAEMON_SECRET
 # APPLE_CLIENT_ID is NOT optional while the apps ship a Sign in with Apple button;
 # it lives in [vars] above.
+
+[ai]
+binding = "AI"

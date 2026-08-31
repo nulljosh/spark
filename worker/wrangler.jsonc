@@ -1,0 +1,8 @@
+{
+  "name": "sparkjar-cron",
+  "main": "worker.js",
+  "compatibility_date": "2025-07-01",
+  // Pages Functions have no cron. This is the only reason this Worker exists:
+  // it holds the schedule vercel.json used to hold and calls the live API.
+  "triggers": { "crons": ["0 9 * * *"] }
+}

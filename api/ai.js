@@ -6,25 +6,39 @@ const { getIp, checkRateLimit } = require('./_lib/ratelimit');
 
 // --- gemma ---
 
-const GEMMA_MODEL = 'gemma-4-31b-it';
+// Cloudflare Workers AI -- no API key to obtain, rotate, or silently expire.
+// Model + /no_think + the response-read chain are all lifted from
+// nimble/worker/worker.js, which is the known-good shape on this account.
+const GEMMA_MODEL = '@cf/qwen/qwen3-30b-a3b-fp8';
 
-async function callGemma(prompt, maxTokens = 800) {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMMA_MODEL}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMMA_KEY },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: maxTokens }
-      })
-    }
-  );
-  if (!r.ok) throw new Error('Gemma upstream ' + r.status);
-  const data = await r.json();
-  const parts = (data.candidates && data.candidates[0]?.content?.parts) || [];
-  // Gemma 4 emits reasoning parts flagged thought:true; the answer is the non-thought text.
-  return parts.filter(p => !p.thought).map(p => p.text).join('').trim();
+async function callGemma(prompt, maxTokens = 1200) {
+  const ai = globalThis.__env && globalThis.__env.AI;
+  if (!ai) throw new Error('AI binding unavailable');
+  // Without /no_think the model spends its whole budget on a reasoning trace and
+  // returns empty content -- which is exactly how this failed the first time.
+  const out = await ai.run(GEMMA_MODEL, {
+    messages: [{ role: 'user', content: prompt + ' /no_think' }],
+    temperature: 0.9,
+    max_tokens: maxTokens
+  });
+  const msg = out && out.choices && out.choices[0] && out.choices[0].message;
+  const raw = (out && out.response) || (msg && msg.content) || (msg && msg.reasoning) || '';
+  // Workers AI sometimes hands back an already-parsed object rather than text.
+  // Re-serialise it so callers keep their one contract: this returns a string.
+  const text = typeof raw === 'string' ? raw : JSON.stringify(raw);
+  return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+}
+
+// Models wrap JSON in prose or fences however they feel that day. Strip fences,
+// then fall back to the first {...} in the text -- same tolerance the old daemon
+// needed for its arrays. Returns null rather than throwing.
+function parseJsonish(text) {
+  const clean = String(text || '').replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  try { return JSON.parse(clean); } catch { /* fall through */ }
+  const start = clean.indexOf('{');
+  const end = clean.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  try { return JSON.parse(clean.slice(start, end + 1)); } catch { return null; }
 }
 
 // --- generate (cron: post one AI idea) ---
@@ -49,13 +63,11 @@ async function handleGenerate(req, res) {
     `Reply with ONLY valid JSON, no markdown fences: {"title": "...", "content": "2-3 sentence description"}`
   );
 
-  let idea;
-  try {
-    idea = JSON.parse(text.replace(/^```json?\s*|```\s*$/g, ''));
-  } catch {
-    return res.status(502).json({ error: 'Gemma returned unparseable idea', raw: text.slice(0, 200) });
-  }
-  if (!idea.title || !idea.content) return res.status(502).json({ error: 'Incomplete idea' });
+  // 422, not 502: Cloudflare's edge swallows a 5xx body and serves its own
+  // error page, which hid this failure entirely the first time it happened.
+  const idea = parseJsonish(text);
+  if (!idea) return res.status(422).json({ error: 'Model returned unparseable idea', raw: text.slice(0, 300) });
+  if (!idea.title || !idea.content) return res.status(422).json({ error: 'Incomplete idea', raw: text.slice(0, 300) });
 
   const rows = await supabaseRequest('posts', {
     method: 'POST',
@@ -79,10 +91,18 @@ async function handleGenerate(req, res) {
 
 async function handleEnrich(req, res) {
   if (req.method === 'POST') {
-    const user = parseToken(req.headers.authorization, req.headers.cookie);
-    if (!user) return res.status(401).json({ error: 'Authentication required' });
-    if (!checkRateLimit('enrich:' + getIp(req), 5, 60_000)) {
-      return res.status(429).json({ error: 'Too many requests' });
+    // Either a signed-in user, or the cron worker presenting the daemon secret
+    // (same bearer check handleGenerate uses). The cron path skips the per-IP
+    // limit: one scheduled call must not compete with real users' budget.
+    const auth = req.headers.authorization || '';
+    const isDaemon = !!process.env.SPARK_DAEMON_SECRET &&
+      auth === 'Bearer ' + process.env.SPARK_DAEMON_SECRET;
+    if (!isDaemon) {
+      const user = parseToken(req.headers.authorization, req.headers.cookie);
+      if (!user) return res.status(401).json({ error: 'Authentication required' });
+      if (!checkRateLimit('enrich:' + getIp(req), 5, 60_000)) {
+        return res.status(429).json({ error: 'Too many requests' });
+      }
     }
 
     let { id, spec, plan } = req.body || {};
@@ -99,15 +119,11 @@ async function handleEnrich(req, res) {
         `Reply with ONLY valid JSON, no markdown fences: {"spec": "what to build, key features, ~150 words", "plan": "step-by-step build plan, ~150 words"}`,
         1200
       );
-      let gen;
-      try {
-        gen = JSON.parse(text.replace(/^```json?\s*|```\s*$/g, ''));
-      } catch {
-        return res.status(502).json({ error: 'Gemma returned unparseable enrichment' });
-      }
+      const gen = parseJsonish(text);
+      if (!gen) return res.status(422).json({ error: 'Model returned unparseable enrichment', raw: text.slice(0, 300) });
       spec = gen.spec;
       plan = gen.plan;
-      if (!spec || !plan) return res.status(502).json({ error: 'Incomplete enrichment' });
+      if (!spec || !plan) return res.status(422).json({ error: 'Incomplete enrichment', raw: text.slice(0, 300) });
     }
 
     await supabaseRequest(`posts?id=eq.${encodeURIComponent(id)}`, {

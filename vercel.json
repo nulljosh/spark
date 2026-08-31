@@ -89,11 +89,5 @@
         }
       ]
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/ai?type=generate",
-      "schedule": "0 9 * * *"
-    }
   ]
 }

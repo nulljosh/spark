@@ -10,6 +10,10 @@
 // `process.env.X`. nodejs_compat gives us a `process` object; we merge the
 // bindings in on first request so both styles resolve to the same values.
 function syncEnv(env) {
+  // Non-string bindings (the AI binding, KV, etc.) cannot ride on process.env,
+  // so stash the whole env for the handlers that need one. api/ai.js reads
+  // globalThis.__env.AI. Same trick epiphany's worker uses via bindGlobals().
+  globalThis.__env = env;
   if (typeof process === 'undefined' || !process.env) return;
   for (const [k, v] of Object.entries(env)) {
     if (typeof v === 'string') process.env[k] = v;
