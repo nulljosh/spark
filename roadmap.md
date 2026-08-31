@@ -1,22 +1,23 @@
 # Sparkjar Roadmap
 
-## Open 2026-08-31 — production feed is stale, daemon is manual-only, landing claims are false
+## Open 2026-08-31 — feed self-sustaining, Resend dead, App Privacy staged for 2FA
 
-**Status snapshot:** macOS 1.0.1 READY_FOR_SALE (live); iOS 1.0 REJECTED 4.3(a) (can only appeal, never resubmit). **Product blockers found (ship gate not technical gate):**
+**Status snapshot:** macOS 1.0.1 READY_FOR_SALE (live); iOS 1.0 REJECTED 4.3(a) (can only appeal, never resubmit). **Ship blockers remaining:**
 
-1. **Production feed is 27 days stale.** Newest post is 2026-08-04; 0 of 48 posts are enriched. Landing page claims "New ideas generated daily" + "AI-enriched" — both false.
+1. - [x] **Production feed was 27 days stale, daemon was manual-only.** FIXED 2026-08-31. Daemon (`daemon/spark-daemon.js`) deleted entirely. Replaced with Cloudflare Workers AI backend + sidecar cron Worker. `api/ai.js` now calls `@cf/qwen/qwen3-30b-a3b-fp8` via the AI binding (no external Gemma API key). `worker/` holds the daily 09:00 trigger (bearer auth via `SPARK_DAEMON_SECRET`). Backfill script ran: feed is 50 posts, all enriched, newest authored "gemma" today. Landing claims now true. Added `tests/ai.test.mjs` (4 enrich-auth tests); suite is 63 passing.
 
-2. **Daemon is manual-only.** `daemon/spark-daemon.js` runs only when Joshua invokes it manually on his Mac via `claude --print`. No LaunchAgent, no automation. It should be a Cloudflare Cron Trigger + Workers AI running nightly, not a local macOS daemon — same pattern as other apps' background jobs.
+2. **RESEND_API_KEY is dead** (rotated 2026-05-02). Email signup verification and password reset never deliver. Key stored in Cloudflare secrets but is invalid — `GET https://api.resend.com/domains` returns `400 {"message":"API key is invalid"}`. Regenerate via resend.com/api-keys, re-add to Cloudflare secrets, re-verify domain.
 
-3. **RESEND_API_KEY is dead** (rotated 2026-05-02). Email signup verification and password reset have never delivered. Not a code issue (`api/_lib/mail.js` is wired correctly); key is invalid. `GET https://api.resend.com/domains` returns 400. Regenerate via resend.com/api-keys, re-add to Cloudflare secrets, re-verify domain is `verified`. Email still never actually delivered even after the cutover.
+3. **Stripe is unconfigured** (`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID` all missing). Pro unlock gate does not function.
 
-4. **Stripe is unconfigured** (`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID` all missing on Pages + locally). Pro unlock gate does not function.
+4. **App Privacy is staged but not yet applied.** `metadata/app-privacy.json` holds the intended declaration (email + user-generated content, linked to account, not used for tracking). Blocked on 2FA: Apple's web signin endpoint returns 503. Applies via `asc web privacy plan/apply/publish --app 6785162492` once available.
 
-5. **App Privacy declares `DATA_NOT_COLLECTED`** but the app stores email + posts + avatars linked to users. Misdeclaration is a standalone rejection risk. Expected: email + user-generated content, linked to account, not used for tracking.
+5. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). iPad screenshots missing (app is universal; Apple requires them). No Snapfile/Fastfile wired up.
 
-6. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). No Snapfile/Fastfile/SnapshotHelper wired up. iPad screenshots missing entirely (app targets both iPhone + iPad; Apple requires iPad shots for universal apps).
-
-- [ ] **NEXT SESSION:** Fix the feed staleness and enrichment first (ship gate). Move daemon to Cloudflare Cron — write a Workers script that calls `GET /api/enrich?daemon_secret=X`, watches it until the PATCH completes, then exits. Trigger nightly. Verify posts refresh + get enriched. **Then:** regenerate Resend key, retest email delivery, fix App Privacy declaration (asc web privacy plan/apply/publish), screenshot iPad, resubmit iOS if the 4.3(a) appeal is denied. macOS 1.0.1 needs no further work — it is shipping.
+- [ ] Regenerate Resend key, re-add to Cloudflare, verify domain, retest email delivery.
+- [ ] Apply App Privacy once Apple's 503 clears (needs 2FA code).
+- [ ] Screenshot iPad with appstore-screenshots skill.
+- [ ] Resubmit iOS when/if the 4.3(a) appeal is denied. macOS 1.0.1 ships as-is.
 
 ## Done 2026-08-27 — iOS 1.0 rejected (4.3a Spam), appeal DRAFTED not yet filed
 iOS 1.0 rejected 2026-08-26 under Guideline 4.3(a) Design: Spam. Apple flagged an account-level pattern — five apps submitted the same day (Sparkjar, NYC Survive, Talli, Curvely, Doorstock) all landed on the same violation. macOS 1.0.1 unaffected and remains WAITING_FOR_REVIEW. Resubmitting the same build will fail. Appeal filed 2026-08-27 via Resolution Center. Do not attempt resubmit; monitor appeal verdict only.
