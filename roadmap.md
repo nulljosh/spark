@@ -56,13 +56,13 @@ Both platforms now carry a build newer than the 2026-08-18 auth fixes and valida
 `asc validate` returns **0 errors / 0 blocking** on iOS and macOS (1 warning, 1 info each).
 App Privacy is published. Nothing is queued for review.
 
-- [ ] **App Privacy is declared `DATA_NOT_COLLECTED`, which looks wrong for this app.**
-      Verified published 2026-08-18 via `asc web privacy pull --app 6785162492`. But Sparkjar
-      has accounts, stores email addresses, user posts and avatars — that is collected data
-      linked to the user. A misdeclaration is its own rejection risk (and Apple has already
-      rejected this app once). Expected shape is closer to: email + user content, linked to
-      user, not used for tracking. Decide the correct declaration, then re-apply with
-      `asc web privacy plan/apply/publish` (apply BEFORE publish, or publish 409s).
+- [x] **App Privacy — RESOLVED, and this item was stale.** It was corrected and published
+      2026-08-18 (see that entry below); this open item was simply never checked off, so two
+      later audits re-reported it as a live blocker. Re-verified against the live declaration
+      2026-08-31 with `asc web privacy pull --app 6785162492`: `EMAIL_ADDRESS`, `USER_ID`,
+      `PHOTOS_OR_VIDEOS`, `OTHER_USER_CONTENT`, all `APP_FUNCTIONALITY` /
+      `DATA_LINKED_TO_YOU`, `published: true`. Nothing to do.
+
 - [ ] Subtitle is empty for en-US on both platforms (`metadata.required.subtitle`,
       Triaged 2026-08-27: subtitle lives on the **app-info** localization, and the editable
       app info is `2a819c45-9f49-434c-ad0b-bdc0710b590d` (WAITING_FOR_REVIEW); `a722740e-…` is the

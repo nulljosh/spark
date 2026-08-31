@@ -96,7 +96,6 @@ Screenshots ready in `screenshots/ios/` (feed, sign-in, profile, ideas). Metadat
 - [ ] Submit macOS to Mac App Store — widget embed error fixed 2026-07-01 (SparkWidgets appex was missing CFBundleIdentifier; GENERATE_INFOPLIST_FILE now on), build succeeds locally. ASC record created 2026-07-01 (Spark Mac, id 6786482755). Remaining: archive + upload (`asc-xcode-build`)
 - [ ] Add marketing landing page at `/landing` (currently feed is the homepage)
 - [ ] 1 more iOS screenshot (post detail with AI enrichment) for 5-screenshot requirement
-- [ ] App Privacy still declares DATA_NOT_COLLECTED -- see metadata/app-privacy.json
 
 **Auth & Accounts**
 - [ ] SMTP email delivery for password reset
