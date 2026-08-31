@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "Intended App Privacy declaration for ASC app 6785162492.",
+    "The live declaration is still DATA_NOT_COLLECTED, which is wrong: the app has",
+    "accounts, stores email addresses, user posts, comments and avatars, and none of",
+    "that is anonymous. A misdeclaration is its own rejection risk.",
+    "",
+    "This file is NOT applied. It cannot be, from the CLI alone: App Privacy only",
+    "goes through `asc web`, that session is expired, and Apple's SRP signin is",
+    "returning 503 as of 2026-08-31. It needs a 2FA code from Joshua's device and a",
+    "working Apple endpoint.",
+    "",
+    "When the session is back:",
+    "  asc web privacy pull  --app 6785162492   # confirm current state first",
+    "  asc web privacy plan  --app 6785162492 --file metadata/app-privacy.json",
+    "  asc web privacy apply --app 6785162492 --file metadata/app-privacy.json",
+    "  asc web privacy publish --app 6785162492",
+    "apply must come BEFORE publish or publish 409s. Run `asc web privacy catalog`",
+    "to confirm the exact token spellings below against Apple's current catalog."
+  ],
+  "dataNotCollected": false,
+  "collections": [
+    {
+      "dataType": "EMAIL_ADDRESS",
+      "why": "Account creation, sign-in, and password reset. Optional at signup.",
+      "purposes": ["APP_FUNCTIONALITY"],
+      "linkedToUser": true,
+      "usedForTracking": false
+    },
+    {
+      "dataType": "USER_ID",
+      "why": "Identifies the account that owns a post, comment or vote.",
+      "purposes": ["APP_FUNCTIONALITY"],
+      "linkedToUser": true,
+      "usedForTracking": false
+    },
+    {
+      "dataType": "OTHER_USER_CONTENT",
+      "why": "Posts, comments and generated avatars the user creates in the feed.",
+      "purposes": ["APP_FUNCTIONALITY"],
+      "linkedToUser": true,
+      "usedForTracking": false
+    }
+  ]
+}

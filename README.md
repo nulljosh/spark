@@ -25,12 +25,13 @@ Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Nati
 - JWT auth with sign up, login, biometric (Face ID / Touch ID on iOS)
 - Category filters and Hot/New sorting
 - Upvoting and trending with optimistic UI
-- LLM enrichment (SPEC + PLAN) via Claude daemon
+- A new idea every morning, generated server-side on Cloudflare Workers AI
+- Every idea enriched into a build spec and a step-by-step plan
 - Idea Bases: AI-generated idea clusters from a topic
 - Comment threads on posts, markdown export
 - Dark/light theme toggle
 - PWA with offline support
-- Vercel serverless + Supabase PostgreSQL (RLS enabled)
+- Cloudflare Pages Functions + Supabase PostgreSQL (RLS enabled)
 - Responsive grid layout (2-col desktop, 1-col mobile)
 - Post tags (tech, design, business, random) with filter bar
 - Curated seed ideas for new users
@@ -42,7 +43,21 @@ npx serve .
 npm test
 ```
 
-Deploy (manual, monorepo): `npx vercel --prod` from this directory.
+Deploy the site: `npm run deploy` (Cloudflare Pages).
+
+The feed generates and enriches itself. `POST /api/ai?type=generate` writes one idea
+to the feed; `POST /api/ai?type=enrich` fills its spec and build plan. Both run on
+Cloudflare Workers AI through the `AI` binding, so there is no API key anywhere.
+
+Pages cannot hold a cron trigger, so the daily 09:00 schedule lives in a sidecar
+Worker that does nothing but call those two endpoints:
+
+```bash
+npx wrangler deploy --config worker/wrangler.jsonc
+```
+
+To enrich posts that predate the schedule:
+`SPARK_DAEMON_SECRET=... bash scripts/backfill-enrich.sh`
 
 ## Database Setup (one-time)
 
@@ -81,20 +96,20 @@ Screenshots ready in `screenshots/ios/` (feed, sign-in, profile, ideas). Metadat
 - [ ] Submit macOS to Mac App Store — widget embed error fixed 2026-07-01 (SparkWidgets appex was missing CFBundleIdentifier; GENERATE_INFOPLIST_FILE now on), build succeeds locally. ASC record created 2026-07-01 (Spark Mac, id 6786482755). Remaining: archive + upload (`asc-xcode-build`)
 - [ ] Add marketing landing page at `/landing` (currently feed is the homepage)
 - [ ] 1 more iOS screenshot (post detail with AI enrichment) for 5-screenshot requirement
+- [ ] App Privacy still declares DATA_NOT_COLLECTED -- see metadata/app-privacy.json
 
 **Auth & Accounts**
 - [ ] SMTP email delivery for password reset
 - [ ] watchOS login UI (currently view-only without iOS pre-auth)
 
 **Features**
-- [ ] AI idea building — daemon auto-generates implementation plan/scaffold on post create
 - [ ] Real-time updates via Supabase Realtime
 - [ ] Infinite scroll / pagination (feed currently loads all posts)
 - [ ] Moderation tools
 
 **Done**
 - [x] iOS + macOS + watchOS companion apps
-- [x] AI enrichment (SPEC + PLAN via Claude daemon)
+- [x] AI enrichment (SPEC + PLAN, server-side on Workers AI)
 - [x] Idea Bases (AI topic clustering)
 - [x] Comment threads
 - [x] Seed 20+ quality ideas across all categories
