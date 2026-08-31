@@ -28,3 +28,11 @@ APPLE_CLIENT_ID = "com.heyitsmejosh.spark"
 
 [ai]
 binding = "AI"
+
+# Cloudflare Email Sending would remove the last API key from this project, but
+# a Pages config REJECTS a [[send_email]] binding outright (same wall dream hit
+# with its ratelimit binding). Adding it fails config validation at deploy.
+# api/_lib/mail.js already prefers a globalThis.__env.EMAIL binding if one ever
+# appears, so the remaining work is either attaching it in the Pages dashboard
+# or moving this project to a Worker with [assets]. Until then mail needs a live
+# RESEND_API_KEY, and password reset returns an honest 503 without one.
