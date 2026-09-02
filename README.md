@@ -15,7 +15,7 @@ Each idea gets turned into a build spec and a step-by-step plan, server-side. Up
 | Platform | Version | Status |
 |---|---|---|
 | Web (PWA) | v2.2.0 | Live |
-| iOS | 1.0 | Submitted — waiting for review |
+| iOS | 1.0 | Submitted: waiting for review |
 | macOS | 1.0.1 | [Live on the Mac App Store](https://apps.apple.com/app/id6785162492) |
 | watchOS | v1.0.0 | Bundled with iOS |
 
@@ -89,14 +89,14 @@ Screenshots ready in `screenshots/ios/` (feed, sign-in, profile, ideas). Metadat
 
 ## Roadmap
 
-**App Store — icons (2026-06-28)**
-- [x] App icon alpha channel stripped (was why ASC showed blank icon — Apple drops icons with alpha); macOS icon set created + wired in project.yml. Use `~/.agents/skills/icon/`.
-- [ ] **Ship fresh iOS + macOS builds** — icons are fixed on disk but ASC only updates the icon from a newly *processed* build. `xcodegen generate` in ios/ and macos/, then archive + upload (`ship` / asc-xcode-build), wait ~5–30 min.
-- [ ] Pick a mononame (rename "Spark Ideas") — cascades into bundle IDs + ASC records, do as its own task
+**App Store, icons (2026-06-28)**
+- [x] App icon alpha channel stripped (was why ASC showed blank icon, Apple drops icons with alpha); macOS icon set created + wired in project.yml. Use `~/.agents/skills/icon/`.
+- [ ] **Ship fresh iOS + macOS builds**, icons are fixed on disk but ASC only updates the icon from a newly *processed* build. `xcodegen generate` in ios/ and macos/, then archive + upload (`ship` / asc-xcode-build), wait ~5–30 min.
+- [ ] Pick a mononame (rename "Spark Ideas"), cascades into bundle IDs + ASC records, do as its own task
 
 **App Store**
-- [ ] Submit iOS to App Store — blocked on Xcode 26 stable (beta SDK rejected by ASC); IPA + ASC record ready
-- [ ] Submit macOS to Mac App Store — widget embed error fixed 2026-07-01 (SparkWidgets appex was missing CFBundleIdentifier; GENERATE_INFOPLIST_FILE now on), build succeeds locally. ASC record created 2026-07-01 (Spark Mac, id 6786482755). Remaining: archive + upload (`asc-xcode-build`)
+- [ ] Submit iOS to App Store, blocked on Xcode 26 stable (beta SDK rejected by ASC); IPA + ASC record ready
+- [ ] Submit macOS to Mac App Store, widget embed error fixed 2026-07-01 (SparkWidgets appex was missing CFBundleIdentifier; GENERATE_INFOPLIST_FILE now on), build succeeds locally. ASC record created 2026-07-01 (Spark Mac, id 6786482755). Remaining: archive + upload (`asc-xcode-build`)
 - [ ] Add marketing landing page at `/landing` (currently feed is the homepage)
 - [ ] 1 more iOS screenshot (post detail with AI enrichment) for 5-screenshot requirement
 
