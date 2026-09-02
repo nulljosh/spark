@@ -4,7 +4,9 @@
 
 ![version](https://img.shields.io/badge/version-v2.2.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fsparkjar-black?logo=github)](https://github.com/nulljosh/sparkjar)
 
-Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Native companions for iOS, macOS, and watchOS.
+A jar of ideas. Post one, vote on others, and every morning a new one shows up on its own.
+
+Each idea gets turned into a build spec and a step-by-step plan, server-side. Upvotes, comments, sign-in. Native apps for iOS, macOS and watchOS.
 
 [Live](https://sparkjar.heyitsmejosh.com)
 
@@ -22,21 +24,21 @@ Idea-sharing platform with upvoting, comments, JWT auth, and AI enrichment. Nati
 
 ## Features
 
-- Vanilla JS -- single `index.html`, no build step
-- JWT auth with sign up, login, biometric (Face ID / Touch ID on iOS)
-- Category filters and Hot/New sorting
-- Single-column feed, one idea at a time, with infinite scroll
-- Upvoting and trending with optimistic UI
-- A new idea every morning, generated server-side on Cloudflare Workers AI
-- Every idea enriched into a build spec and a step-by-step plan
-- Idea Bases: AI-generated idea clusters from a topic
-- Comment threads on posts, markdown export
-- Dark/light theme toggle
-- PWA with offline support
-- Cloudflare Pages Functions + Supabase PostgreSQL (RLS enabled)
-- Responsive grid layout (2-col desktop, 1-col mobile)
-- Post tags (tech, design, business, random) with filter bar
-- Curated seed ideas for new users
+- Plain JS. One `index.html`, no build step
+- Sign up, log in, Face ID or Touch ID on iOS
+- Filter by category. Sort by Hot or New
+- One column, one idea at a time, infinite scroll
+- Upvotes that feel instant
+- A new idea every morning, written on Cloudflare Workers AI
+- Every idea grows a build spec and a plan
+- Idea Bases: clusters of ideas around a topic
+- Comment threads. Markdown export
+- Dark and light
+- Installs as a PWA and works offline
+- Cloudflare Pages Functions and Supabase Postgres with RLS on
+- Two columns on desktop, one on mobile
+- Tags: tech, design, business, random
+- Seeded with good ideas so new users don't land on nothing
 
 ## Run
 
@@ -47,12 +49,11 @@ npm test
 
 Deploy the site: `npm run deploy` (Cloudflare Pages).
 
-The feed generates and enriches itself. `POST /api/ai?type=generate` writes one idea
-to the feed; `POST /api/ai?type=enrich` fills its spec and build plan. Both run on
-Cloudflare Workers AI through the `AI` binding, so there is no API key anywhere.
+The feed feeds itself. `POST /api/ai?type=generate` writes one idea. `POST /api/ai?type=enrich`
+fills in its spec and plan. Both run on Workers AI through the `AI` binding. No API key anywhere.
 
-Pages cannot hold a cron trigger, so the daily 09:00 schedule lives in a sidecar
-Worker that does nothing but call those two endpoints:
+Pages can't hold a cron, so the 09:00 schedule lives in a tiny sidecar Worker whose only
+job is to call those two endpoints:
 
 ```bash
 npx wrangler deploy --config worker/wrangler.jsonc
@@ -78,7 +79,7 @@ alter table users add column if not exists avatar_url text;
 
 ## App Store Submission
 
-ASC app record created (id: 6785162492). IPA built and exported. Upload blocked by Xcode 26 beta SDK — App Store rejects beta builds. Once Xcode 26 stable ships, run:
+The ASC record exists (id 6785162492). The IPA is built and exported. Upload is blocked on the Xcode 26 beta SDK, which the App Store rejects. When Xcode 26 goes stable:
 
 ```bash
 asc builds upload --app 6785162492 --ipa /tmp/SparkExport/Spark.ipa --wait
@@ -135,10 +136,9 @@ MIT 2026 Joshua Trommel
 
 ## API and agent tools
 
-[`docs/API.md`](docs/API.md) documents the HTTP surface (where there is one) and
-the WebMCP tools this app registers on `document.modelContext`, so an in-browser
-agent can drive it. Tools are split into read-only, reversible writes, and the
-few that require human confirmation.
+An agent can drive this app. [`docs/API.md`](docs/API.md) lists the HTTP surface, where there
+is one, and the WebMCP tools registered on `document.modelContext`. Tools come in three kinds:
+read-only, writes you can undo, and the few that ask a human first.
 
 ## Architecture
 
