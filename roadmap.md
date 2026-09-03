@@ -52,9 +52,11 @@ macOS app: fixed three window layout bugs, added `.windowResizability(.contentMi
 
 4. - [x] **App Privacy is published.** VERIFIED 2026-08-31 via `asc web privacy pull --app 6785162492`: EMAIL_ADDRESS, USER_ID, PHOTOS_OR_VIDEOS, OTHER_USER_CONTENT, all APP_FUNCTIONALITY / DATA_LINKED_TO_YOU, published:true. No further action needed.
 
-5. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). iPad screenshots missing (app is universal; Apple requires them). No Snapfile/Fastfile wired up.
+5. - [x] **App icon redesigned.** FIXED 2026-09-02. Replaced lightbulb (too similar to Nimble) with jar + amber spark on dark brown (#271614). SVG source added (icon.svg), PWA icons (icon-192.svg, icon-512.svg) synced, build script (scripts/make-appicon.sh) updated with new palette. README and landing page match the app icon. Deployed to Cloudflare Pages.
 
-6. **macOS detail pane renders no body text**: selecting an idea shows category, AI Enhanced badge, title, author, then a divider and the vote/Export row with the entire body missing between them. Web app shows the full body and spec for the same post, so the bug is in `Views/PostDetailView.swift`, not the API. Matters because the screenshot now on the landing page and README shows this empty pane. The other four window bugs (contentMinSize, navigation title rename to "Sparkjar", auto-select top idea on open) are fixed.
+6. **Only 1 of 4 iOS screenshots exist** (`screenshots/ios/01-feed-6.7.png`). iPad screenshots missing (app is universal; Apple requires them). No Snapfile/Fastfile wired up.
+
+7. **macOS detail pane renders no body text**: selecting an idea shows category, AI Enhanced badge, title, author, then a divider and the vote/Export row with the entire body missing between them. Web app shows the full body and spec for the same post, so the bug is in `Views/PostDetailView.swift`, not the API. Matters because the screenshot now on the landing page and README shows this empty pane. The other four window bugs (contentMinSize, navigation title rename to "Sparkjar", auto-select top idea on open) are fixed.
 
 - [ ] Screenshot iPad with appstore-screenshots skill.
 - [ ] Fix PostDetailView.swift to display body text on macOS.
