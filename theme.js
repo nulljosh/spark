@@ -17,7 +17,6 @@
 
     var KEY = 'spark_theme';
     var LEGACY_KEY = 'theme';       // user.html's old key, migrated on first read
-    var DEFAULT = 'dark';           // Sparkjar is dark-first: an unset preference stays dark
     var MOON = '&#9790;';
     var SUN = '&#9728;';
     var BAR = { dark: '#111111', light: '#fafafa' };
@@ -43,7 +42,8 @@
 
     function resolve() {
         var stored = readStored();
-        return (stored === 'dark' || stored === 'light') ? stored : DEFAULT;
+        if (stored === 'dark' || stored === 'light') return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     var current = resolve();
