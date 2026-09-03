@@ -4,7 +4,7 @@
 # for macOS/watchOS sizes. Mirrors nulljosh.github.io/scripts/make-appicon.sh.
 set -e
 cd "$(dirname "$0")/.."
-BG="#0c1220"
+BG="#271614"
 MASTER="/tmp/spark-icon-1024.png"
 rsvg-convert -w 1024 -h 1024 icon.svg | magick - -background "$BG" -alpha remove -alpha off "$MASTER"
 sips -g pixelWidth -g pixelHeight -g hasAlpha "$MASTER" | grep -q 'hasAlpha: no'
