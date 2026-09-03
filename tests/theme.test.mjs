@@ -39,7 +39,7 @@ function load({ stored = {}, nodes = {}, readyState = 'complete' } = {}) {
         querySelectorAll: sel => nodes[sel] || [],
         addEventListener: (type, fn) => { (document.handlers[type] ||= []).push(fn); }
     };
-    const window = { addEventListener: (type, fn) => { (window.handlers[type] ||= []).push(fn); }, handlers: {} };
+    const window = { addEventListener: (type, fn) => { (window.handlers[type] ||= []).push(fn); }, handlers: {}, matchMedia: () => ({ matches: true, addEventListener() {} }) };
     new Function('window', 'document', 'localStorage', SOURCE)(window, document, localStorage);
     return { window, document, root, store };
 }
@@ -142,7 +142,7 @@ describe('theme.js', () => {
             documentElement: root, readyState: 'complete', handlers: {},
             querySelectorAll: () => [], addEventListener: () => {}
         };
-        const window = { addEventListener: () => {}, handlers: {} };
+        const window = { addEventListener: () => {}, handlers: {}, matchMedia: () => ({ matches: true, addEventListener() {} }) };
         const hostile = {
             getItem: () => { throw new Error('denied'); },
             setItem: () => { throw new Error('denied'); },
