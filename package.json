@@ -2,6 +2,7 @@
   "name": "sparkjar",
   "version": "2.2.0",
   "description": "Idea-sharing platform with filters, voting, auth",
+  "keywords": ["idea-sharing", "voting", "forum"],
   "main": "index.html",
   "scripts": {
     "test": "vitest run",
