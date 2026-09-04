@@ -2,6 +2,6 @@
   <rect width="1024" height="1024" rx="224" fill="#271614"/>
   <rect x="372" y="300" width="280" height="90" rx="30" fill="#fff"/>
   <rect x="282" y="380" width="461" height="521" rx="80" fill="#fff"/>
-  <path d="M512 520 L540 615 L635 645 L540 675 L512 770 L484 675 L389 645 L484 615 Z" fill="#ffb02e"/>
-  <path d="M655 480 L667 516 L703 528 L667 540 L655 576 L643 540 L607 528 L643 516 Z" fill="#ffb02e"/>
+  <path d="M512 520 L540 615 L635 645 L540 675 L512 770 L484 675 L389 645 L484 615 Z" fill="#01FF70"/>
+  <path d="M655 480 L667 516 L703 528 L667 540 L655 576 L643 540 L607 528 L643 516 Z" fill="#01FF70"/>
 </svg>
