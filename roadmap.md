@@ -62,7 +62,6 @@ macOS app: fixed three window layout bugs, added `.windowResizability(.contentMi
 7. **macOS detail pane renders no body text**: selecting an idea shows category, AI Enhanced badge, title, author, then a divider and the vote/Export row with the entire body missing between them. Web app shows the full body and spec for the same post, so the bug is in `Views/PostDetailView.swift`, not the API. Matters because the screenshot now on the landing page and README shows this empty pane. The other four window bugs (contentMinSize, navigation title rename to "Sparkjar", auto-select top idea on open) are fixed.
 
 - [ ] Screenshot iPad with appstore-screenshots skill.
-- [x] Fix PostDetailView.swift to display body text on macOS (fixed 2026-08-31, single-post endpoint serves content; verified 2026-09-06).
 - [ ] Resubmit iOS when/if the 4.3(a) appeal is denied. macOS 1.0.1 ships as-is.
 
 ## Done 2026-08-27, iOS 1.0 rejected (4.3a Spam), appeal DRAFTED not yet filed
