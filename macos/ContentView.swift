@@ -21,10 +21,12 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @State private var selectedItem: SidebarItem = .feed
+    // ponytail: `-detailOnly` launch arg hides the sidebar for landing-page screenshots
+    @State private var columns: NavigationSplitViewVisibility = ProcessInfo.processInfo.arguments.contains("-detailOnly") ? .detailOnly : .all
 
     var body: some View {
         @Bindable var appState = appState
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columns) {
             List(SidebarItem.allCases, selection: $selectedItem) { item in
                 Label(item.rawValue, systemImage: item.icon)
                     .tag(item)

@@ -12,6 +12,7 @@ struct SparkApp: App {
                 // post detail 320. The old 700 let the window shrink below what the
                 // panes need, which is how content ended up clipped off both edges.
                 .frame(minWidth: 820, minHeight: 520)
+                .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("-dark") ? .dark : nil)
                 .shareApp("https://sparkjar.heyitsmejosh.com")
         }
         .windowStyle(.titleBar)
