@@ -1,5 +1,8 @@
 # Sparkjar Roadmap
 
+## 2026-09-06, iOS 1.0 4.3(a) reply filed (headless)
+Hold lifted: email works since 09-02 and macOS 1.0.1 is live. Posted the 4.3(a) reply via iris Resolution Center endpoints (see memory `asc-resolution-center-headless`). Do not resubmit; wait for Apple.
+
 ## Email, wired end to end 2026-08-31, waiting on Resend's verification
 
 Root cause of "email has never worked" was not only the dead key: the sending domain
