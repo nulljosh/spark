@@ -101,7 +101,7 @@ Both platforms now carry a build newer than the 2026-08-18 auth fixes and valida
 `asc validate` returns **0 errors / 0 blocking** on iOS and macOS (1 warning, 1 info each).
 App Privacy is published. Nothing is queued for review.
 
-- [ ] Subtitle is empty for en-US on both platforms (`metadata.required.subtitle`,
+- [x] Subtitle set on the editable app info, en-US: "Share ideas, vote the best up" (verified 2026-09-06). Original note: subtitle was empty (`metadata.required.subtitle`,
       Triaged 2026-08-27: subtitle lives on the **app-info** localization, and the editable
       app info is `2a819c45-9f49-434c-ad0b-bdc0710b590d` (WAITING_FOR_REVIEW); `a722740e-…` is the
       live one and is read-only. There is no one-shot `asc` flag for it, it goes through the
@@ -349,7 +349,7 @@ Not bugs, listed so they don't get re-flagged: `lexly/vercel.json:3` redirects *
 
 ## Aug 18 readiness, VERIFIED 2026-08-17
 Both version rows are `1.0 PREPARE_FOR_SUBMISSION` (iOS `14770136-f866-42b4-850b-eef60edc51e7`, macOS `9a2a36d5-5358-425d-a659-015c3f3bc840`) with the 08-12 builds attached. `asc validate` now returns **0 errors / 0 blocking on both platforms**.
-- [ ] Subtitle is empty (`appInfoLocalization:ab98bc13-46ae-4169-bc11-2de1b46a697b`, en-US), non-blocking warning on both platforms, but it is store-facing ASO copy. Needs Joshua's wording.
+- [x] Subtitle set, see above (2026-09-06).
 - [ ] App Privacy publish state is not verifiable via the public API (info-level on both platforms). Confirm published at appstoreconnect.apple.com/apps/6785162492/appPrivacy before submitting, needs `asc-login` / dashboard.
 - [ ] **On/after 2026-08-18, submission is one command per platform**, nothing else is outstanding. Do NOT run `asc workflow run ship-ios`/`ship-mac` for this: both workflows' `publish` step carries `--submit`, and they would also cut a pointless new build. The staged 08-12 builds are the ones to ship.
 
