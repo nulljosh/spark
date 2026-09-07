@@ -51,7 +51,7 @@ macOS app: fixed three window layout bugs, added `.windowResizability(.contentMi
 
 2. - [x] **RESEND_API_KEY was dead** (rotated 2026-05-02). FIXED 2026-08-31, new key `sparkjar-2026-08` minted, domain added to Resend, DNS records created in Cloudflare, `RESEND_API_KEY` and `MAIL_FROM` set on the Pages project. Resend verification is async and still pending; when it flips, password reset works with no code change. Password reset endpoint now returns the real send result (200 on success, 503 on genuine failure).
 
-3. **Stripe is unconfigured** (`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID` all missing). Pro unlock gate does not function.
+3. ~~Stripe is unconfigured~~ Wired 2026-09-06: all three secrets set on Pages, webhook recreated, probes healthy.
 
 4. - [x] **App Privacy is published.** VERIFIED 2026-08-31 via `asc web privacy pull --app 6785162492`: EMAIL_ADDRESS, USER_ID, PHOTOS_OR_VIDEOS, OTHER_USER_CONTENT, all APP_FUNCTIONALITY / DATA_LINKED_TO_YOU, published:true. No further action needed.
 
@@ -602,11 +602,6 @@ interactive login and is a dead end in a non-interactive shell. Note
 exactly two projects on the free tier and it is easy to grab the wrong one.
 
 ### Still open after the cutover
-- [ ] **Stripe is not configured at all**, so the webhook repoint is moot until it
-      is. No `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID`
-      exists on this machine or in Pages secrets. When Stripe is set up, the
-      webhook URL must point at `https://sparkjar.heyitsmejosh.com/api/stripe-webhook`
-      or Pro unlocks will not land. Needs Joshua (Stripe dashboard).
 - [ ] The daemon (`daemon/spark-daemon.js`) posts to the live host and needs
       `SPARK_DAEMON_SECRET`, which is not set in Pages secrets, the daemon will
       fail to authenticate until it is. Value unknown, needs Joshua.
@@ -672,8 +667,6 @@ script, or migration that reads `epiphany/.env.tui.local` is using dead credenti
 epiphany's live Stripe + mail before assuming they work.
 
 - [ ] Regenerate the Resend key (resend.com/api-keys), Chrome approved for this specific task
-- [ ] Regenerate/retrieve the Stripe secret key (dashboard.stripe.com/apikeys), NOT yet approved
-      for Chrome; ask first. Needed before Spark Pro can be provisioned at all.
 - [ ] Then resume the approved plan: product + $1 price + webhook endpoint, three secrets to
       Cloudflare Pages, verify checkout returns a real session URL.
 
