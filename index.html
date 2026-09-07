@@ -88,6 +88,9 @@
   /* web capture has no status bar, so give the island a strip to sit on */
   .shot-grid .device-iphone .device-screen { padding-top: calc(var(--device-w) * 0.14); background: var(--bg); }
   .shot-grid .device-mac { --device-w: 620px; margin: 0; }
+  /* one frame per device: the phone on phones, the Mac window on desktops */
+  .shot-grid .device-iphone { display: none; }
+  @media (max-width: 800px) { .shot-grid .device-iphone { display: block; } .shot-grid .device-mac { display: none; } }
   /* live app in the frames: render at native width, scale down to the device */
   .shot-grid .device-screen { aspect-ratio: 9 / 19.5; }
   .shot-grid .device-mac .device-screen { aspect-ratio: 1024 / 700; }
