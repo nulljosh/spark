@@ -93,10 +93,10 @@
   .shot-grid .device-mac .device-screen { aspect-ratio: 1280 / 820; }
   .shot-grid .device-screen iframe {
     position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; display: block;
-    width: 390px; height: calc(390px * 19.5 / 9); transform: scale(calc((var(--device-w) * 0.936 - 6px) / 390));
+    width: 390px; height: 845px;
   }
   .shot-grid .device-iphone .device-screen iframe { top: calc(var(--device-w) * 0.14); }
-  .shot-grid .device-mac .device-screen iframe { width: 1280px; height: 820px; transform: scale(calc(var(--device-w) / 1280)); }
+  .shot-grid .device-mac .device-screen iframe { width: 1280px; height: 820px; }
   .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); margin: 0 0 2rem; }
   .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
@@ -241,6 +241,19 @@
   <div class="device device-mac" data-title="Sparkjar"><div class="device-screen"><iframe src="/app.html" title="Sparkjar on a desktop, live" loading="lazy"></iframe></div></div>
   </div>
 </section>
+
+<script>
+// Scale each live iframe to its device screen. CSS can't divide a length by a number
+// into a unitless scale, so this is the one place it has to be JS.
+(function () {
+  function fit() {
+    document.querySelectorAll('.shot-grid .device-screen iframe').forEach(function (f) {
+      f.style.transform = 'scale(' + (f.parentNode.clientWidth / f.offsetWidth) + ')';
+    });
+  }
+  fit(); addEventListener('resize', fit);
+})();
+</script>
 
 <section id="how">
   <div class="how-inner">
