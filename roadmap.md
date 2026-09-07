@@ -1,5 +1,14 @@
 # Sparkjar Roadmap
 
+## 2026-09-06, feed seeded with 12 hand-written ideas + AI enrichment
+
+Posted 12 ideas as user "josh" (password in macOS Keychain), each enriched with spec + plan via Workers AI:
+Tripwire for App Store review, furnish-an-apartment from Craigslist, breathe-to-dream-journal handoff, feng shui listing score, etymology language learning, daily security kata, lost-pet sightings from classifieds, "have I written this before" browser button, embeddable calculators, pizza price index, FOI response decoder, branded auth emails worker.
+
+**Open item:** AI feed's daily generate prompt is producing near-duplicates; five days running of "shared household X" variants. Fix: pass the last 20 idea titles into the prompt as an avoid-list to reduce repetition.
+
+- [ ] Implement avoid-list in `api/ai.js` generate endpoint to reduce duplicates in daily generation
+
 ## 2026-09-06, iOS 1.0 4.3(a) reply filed (headless)
 Hold lifted: email works since 09-02 and macOS 1.0.1 is live. Posted the 4.3(a) reply via iris Resolution Center endpoints (see memory `asc-resolution-center-headless`). Do not resubmit; wait for Apple.
 
