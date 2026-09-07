@@ -292,8 +292,8 @@
                     <button class="filter-btn" onclick="filterByCategory('sustainability', event)">Sustainability</button>
                 </div>
                 <div class="sort-group">
-                    <button class="sort-btn" onclick="setSortMode('new', event)">New</button>
-                    <button class="sort-btn active" onclick="setSortMode('trending', event)">Trending</button>
+                    <button class="sort-btn active" onclick="setSortMode('new', event)">New</button>
+                    <button class="sort-btn" onclick="setSortMode('trending', event)">Trending</button>
                 </div>
             </div>
             <div class="tag-filters">
@@ -637,7 +637,7 @@
                 <div class="idea" data-tags="${escapeHtml(tags.join(','))}" onclick="toggleComments('${p.id}', event)">
                     <div class="idea-meta">
                         <span>${escapeHtml(p.category).toUpperCase()} &bull; @${escapeHtml(p.author?.username || 'unknown')}${aiBadge}${dateTimeDisplay}</span>
-                        <span class="comment-count" id="count-${p.id}">${commentCount} comment${commentCount !== 1 ? 's' : ''}</span>
+                        <span class="comment-count" id="count-${p.id}">${commentLabel(commentCount)}</span>
                     </div>
                     ${tagsHtml}
                     <h3>${escapeHtml(p.title)}</h3>
@@ -730,7 +730,7 @@
                     posts.sort((a, b) => {
                         const hoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / 3600000);
                         const hoursB = Math.max(1, (now - new Date(b.createdAt).getTime()) / 3600000);
-                        return ((b.score || 0) / Math.pow(hoursB, 1.5)) - ((a.score || 0) / Math.pow(hoursA, 1.5));
+                        return ((b.score || 0) / Math.pow(hoursB, 1.5)) - ((a.score || 0) / Math.pow(hoursA, 1.5)) || (hoursA - hoursB);
                     });
                 }
                 
@@ -837,7 +837,7 @@
         // Filter and sort state
         window.currentFilter = 'all';
         window.currentTagFilter = 'all';
-        window.sortMode = 'trending';
+        window.sortMode = 'new';
 
         function filterByCategory(cat, e) {
             window.currentFilter = cat;
@@ -910,6 +910,7 @@
         }
 
         // Comments
+        function commentLabel(n) { return n ? n + ' comment' + (n !== 1 ? 's' : '') : ''; }
         window.commentCounts = {};
 
         async function loadCommentCounts(postIds) {
@@ -921,7 +922,7 @@
                     for (const id of postIds) {
                         const el = document.getElementById('count-' + id);
                         const n = data.counts[id] || 0;
-                        if (el) el.textContent = n + ' comment' + (n !== 1 ? 's' : '');
+                        if (el) el.textContent = commentLabel(n);
                     }
                 }
             } catch {}
@@ -996,7 +997,7 @@
                     const cur = window.commentCounts[postId] || 0;
                     window.commentCounts[postId] = cur + 1;
                     const n = cur + 1;
-                    countEl.textContent = n + ' comment' + (n !== 1 ? 's' : '');
+                    countEl.textContent = commentLabel(n);
                 }
             } catch (e) { alert('Network error: ' + e.message); }
             finally { input.disabled = false; }
