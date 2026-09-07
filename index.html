@@ -90,13 +90,13 @@
   .shot-grid .device-mac { --device-w: 460px; margin: 0; }
   /* live app in the frames: render at native width, scale down to the device */
   .shot-grid .device-screen { aspect-ratio: 9 / 19.5; }
-  .shot-grid .device-mac .device-screen { aspect-ratio: 1280 / 820; }
+  .shot-grid .device-mac .device-screen { aspect-ratio: 1024 / 700; }
   .shot-grid .device-screen iframe {
     position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; display: block;
     width: 390px; height: 845px;
   }
   .shot-grid .device-iphone .device-screen iframe { top: calc(var(--device-w) * 0.14); }
-  .shot-grid .device-mac .device-screen iframe { width: 1280px; height: 820px; }
+  .shot-grid .device-mac .device-screen iframe { width: 1024px; height: 700px; }
   .hero h1 { font-size: clamp(2.75rem, 5.5vw, 4.25rem); line-height: 1.05; margin-bottom: 1.25rem; }
   .hero p { font-size: 1.125rem; line-height: 1.6; color: var(--text2); margin: 0 0 2rem; }
   .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
